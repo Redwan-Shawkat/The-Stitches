@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "linux-the-uninstaller"
+version = "0.1.0"
+description = "Finds and removes Linux software regardless of how it was installed: apt/.deb, Snap, Flatpak, or Wine."
+requires-python = ">=3.10"
+# No pip dependencies on purpose: PyGObject/GTK3 ships with the OS on any
+# Ubuntu/GNOME desktop. See documents/ai-knowledgebase.md.
+dependencies = []
+
+[project.scripts]
+linux-the-uninstaller = "uninstaller.gui:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

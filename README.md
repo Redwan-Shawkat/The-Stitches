@@ -1,0 +1,122 @@
+# Linux the Uninstaller
+
+Windows has Revo, IObit, Geek Uninstaller — a whole category of tools that
+find installed software no matter how it got there, and scrub the leftovers
+behind it. Ubuntu/Debian-based Linux doesn't: the built-in app store only
+manages what it installed itself. Anything you `apt install`ed, grabbed as a
+`.deb` from a browser, added via Snap or Flatpak outside the store UI, or
+run through Wine is invisible to it.
+
+This is one list for all of it — tagged by how it got onto your system,
+tagged Safe/Caution/Critical to remove in plain language, with bulk
+uninstall and leftover-file cleanup.
+
+![Main window mockup](screenshots/main-window-mockup.png)
+*(Hand-drawn mockup of the layout, not a live screenshot — see
+[Screenshots](#screenshots) below.)*
+
+## What it detects
+
+| Tag | What it means |
+|---|---|
+| **Terminal / .deb** | Installed with `apt install` or a downloaded `.deb` (`dpkg -i`). |
+| **Snap Store** | Installed as a Snap. |
+| **Flatpak** | Installed as a Flatpak. |
+| **Wine (Windows app)** | A Windows program installed into a Wine prefix. |
+
+Each item is also rated:
+
+- 🟢 **Safe** — a standalone app; removing it only removes that app.
+- 🟡 **Caution** — other apps or your desktop may depend on this; read the
+  reason shown before removing.
+- 🔴 **Critical** — a core OS/desktop component (tagged **System**); never
+  pre-selected by "Select All".
+
+Full requirements: [documents/SRS.md](documents/SRS.md). Design decisions
+and why: [documents/ai-knowledgebase.md](documents/ai-knowledgebase.md).
+
+## Installation
+
+**Requirements:** Ubuntu or another Debian-based Linux distribution, with a
+desktop (GTK3) and `git`.
+
+1. **Clone the repo**
+   ```bash
+   git clone <this-repo-url>
+   cd Linux-the-Uninstaller
+   ```
+2. **Run the installer**
+   ```bash
+   ./install.sh
+   ```
+   This installs `python3-gi`/`gir1.2-gtk-3.0` via `apt` only if they're
+   missing (a stock Ubuntu desktop already has them — no pip, no venv, see
+   [ai-knowledgebase.md](documents/ai-knowledgebase.md#stack-choice) for
+   why), copies the app to `~/.local/lib/linux-the-uninstaller`, and adds:
+   - a `linux-the-uninstaller` command in `~/.local/bin`
+   - an entry in your application menu (**The Uninstaller**)
+3. **Open a new terminal** (only needed the first time, so `~/.local/bin`
+   is on `PATH`) and run:
+   ```bash
+   linux-the-uninstaller
+   ```
+   — or launch it from your application menu instead.
+
+Re-run `./install.sh` any time after a `git pull` to update. To remove
+everything it placed: `./uninstall.sh`.
+
+**Don't want to install anything?** Run it straight from the checkout:
+```bash
+PYTHONPATH=src python3 -m uninstaller
+```
+
+### First run
+
+The app only scans (read-only) until you check items and click **Uninstall
+Selected**, which always shows a confirmation first. Removing an apt or
+Snap package prompts for your password via the desktop's normal
+authorization dialog (`pkexec`) — this app never asks for a password
+itself.
+
+A spinner and "Scanning for installed software…" show while it's finding
+apps; uninstalling shows a progress bar (green on success, red on failure)
+naming the app currently being removed. The 🌙/☀ button in the toolbar
+switches light/dark mode.
+
+## Build
+
+This is a Python app — "build" means packaging it, not compiling it.
+`install.sh` (above) is the supported way to get it onto a machine.
+
+A real `.deb`/Flatpak release package (so it shows up in Software Center
+style tools, has a version, can be `apt remove`d) is tracked as future work
+in [documents/features.md](documents/features.md) — `install.sh` covers
+"get it running" but isn't that.
+
+## Test
+
+```bash
+python3 tests/test_core.py     # or: pytest tests/
+```
+
+Covers every parser (dpkg/snap/flatpak/Wine registry) and the risk
+classifier with plain asserts — no live system state required.
+
+## Screenshots
+
+The image above is a mockup, not a live screenshot: this repo was put
+together in a sandboxed environment where GNOME's screenshot D-Bus API
+(`org.gnome.Shell.Screenshot`) refuses non-interactive callers, and the
+`xdg-desktop-portal` equivalent needs a human to click through it. Run the
+app on your own desktop and drop a real screenshot in `screenshots/` —
+happy to update this README to reference it.
+
+## Safety notes
+
+- Uninstalling always shows a confirmation listing exactly what's selected
+  and its risk level; Critical/System items require an extra explicit
+  checkbox before the Uninstall button unlocks.
+- "Select All" never selects Critical/System items — pick those one at a
+  time if you really mean it.
+- Leftover files are shown and opt-in before deletion, never removed
+  silently.
