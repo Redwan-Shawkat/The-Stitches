@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The same two curves as the Linux build's src/uninstaller/icon.svg: a
+     normal "A" crossed with its own 180-degree-rotated twin. Android's vector
+     drawable format takes SVG path data verbatim, so the artwork is ported by
+     copying the `d` attributes — no rasteriser, no generator script and no
+     committed bitmaps, which is what the Windows build needed for its .ico.
+
+     The group scales the 100x100 SVG viewBox into the 108x108 adaptive-icon
+     canvas so the ink lands inside the central safe zone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="1.035"
+        android:scaleY="1.035"
+        android:translateX="2.25"
+        android:translateY="2.25">
+        <path
+            android:pathData="M 22,78 C 34,50 38,38 50,20 C 62,38 66,50 78,78"
+            android:strokeColor="#E5E7EB"
+            android:strokeWidth="7"
+            android:strokeLineCap="round" />
+        <path
+            android:pathData="M 22,22 C 34,50 38,62 50,80 C 62,62 66,50 78,22"
+            android:strokeColor="#E5E7EB"
+            android:strokeWidth="7"
+            android:strokeLineCap="round" />
+    </group>
+</vector>

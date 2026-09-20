@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand">#1F2937</color>
+    <color name="icon_background">#1F2937</color>
+    <!-- One set of risk colours for both themes: each is picked to stay
+         legible on the light and the dark surface, so the manual light/dark
+         toggle doesn't need a second palette the way the Windows build did. -->
+    <color name="risk_safe">#2E9E4F</color>
+    <color name="risk_caution">#D08700</color>
+    <color name="risk_critical">#E05252</color>
+    <color name="banner_background">#FFF3CD</color>
+    <color name="banner_text">#5C4400</color>
+</resources>

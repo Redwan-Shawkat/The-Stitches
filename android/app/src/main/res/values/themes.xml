@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Platform Material, not the AndroidX Material Components library: the
+         app pulls in no UI dependency at all. See ai-knowledgebase.md. -->
+    <style name="Theme.Uninstaller.Light" parent="@android:style/Theme.Material.Light.DarkActionBar">
+        <item name="android:colorPrimary">@color/brand</item>
+        <item name="android:colorAccent">@color/brand</item>
+    </style>
+
+    <style name="Theme.Uninstaller.Dark" parent="@android:style/Theme.Material">
+        <item name="android:colorPrimary">@color/brand</item>
+        <item name="android:colorAccent">#9CB3D0</item>
+    </style>
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">The Uninstaller</string>
+    <string name="search_hint">Search installed apps</string>
+    <string name="scanning">Scanning for installed software…</string>
+    <string name="select_all">Select All</string>
+    <string name="select_none">None</string>
+    <string name="uninstall_selected">Uninstall Selected</string>
+    <string name="all_sources">All sources</string>
+</resources>
