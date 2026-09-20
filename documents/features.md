@@ -123,10 +123,68 @@ leaves. Design decisions in
 - [ ] Code signing for the `.exe` and `.msi` — unsigned builds raise a
       SmartScreen warning on first run. Needs a certificate, not code.
 
+## Done — Android (`android/`)
+
+The Android build: same architecture, same feature set, platform-specific
+leaves. Design decisions in
+[ai-knowledgebase.md](ai-knowledgebase.md#android-port-android).
+
+- [x] PackageManager backend — every installed package, with the installer
+      that put it there; one scan, not one query per source, because Android
+      keeps a single register.
+- [x] Source tags from the recorded installing package — Play Store,
+      F-Droid, other app store (named), sideloaded APK, preinstalled.
+- [x] Risk classifier (Safe / Caution / Critical) with a one-line plain-text
+      reason per item. Three signals are authoritative rather than guessed:
+      the default launcher, active device admins, and the active keyboard.
+- [x] Real app sizes via `StorageStatsManager` when usage access is granted,
+      falling back to the APK's own size when it isn't.
+- [x] Leftover scan — matches app name, package name and the package's last
+      segment against shared storage, `Download`, `Android/data` and
+      `Android/obb`; the user's media folders are never scanned.
+- [x] Removal through the system's own uninstall dialog, one app at a time,
+      with the result read back from the package manager rather than from
+      the activity result code.
+- [x] Preinstalled apps open App Info instead, where Disable and Uninstall
+      updates live; a disable is reported as such and isn't counted as space
+      freed.
+- [x] Platform-widget GUI (no AndroidX, no Material Components, no Compose):
+      list with source/risk/size per row, checkbox bulk select, search,
+      source filter, confirm-before-uninstall dialog with a Critical
+      acknowledgement, leftover cleanup dialog, scan and removal progress.
+- [x] Light/dark toggle (two platform Material themes, one risk palette that
+      reads on both).
+- [x] App icon as a vector drawable carrying the Linux build's `icon.svg`
+      path data verbatim — adaptive on API 26+, plain vector below it. No
+      rasteriser, no generator script, no committed bitmaps.
+- [x] `.apk` release build — `build-apk.sh` runs the tests, builds through
+      Gradle with R8 shrinking, and signs with a locally generated key if
+      there isn't one. ~57 KB.
+- [x] `android-build.yml` — tests, builds and signs on a Linux runner with
+      the repository's key, with checksums, and attaches the APK to a `v*`
+      tag's release.
+
+## Planned — Android (`android/`)
+
+- [ ] Split the leftover scan by confidence. A folder named exactly after the
+      package is certain; a fuzzy name match on a top-level folder is a
+      guess, and the dialog currently pre-checks both alike.
+- [ ] Cache-only cleanup for apps you're keeping (`StorageStats` already
+      reports cache bytes per app; clearing it needs no uninstall).
+- [ ] Batch removal without a dialog per app. Only a device owner or a
+      privileged app can do this, so it needs a `dpm set-device-owner` or
+      Shizuku path — a different trust model, not a code change.
+- [ ] Play-flavoured build. Needs `QUERY_ALL_PACKAGES` approval or a
+      declared `<queries>` list, which would cut the app list down to
+      whatever was declared ahead of time.
+
 ## Out of scope (v0.1)
 
 - Bare executables installed with no package manager involvement at all
   (nothing to detect them by) — on Windows, that also covers portable
   apps unzipped into a folder, and `winget`, which is not a separate
   source at all (see ai-knowledgebase.md).
+- Rooted-device operations on Android (`pm uninstall --user 0`, removing a
+  system app outright). Android's own limits are the safety model this app
+  works inside, not an obstacle to route around.
 - Auto-update / telemetry / background scanning daemon.

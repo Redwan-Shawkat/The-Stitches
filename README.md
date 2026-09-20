@@ -40,6 +40,11 @@ Microsoft Store apps in the same list, and it can't see Chocolatey or Scoop
 at all. The Windows build lives in [windows/](windows/) and ships as an
 `.exe` and an `.msi`.
 
+**On Android?** Settings lists your apps but never says where any of them
+came from, removes them one at a time, and leaves behind whatever an app
+wrote to your storage. The Android build lives in [android/](android/) and
+ships as an `.apk`.
+
 ## Installation
 
 **Requirements:** Ubuntu or another Debian-based Linux distribution with a

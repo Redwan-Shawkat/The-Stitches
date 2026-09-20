@@ -565,3 +565,257 @@ PyInstaller runs the entry script as `__main__`, not as `uninstaller.__main__`,
 so the package's relative imports have no package to resolve against and the
 build fails at startup. `run.py` is a three-line absolute-import shim. The
 `__main__.py` beside it stays for `python -m uninstaller` from a checkout.
+
+---
+
+# Android port (`android/`)
+
+## A third sibling tree, and the one place the shape breaks
+
+Same reasoning as `windows/`: a parallel tree, not a cross-platform layer.
+`Models.kt`, `Risk.kt`, `Leftovers.kt`, `Scanner.kt` and `Uninstaller.kt` are
+the same five responsibilities under the same five names, so a reader who
+knows either of the other builds knows this one.
+
+The one deliberate break is `backends/`. Linux and Windows each have four
+*separate places* software can hide, which is what earns a directory of
+backends and a `Backend` protocol over them. Android has exactly one register
+of installed software; "Play Store" and "sideloaded APK" are not two places to
+look, they are two values of one field on the same row. A `backends/`
+directory here would hold one file, and `base.py`'s own comment says why that
+would be wrong — no interface for a single implementation. So `Scanner.kt`
+does the PackageManager calls directly and `Sources.kt` holds the pure
+field-to-tag mapping.
+
+`App` also drops the `extra` map the other two carry. There, an uninstall
+needs a Wine prefix or a registry uninstall string to travel with the row.
+Here a package name is the whole handle, so the map would always be empty.
+
+## Kotlin, and the platform's own widgets: no AndroidX, no Compose
+
+Third rung of the same ladder. GTK3 was already on every Ubuntu desktop;
+tkinter was already in Python on Windows; `android.widget` is already in every
+Android device's system image. The app declares **no** Android library
+dependencies — no AndroidX, no Material Components, no Compose, no
+RecyclerView. `Activity`, `ListView`, `BaseAdapter`, `AlertDialog`,
+`ProgressBar` and `@android:style/Theme.Material` are all framework classes
+that cost nothing to ship.
+
+The release APK is **57 KB**. A stock Compose or Material-Components app of
+the same scope is comfortably two orders of magnitude larger, essentially all
+of it a UI toolkit being redistributed to a device that already has one. For
+a tool whose pitch is cleaning junk off your phone, that number is part of the
+argument.
+
+Kotlin rather than Java, despite Java needing no Gradle plugin: the data
+classes, enums with fields, and `when` expressions map one-to-one onto the
+Python `dataclass`/`Enum`/early-return structure the other two builds use, so
+the shared shape survives. In Java the same five files would be roughly twice
+the length and would stop looking like their siblings.
+
+What the no-library choice costs, and what was done about it:
+
+- **No `RecyclerView`.** `ListView` + `BaseAdapter` with the standard
+  `convertView` recycling. Marked as fine at this scale — a phone has a few
+  hundred packages, not a few hundred thousand.
+- **No `ActivityResultLauncher`.** The uninstall flow uses
+  `startActivityForResult`/`onActivityResult`, which are deprecated but are
+  framework methods; the replacement lives in AndroidX and would be the
+  app's only reason to depend on it.
+- **No `DayNight` theme with automatic following.** Two platform Material
+  themes and `recreate()` on toggle, matching the Linux and Windows builds'
+  explicit 🌙/☀ control. The risk colours are picked to read on both
+  surfaces, so unlike the Windows build there's only one palette.
+
+## The gap here is a different shape, and the docs say so
+
+On Linux the app store genuinely cannot see a `.deb` you installed; on Windows
+Apps & Features genuinely cannot see Scoop. Android Settings *does* list every
+installed app, so claiming otherwise would be marketing. What it doesn't do:
+say where any app came from (you'd open each app's page and scroll), remove
+more than one at a time, warn you that the thing you're removing is your
+keyboard, or clean up the folder an app left at the top of your storage. That
+is the honest pitch and it's what `android/README.md` leads with.
+
+## Five sources out of one field
+
+`PackageManager.getInstallSourceInfo()` (`getInstallerPackageName()` below
+API 30) returns the package that performed the install, and every tag is
+derived from it:
+
+| Source | Installing package |
+|---|---|
+| Play Store | `com.android.vending` |
+| F-Droid | `org.fdroid.fdroid` and friends |
+| Other app store | anything else that isn't a system installer |
+| Sideloaded APK | the system installer UI, `com.android.shell`, or nothing |
+| Preinstalled | — decided by `FLAG_SYSTEM`, which wins over the installer |
+
+Two decisions worth keeping:
+
+- **An unrecognised installer is a store, not a sideload.** The naive
+  mapping — a known list, everything else "sideloaded" — would mislabel every
+  vendor store on the market, and the list of those is unbounded. So the
+  fallback is `OTHER_STORE` and the installing package name is shown
+  verbatim, which degrades into useful information instead of a wrong tag.
+- **`FLAG_SYSTEM` wins.** A preinstalled app sometimes carries Play as its
+  installer because Play updated it. "It shipped with the device" is the fact
+  that decides what can be done with it, so it takes precedence.
+
+`winget`'s absence has no analogue here: there is no second register that
+would double-list anything.
+
+## Privilege escalation: the system's own uninstall dialog
+
+CLAUDE.md's non-negotiable, in its Android form, and the one platform where it
+costs no code at all. There is no API for a normal app to remove another app.
+`Intent.ACTION_DELETE` asks the system to do it, and the system draws its own
+confirmation under its own identity. `pkexec` and `ShellExecuteEx`/`runas`
+were both work; here the rail is the only thing that exists.
+
+It also sets a hard limit the UI has to be honest about: **one dialog per
+app**. There is no batch uninstall for an unprivileged app, so bulk selection
+means a queue — `nextRemoval()` launches one, `onActivityResult` records the
+outcome and launches the next. A device-owner or Shizuku path could do it
+silently; that's a different trust model, and it's in features.md as future
+work rather than something to fake.
+
+## "Did it go?" is asked of the package manager, not the result code
+
+The same lesson both earlier builds learned, arrived at a third time. The
+Linux build stopped trusting a failing `postrm`'s exit code and started
+reading dpkg's status field; the Windows build treats MSI 1605 as success
+because it means the product is already gone. Here `resultCode` is ignored
+outright: it reports what the dialog returned, and
+`getApplicationInfo(…, MATCH_DISABLED_COMPONENTS)` reports what is true.
+
+Reading it through `MATCH_DISABLED_COMPONENTS` rather than letting the lookup
+throw is deliberate — it makes *disabled* a distinguishable third outcome
+rather than being indistinguishable from "still installed", which is what the
+preinstalled-app path needs.
+
+## Preinstalled apps get App Info, because Disable is the only real verb
+
+Selecting a preinstalled app doesn't fire `ACTION_DELETE`; it opens
+`ACTION_APPLICATION_DETAILS_SETTINGS`, which is where **Disable** and
+**Uninstall updates** live. Those are the only two things Android permits, and
+`ACTION_DELETE` on a system app either silently removes just the update or
+does nothing at all, which would make the result dialog lie.
+
+Two follow-ons: the outcome is reported as "Disabled — Android won't fully
+remove a preinstalled app" rather than "Removed", and a disabled app's size is
+**excluded from the space-freed total**. It's still on the partition. That
+matters because "freed X" is a number the other two builds worked to get
+right, and inflating it here would be the easy wrong answer.
+
+## Risk heuristic: three authoritative signals, one name pattern
+
+Same constraint as always — no extra process or query per app, and no reverse
+dependency graph to consult. But Android gives better raw material than
+either earlier platform, and three of the signals are facts rather than
+guesses:
+
+- the default launcher — `resolveActivity` on `CATEGORY_HOME`
+- active device admins — `DevicePolicyManager.activeAdmins`
+- the active keyboard — `Settings.Secure.DEFAULT_INPUT_METHOD`
+
+Each is **one query per scan**, not per app, which is what makes them
+affordable. All three are Critical: removing your home screen leaves a device
+with no way to open anything, and Android will refuse a device admin's
+removal outright.
+
+Below them, a fourth free signal: **no launcher entry** (from one
+`queryIntentActivities` call) means an app the user never opens directly — a
+plugin, a provider, a background service something else is bound to — which
+is Caution.
+
+The only guess left is splitting core Android from vendor preinstalls by
+package-name pattern (`com.android.*`, `com.google.android.gms`, and so on).
+That split is what makes the preinstalled rating useful rather than uniform:
+core platform packages are Critical, and the shopping app your manufacturer
+preloaded is Caution — preinstalled, so not auto-selectable, but honestly
+described as disable-able rather than dangerous.
+
+## Leftovers: shared storage only, and never the media folders
+
+Android already removes `/data/data/<pkg>` and the app's own `Android/data`
+and `Android/obb` directories on uninstall, so unlike apt or a Windows
+installer it does most of the job. What survives is the folder an app made for
+itself at the top of shared storage, which nothing ever cleans up. So the
+roots are the storage root, `Download`, `Android/data` and `Android/obb`.
+
+Match terms are the display name, the package name, **and the package's last
+segment** (`com.acme.coolapp` → `coolapp`), which is what an app most often
+names its own folder after. Same three-character minimum as the other builds.
+
+`DCIM`, `Pictures`, `Music`, `Movies`, `Documents`, `Ringtones` and the rest
+are excluded, for exactly the reason the Windows build skips `Documents`: the
+leftover dialog pre-checks what it finds, and a name collision there could
+offer to delete someone's photos. The asymmetry of that mistake is not worth
+the recall. Splitting the results by confidence — an exact package-name folder
+is certain, a fuzzy top-level match is a guess — is in features.md as the
+next improvement.
+
+## Two optional permissions, both skippable, neither assumed
+
+`MANAGE_EXTERNAL_STORAGE` (leftover scanning) and `PACKAGE_USAGE_STATS` (real
+app sizes) are both "special access" permissions: they cannot be requested
+with a runtime dialog, only by sending the user to a Settings screen. So
+neither is treated as a precondition.
+
+Without all-files access the leftover scan finds nothing —
+`File.listFiles()` returns null and the code reads that as "no leftovers"
+rather than failing. Without usage access, size falls back to
+`File(sourceDir).length()`, the APK's own size, which under-reports exactly
+the apps worth removing (a small app with a 2 GB data directory). A dismissible
+banner says which one is missing and what it would buy; the app is fully
+usable ignoring it.
+
+## `QUERY_ALL_PACKAGES` is why the artifact is an APK
+
+On API 30+ an app sees only packages it declared in `<queries>` unless it
+holds `QUERY_ALL_PACKAGES`. Listing what's installed is the entire product, so
+a declared `<queries>` list is not an option — it would mean knowing every app
+worth listing in advance.
+
+Google Play restricts that permission to a short list of approved app
+categories, and the honest position is that this app might not clear that bar.
+Rather than design around a review outcome, the release artifact is a signed
+APK on GitHub Releases, same as the Windows `.exe`. A Play-flavoured build
+with a declared query list is in features.md as a separate thing, because it
+would be a materially less useful app.
+
+## The icon is the same path data, not a second drawing
+
+Android vector drawables take SVG path data verbatim in `android:pathData`,
+and support `strokeWidth`/`strokeLineCap`, so the two curves from
+`src/uninstaller/icon.svg` are copied across as-is inside a `<group>` that
+scales the 100×100 viewBox into the 108×108 adaptive-icon canvas. No
+rasteriser, no generator script, and no committed bitmaps — this is the one
+place Android is *simpler* than the Windows build, which needed 150 lines of
+`make_icon.py` to produce a multi-size `.ico`.
+
+API 24–25 predates adaptive icons, so `mipmap-anydpi/ic_launcher.xml` holds
+the whole thing including the rounded background rect, and
+`mipmap-anydpi-v26/` holds the adaptive version. Two small XML files instead
+of five densities of PNG.
+
+## Build: Gradle and R8 on any machine, and a key that has to exist
+
+Unlike the Windows build, nothing here needs a special runner — the Android
+toolchain is cross-platform and the APK was built and signed on the Linux
+development machine. `android-build.yml` exists for the *key*, not the
+platform: a release APK must be signed, Android only accepts updates signed
+with the same key, and that key belongs in repository secrets rather than on
+a laptop. The workflow fails a tag build outright if the secret is missing,
+because an unsigned or throwaway-signed release is worse than no release.
+
+`build-apk.sh` generates a local `keystore.jks` on first run instead of
+emitting an unsigned APK, since an unsigned APK cannot be installed and would
+be a build that produces nothing usable. It and `keystore.properties` are
+gitignored, and the script says plainly that the file has to be kept.
+
+R8 shrinking and resource shrinking are on, with an **empty**
+`proguard-rules.pro`: the app has no reflection, no serialization library and
+no JNI, so the defaults are correct and a keep rule would be cargo cult. That
+empty file with a comment explaining why is the honest artifact.
