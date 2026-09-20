@@ -57,6 +57,9 @@ that involved a design decision should have a matching note there.
 - [x] v0.1.0 release — MIT `LICENSE`, license metadata in `pyproject.toml`,
       real clone URL in the README, and a `git archive` source tarball as the
       GitHub release artifact.
+- [x] `.deb` package — `build-deb.sh` stages a `usr/` tree and calls
+      `dpkg-deb`; installs to `/usr`, declares its apt dependencies (so
+      `apt install ./x.deb` pulls GTK in), and is `apt remove`-able.
 
 ## Planned
 
@@ -65,8 +68,8 @@ that involved a design decision should have a matching note there.
 - [ ] Package-manager-owned leftovers under `/etc` (needs root; currently
       only user-home leftovers are offered).
 - [ ] RPM/Fedora backend.
-- [ ] Real `.deb`/Flatpak release package (`install.sh` gets it running, but
-      it isn't a versioned, `apt remove`-able package).
+- [ ] Flatpak release package (the `.deb` landed in v0.1.0; a Flatpak would
+      additionally cover non-Debian distros).
 
 ## Out of scope (v0.1)
 

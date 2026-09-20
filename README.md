@@ -37,8 +37,30 @@ and why: [documents/ai-knowledgebase.md](documents/ai-knowledgebase.md).
 
 ## Installation
 
-**Requirements:** Ubuntu or another Debian-based Linux distribution, with a
-desktop (GTK3) and `git`.
+**Requirements:** Ubuntu or another Debian-based Linux distribution with a
+GTK3 desktop.
+
+### Option A — install the `.deb` (recommended)
+
+Download `linux-the-uninstaller_<version>_all.deb` from the
+[Releases page](https://github.com/Redwan-Shawkat/The-Uninstaller/releases),
+then:
+
+```bash
+sudo apt install ./linux-the-uninstaller_0.1.0_all.deb
+```
+
+`apt` pulls in `python3-gi`/`gir1.2-gtk-3.0` itself if they're missing. This
+installs system-wide (`/usr/bin`, `/usr/lib`), adds **The Uninstaller** to
+your application menu, and — fittingly — uninstalls cleanly:
+
+```bash
+sudo apt remove linux-the-uninstaller
+```
+
+### Option B — per-user install, no root
+
+Installs into your home directory only. Needs `git` if you clone.
 
 1. **Get the code** — either clone it:
    ```bash
@@ -73,6 +95,10 @@ Re-run `./install.sh` any time after a `git pull` (or after unpacking a
 newer release tarball) to update. To remove
 everything it placed: `./uninstall.sh`.
 
+Pick one of A or B, not both: the `~/.local/bin` launcher from Option B
+comes earlier on `PATH` than the packaged `/usr/bin` one, so a stale per-user
+copy would quietly win over the `.deb`.
+
 **Don't want to install anything?** Run it straight from the checkout:
 ```bash
 PYTHONPATH=src python3 -m uninstaller
@@ -106,10 +132,17 @@ git archive --format=tar.gz --prefix=linux-the-uninstaller-0.1.0/ \
 Unpack that and run `install.sh` (above) — that's the supported way to get
 it onto a machine.
 
-A real `.deb`/Flatpak release package (so it shows up in Software Center
-style tools, has a version, can be `apt remove`d) is tracked as future work
-in [documents/features.md](documents/features.md) — `install.sh` covers
-"get it running" but isn't that.
+To build the `.deb` release package:
+
+```bash
+./build-deb.sh          # -> dist/linux-the-uninstaller_<version>_all.deb
+```
+
+It reads the version from `pyproject.toml`, stages a tree under `dist/deb/`
+and hands it to `dpkg-deb` — no debhelper or packaging toolchain to install,
+and no maintainer scripts (dpkg's own triggers refresh the desktop and icon
+caches). A Flatpak package is still tracked as future work in
+[documents/features.md](documents/features.md).
 
 ## Test
 
