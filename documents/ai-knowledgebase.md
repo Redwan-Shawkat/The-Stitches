@@ -86,7 +86,7 @@ structured results — so `tests/` can cover the parsing and risk logic
 without needing dpkg/snap/flatpak/wine actually installed or a live system
 state to fixture against.
 
-## Installer: a copy + launcher script, not pip/venv, not a `.deb`
+## Installer: a copy + launcher script, not pip/venv
 
 `pyproject.toml` still exists (so `pip install -e .` works for anyone who
 wants it), but the documented, supported install path is `install.sh`. Why
@@ -94,10 +94,11 @@ not the venv from the earlier README draft: a venv needs
 `--system-site-packages` to see the system's GTK3 bindings, needs
 activating (or a wrapper that activates it, which is what a launcher script
 does anyway), and buys nothing since this project has zero pip
-dependencies to isolate. Why not a `.deb`: building one correctly
-(control file, dependency declarations, postinst/postrm, lintian-clean)
-is real work for a v0.1 with no release process yet — tracked in
-features.md, not skipped silently. `install.sh` does the minimum that
+dependencies to isolate. There *is* a `.deb` as of v0.1.0 (see
+[Packaging](#packaging-a-staged-tree-and-dpkg-deb)) and it's the
+recommended install for most people, but `install.sh` stays: it's the only
+path that needs no root at all, and it's what a contributor working from a
+checkout actually runs. `install.sh` does the minimum that
 makes "install it" actually mean something: copies the package to
 `~/.local/lib`, drops a launcher in `~/.local/bin` (already the recommended
 per-user bin dir on Ubuntu), and writes a `.desktop` file so it's a real
@@ -270,6 +271,66 @@ A PDF can't be diffed or reviewed in a PR. [SRS.md](SRS.md) is the source of
 truth; export a PDF on demand with `pandoc` (one command, see README) rather
 than adding a PDF-generation library as a project dependency for a document
 that's read far more often than it's printed.
+
+## Release artifact is a `git archive` tarball, not a built package
+
+v0.1.0 ships as `linux-the-uninstaller-<version>.tar.gz`, produced by
+`git archive` from the signed-off tag. The app is pure Python with no
+compile step and no pip dependencies, so the "build" is just a snapshot of
+the tree that `install.sh` already knows how to install from — `git archive`
+does that in one command, honours `.gitignore` automatically (no
+`__pycache__` or `dist/` leaking into the tarball), and needs no packaging
+toolchain (`setuptools`/`build`/`dpkg-deb`) on the release machine.
+
+A wheel/sdist via `python3 -m build` was rejected: `pip install` is not the
+documented install path (the app deliberately uses system PyGObject rather
+than a venv, see [Stack choice](#stack-choice)), so shipping a wheel would
+advertise an install route that can't reach GTK. A `.deb` remains the right
+long-term answer and stays in [features.md](features.md) as Planned — it's a
+packaging feature with its own maintainer scripts and dependency
+declarations, not something to improvise during a release.
+
+## License: MIT
+
+Chosen for a small desktop utility meant to be copied, forked and packaged
+by distro maintainers without friction. GPL-3.0 was the plausible
+alternative (Linux desktop norm) but its copyleft obligation buys nothing
+here — there's no competitive moat to defend in a package-manager wrapper,
+and permissive terms make it easier for someone to fold this into an
+existing app store or distro package.
+
+## Packaging: a staged tree and dpkg-deb
+
+`build-deb.sh` stages `usr/` under `dist/deb/` and calls `dpkg-deb --build`.
+No debhelper, no `dh_make`, no `debian/rules` — `dpkg-deb` is already on
+every machine that can install the result, so the package has no build
+dependency beyond dpkg itself. The full `debian/` apparatus pays for itself
+when a package is multi-binary, patches upstream source, or goes into the
+Debian archive; this is one arch-independent Python package with four
+install locations.
+
+Specific choices worth not re-litigating:
+
+- **No `postinst`/`postrm`.** `desktop-file-utils` and `hicolor-icon-theme`
+  ship dpkg *triggers* watching `/usr/share/applications` and
+  `/usr/share/icons/hicolor`, so dropping files there refreshes both caches
+  automatically. Maintainer scripts calling `update-desktop-database` by
+  hand would duplicate a trigger that already fires, and a buggy one is the
+  classic way to make a package unremovable.
+- **`Depends: ... pkexec | policykit-1`.** `pkexec` moved out of
+  `policykit-1` into its own binary package in newer Debian/Ubuntu; the
+  alternation satisfies both, and declaring it at all is what keeps the
+  privilege-escalation path (a non-negotiable, see CLAUDE.md) from silently
+  being absent on a minimal install.
+- **`.pyc` files are shipped**, built by `compileall` at package time.
+  `/usr/lib` isn't writable by the user running the app, so Python would
+  otherwise recompile every module on every launch and cache nothing.
+  Because dpkg restores the `.py` mtimes the `.pyc` headers were stamped
+  against, the shipped bytecode validates instead of being ignored.
+- **`--root-owner-group`** instead of running the build under `fakeroot`:
+  same root:root ownership in the archive, one flag, no wrapper process.
+- **Version comes from `pyproject.toml`**, parsed by the build script, so a
+  release bumps one number in one file.
 
 ---
 
