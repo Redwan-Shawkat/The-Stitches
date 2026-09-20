@@ -40,10 +40,17 @@ and why: [documents/ai-knowledgebase.md](documents/ai-knowledgebase.md).
 **Requirements:** Ubuntu or another Debian-based Linux distribution, with a
 desktop (GTK3) and `git`.
 
-1. **Clone the repo**
+1. **Get the code** — either clone it:
    ```bash
-   git clone <this-repo-url>
-   cd Linux-the-Uninstaller
+   git clone https://github.com/Redwan-Shawkat/The-Uninstaller.git
+   cd The-Uninstaller
+   ```
+   or download `linux-the-uninstaller-<version>.tar.gz` from the
+   [Releases page](https://github.com/Redwan-Shawkat/The-Uninstaller/releases)
+   and unpack it:
+   ```bash
+   tar -xzf linux-the-uninstaller-*.tar.gz
+   cd linux-the-uninstaller-*
    ```
 2. **Run the installer**
    ```bash
@@ -62,7 +69,8 @@ desktop (GTK3) and `git`.
    ```
    — or launch it from your application menu instead.
 
-Re-run `./install.sh` any time after a `git pull` to update. To remove
+Re-run `./install.sh` any time after a `git pull` (or after unpacking a
+newer release tarball) to update. To remove
 everything it placed: `./uninstall.sh`.
 
 **Don't want to install anything?** Run it straight from the checkout:
@@ -85,8 +93,18 @@ switches light/dark mode.
 
 ## Build
 
-This is a Python app — "build" means packaging it, not compiling it.
-`install.sh` (above) is the supported way to get it onto a machine.
+This is a Python app — "build" means packaging it, not compiling it. A
+release artifact is a source tarball of the tagged tree, produced with git's
+own archiver (no packaging toolchain involved):
+
+```bash
+mkdir -p dist
+git archive --format=tar.gz --prefix=linux-the-uninstaller-0.1.0/ \
+  -o dist/linux-the-uninstaller-0.1.0.tar.gz v0.1.0
+```
+
+Unpack that and run `install.sh` (above) — that's the supported way to get
+it onto a machine.
 
 A real `.deb`/Flatpak release package (so it shows up in Software Center
 style tools, has a version, can be `apt remove`d) is tracked as future work
@@ -120,3 +138,7 @@ happy to update this README to reference it.
   time if you really mean it.
 - Leftover files are shown and opt-in before deletion, never removed
   silently.
+
+## License
+
+[MIT](LICENSE) — © 2026 Redwan Shawkat.

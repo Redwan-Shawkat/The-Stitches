@@ -270,3 +270,30 @@ A PDF can't be diffed or reviewed in a PR. [SRS.md](SRS.md) is the source of
 truth; export a PDF on demand with `pandoc` (one command, see README) rather
 than adding a PDF-generation library as a project dependency for a document
 that's read far more often than it's printed.
+
+## Release artifact is a `git archive` tarball, not a built package
+
+v0.1.0 ships as `linux-the-uninstaller-<version>.tar.gz`, produced by
+`git archive` from the signed-off tag. The app is pure Python with no
+compile step and no pip dependencies, so the "build" is just a snapshot of
+the tree that `install.sh` already knows how to install from — `git archive`
+does that in one command, honours `.gitignore` automatically (no
+`__pycache__` or `dist/` leaking into the tarball), and needs no packaging
+toolchain (`setuptools`/`build`/`dpkg-deb`) on the release machine.
+
+A wheel/sdist via `python3 -m build` was rejected: `pip install` is not the
+documented install path (the app deliberately uses system PyGObject rather
+than a venv, see [Stack choice](#stack-choice)), so shipping a wheel would
+advertise an install route that can't reach GTK. A `.deb` remains the right
+long-term answer and stays in [features.md](features.md) as Planned — it's a
+packaging feature with its own maintainer scripts and dependency
+declarations, not something to improvise during a release.
+
+## License: MIT
+
+Chosen for a small desktop utility meant to be copied, forked and packaged
+by distro maintainers without friction. GPL-3.0 was the plausible
+alternative (Linux desktop norm) but its copyleft obligation buys nothing
+here — there's no competitive moat to defend in a package-manager wrapper,
+and permissive terms make it easier for someone to fold this into an
+existing app store or distro package.

@@ -54,6 +54,10 @@ that involved a design decision should have a matching note there.
       postrm script fails after dpkg already removed its files (exit code
       no longer the sole signal — dpkg's status field is checked too).
 
+- [x] v0.1.0 release — MIT `LICENSE`, license metadata in `pyproject.toml`,
+      real clone URL in the README, and a `git archive` source tarball as the
+      GitHub release artifact.
+
 ## Planned
 
 - [ ] Reverse-dependency check for apt packages (currently heuristic-only,
