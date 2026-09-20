@@ -1,0 +1,66 @@
+# Builds the Windows .exe and .msi.
+#
+# They can't be built anywhere else: PyInstaller freezes the interpreter of
+# the OS it runs on, and WiX needs Windows Installer. This repo is developed
+# on Linux, so a Windows runner is the build machine — run it from the Actions
+# tab (Run workflow) for a test build, or push a v* tag to have both artifacts
+# attached to that release automatically.
+name: Windows build
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write # only used by the release-upload step below
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: windows
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Tests
+        run: python tests/test_core.py
+
+      - name: GUI smoke test
+        run: python tests/test_gui_smoke.py
+
+      - name: Build the .exe
+        run: .\build-exe.ps1
+
+      - name: Build the .msi
+        run: .\build-msi.ps1
+
+      - name: Checksums
+        run: |
+          Push-Location dist
+          Get-FileHash *.exe, *.msi -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path $_.Path -Leaf)" } |
+            Set-Content -Encoding ascii SHA256SUMS.txt
+          Get-Content SHA256SUMS.txt
+          Pop-Location
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: the-uninstaller-windows
+          path: |
+            windows/dist/*.exe
+            windows/dist/*.msi
+            windows/dist/SHA256SUMS.txt
+
+      - name: Attach to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload $env:GITHUB_REF_NAME (Get-Item dist/*.exe, dist/*.msi, dist/SHA256SUMS.txt) --clobber

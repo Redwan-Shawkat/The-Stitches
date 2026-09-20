@@ -35,6 +35,11 @@ Each item is also rated:
 Full requirements: [documents/SRS.md](documents/SRS.md). Design decisions
 and why: [documents/ai-knowledgebase.md](documents/ai-knowledgebase.md).
 
+**On Windows?** Apps & Features has the same blind spots — it can't see
+Microsoft Store apps in the same list, and it can't see Chocolatey or Scoop
+at all. The Windows build lives in [windows/](windows/) and ships as an
+`.exe` and an `.msi`.
+
 ## Installation
 
 **Requirements:** Ubuntu or another Debian-based Linux distribution, with a
