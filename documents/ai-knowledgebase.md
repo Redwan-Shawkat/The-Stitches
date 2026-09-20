@@ -331,3 +331,237 @@ Specific choices worth not re-litigating:
   same root:root ownership in the archive, one flag, no wrapper process.
 - **Version comes from `pyproject.toml`**, parsed by the build script, so a
   release bumps one number in one file.
+
+---
+
+# Windows port (`windows/`)
+
+## A sibling tree, not one cross-platform package
+
+`windows/` is a parallel copy of the project, not a `if sys.platform` layer
+inside `src/uninstaller`. The two builds share the *shape* — `models.py`,
+`risk.py`, `leftovers.py`, `scanner.py`, `uninstaller.py` and a `backends/`
+directory with one file per source — and share almost none of the *code*,
+because every leaf is platform-specific: the backends shell out to different
+tools, the GUI uses a different toolkit, escalation uses a different
+mechanism. A merged tree would be four files of genuinely shared logic
+(`format_size`, `App`, `path_size`, `delete_paths`) wrapped in platform
+branches everywhere else, and every Windows change would risk the Linux
+build. Two trees, one architecture: a reader who knows one knows the other.
+The identical module names are the point.
+
+Kept byte-identical on purpose so the correspondence stays obvious:
+`uninstaller.py` and the `Backend` protocol in `backends/base.py`.
+
+## GUI: tkinter, not GTK3
+
+Same rung of the ladder as the Linux build, pointing the other way. There,
+PyGObject/GTK3 is already installed on every Ubuntu desktop and adds zero
+packages. On Windows nothing GTK is present and shipping it means
+redistributing an MSYS2 runtime — several hundred megabytes attached to a
+~10 MB app. tkinter is in the Python standard library on Windows, so it costs
+nothing to import and nothing to freeze, and PyInstaller has understood it
+for years.
+
+What that costs, and what was done about it:
+
+- **No filter model.** GTK's `Gtk.TreeModelFilter` does live filtering for
+  free; a `ttk.Treeview` holds rows and nothing else. `_refresh_rows()` just
+  refills it. Marked `ponytail:` — a few hundred rows refill instantly, and
+  an incremental diff can replace it if a machine turns up where they don't.
+- **No checkbox cell renderer.** The selection column holds `☑`/`☐` and a
+  `<Button-1>` handler toggles it. The source of truth is `self.selected`, a
+  set of indices, not the widget — so filtering can't silently drop a
+  selection the way re-rendering a checkbox column would.
+- **No tooltips.** The risk *reason* is the point of the risk column, so it
+  got a ~20-line `_Tooltip` rather than being dropped.
+- **No theming that respects colours.** ttk's native `vista` theme draws
+  through the OS and ignores configured colours, including the progress
+  bar's green/red. So `clam` backs *both* light and dark, with two palettes
+  in `_PALETTES`. Slightly less native-looking than `vista`; in exchange the
+  dark mode and the success/failure colours actually work, on every Windows
+  version, with no theme-specific special-casing. The Linux build gets this
+  free from the system theme — this is the one place the Windows UI is
+  visibly its own thing.
+
+Threading is the same design: work on a daemon thread, results marshalled
+back with `self.after(0, …)` — tkinter's equivalent of `GLib.idle_add`, and
+equally non-negotiable, since touching widgets off the main thread corrupts
+Tk's interpreter state.
+
+## The four sources, and why `winget` isn't one of them
+
+The Linux build's four sources are four separate places a program can hide.
+Windows' are:
+
+| Source | Read from | Why it's separate |
+|---|---|---|
+| Installer (MSI/EXE) | `…\CurrentVersion\Uninstall`, all three registry views | What Apps & Features shows. |
+| Microsoft Store | `Get-AppxPackage` | MSIX packages register no Uninstall key at all. |
+| Chocolatey | `$ChocolateyInstall\lib\*\*.nuspec` | Usually no registry entry of its own. |
+| Scoop | `$SCOOP\apps\*\current\manifest.json` | Nothing in the registry, nothing in Program Files. |
+
+**winget is deliberately absent.** It's the obvious fifth, and adding it
+would be a bug: `winget install` hands off to the program's own MSI or EXE
+installer, which writes the same Uninstall key everything else does. Those
+apps are already listed under Installer (MSI/EXE). A winget backend would
+double-list every one of them, and the second row's "uninstall" would race
+the first. There is no separate winget-managed store to enumerate. The
+`--source msstore` case is Store packages, also already covered.
+
+The registry is read through `winreg` (standard library) across the 64-bit
+view, the 32-bit view (`KEY_WOW64_32KEY`, i.e. `WOW6432Node`) and `HKCU`.
+Missing any one of them silently hides a third of a typical machine's
+software — 32-bit installers are still extremely common.
+
+Two filters are applied, mirroring `apt-mark showmanual`'s "things the user
+chose": entries with a `ParentKeyName` (patches owned by another product) and
+entries whose `ReleaseType` is an update/hotfix are dropped. Entries with
+`SystemComponent=1` are the opposite case — Windows hides those from Apps &
+Features, and surfacing what the built-in tool won't is the entire point of
+this project, so they are shown and classified Critical.
+
+## Reading Chocolatey and Scoop off disk instead of calling their CLIs
+
+Same decision as parsing Wine's `system.reg` directly on Linux, for the same
+two reasons: it's faster than starting a process per scan, and the file
+layout is far more stable than the command line. Chocolatey 2.0 changed what
+a bare `choco list` means (it used to search the remote feed; `--local-only`
+was then removed), so a CLI-based scan would have silently broken across a
+major version. `lib\<pkg>\<pkg>.nuspec` has not moved. Uninstalling still
+goes through `choco`/`scoop`, because that's a state change and their own
+hooks need to run — only *listing* reads the disk directly.
+
+`.nuspec` tags are matched on local name because the XML namespace varies by
+the version of Chocolatey that wrote the file.
+
+## Privilege escalation: `ShellExecuteEx` + `runas`, not `sudo`
+
+CLAUDE.md's non-negotiable, in its Windows form. There is no command you can
+prefix to get elevation — UAC is a property of *how a process is launched*,
+so `elevate.py` asks the shell to launch it with the `runas` verb via
+`ShellExecuteExW`. `ctypes` reaches shell32 with no new dependency, the
+consent dialog is the OS's, and no credential ever touches this process.
+
+Three things this forced:
+
+- **`SEE_MASK_NOCLOSEPROCESS` + `WaitForSingleObject`.** Plain
+  `ShellExecuteW` returns immediately and tells you nothing. The flow needs
+  to know whether the uninstall actually succeeded before it scans for
+  leftovers, so the handle is kept and waited on, and the exit code read.
+- **Output has to come back through a file.** An elevated child runs at a
+  higher integrity level and can't inherit our pipes, so `capture_output`
+  returns nothing. The command is wrapped in `cmd /c … > tempfile 2>&1` and
+  the file is read back — otherwise every failure message from an elevated
+  uninstaller would be lost, and the GUI's "Some items failed" dialog would
+  have nothing to show.
+- **Elevation is per-item, not per-app.** Scope comes from where the entry
+  was found: `HKLM` or `ProgramData` → elevated; `HKCU`, a per-user Store
+  package or a user-scope Scoop app → no prompt at all. Exactly the Linux
+  split between apt/snap (pkexec) and Flatpak `--user`/Wine (never).
+
+`CREATE_NO_WINDOW` is set on every non-elevated call. This is a `--windowed`
+build with no console, so without it each scan would flash console windows
+across the screen.
+
+## Risk heuristic: registry fields, same as the Linux build reads dpkg fields
+
+No extra process per app, for the same scan-speed reason. Windows has no
+reverse-dependency database to consult even if speed were free — the nearest
+equivalent is scanning every other program's imports, which is not a
+scan-time operation. So, off fields the enumeration already returned:
+`SystemComponent=1` or `ReleaseType=Driver` or a driver-ish name → Critical;
+a redistributable/runtime name (VC++, .NET, WebView2, DirectX, Java) →
+Caution; everything else Safe. Appx gets a genuinely authoritative signal
+instead of a guess — `IsFramework` is Microsoft's own flag for "a runtime
+other packages bind to" — plus a name-pattern check for Windows' own
+packages. Chocolatey/Scoop packages are Safe except the managers themselves.
+
+`msiexec /x {GUID} /qn /norestart` is substituted for an MSI's registered
+`UninstallString`, because that string is typically `MsiExec.exe /I{GUID}`
+and `/I` opens the interactive repair-or-remove dialog rather than
+uninstalling. A `QuietUninstallString`, where a program publishes one, wins
+over both. A plain EXE uninstaller with no published silent switch is run
+as-is and shows its own window: NSIS wants `/S`, Inno wants `/VERYSILENT`,
+others want neither, and there is no way to tell which from the registry.
+Guessing wrong on an uninstall is worse than an extra click.
+
+Exit code 1605 (`ERROR_UNKNOWN_PRODUCT`) is treated as success for the same
+reason the Linux build trusts dpkg's status field over a failing `postrm`'s
+exit code: it means the product is already gone, so the files are gone, so
+the leftover scan should still run.
+
+## Leftovers: AppData and ProgramData, not Documents and not the registry
+
+`%APPDATA%`, `%LOCALAPPDATA%`, `%LOCALAPPDATA%\..\LocalLow` and
+`%ProgramData%`, name-matched exactly like the Linux build's `~/.config` &c.
+Two deliberate exclusions:
+
+- **Documents** is where the user's own files live. A name match there could
+  offer to delete a folder of someone's work, and the leftover dialog
+  pre-checks everything it finds. The asymmetry of that mistake is not worth
+  the recall.
+- **The registry** is the obvious Windows-specific addition, and it is real
+  leftover state that Revo's reputation was built on. It's deferred rather
+  than skipped (features.md) because it needs its own confirmation UI: an
+  orphaned `HKCU\Software\<Vendor>` key deleted wrongly is not recoverable
+  from a Recycle Bin the way a directory is, so it can't just be appended to
+  the existing file list.
+
+## Taskbar identity: `SetCurrentProcessExplicitAppUserModelID`
+
+The same trap as the Linux build's `.desktop` app-id mismatch, in Windows
+form. The shell groups taskbar buttons and picks their icon by a process's
+AppUserModelID, which defaults to the host executable — so a Python GUI
+shows Python's icon. Setting it explicitly, *before any window exists*
+(Windows caches the decision), makes the taskbar match the app. Paired with
+`SetProcessDpiAwareness(1)`, without which the whole UI is scaled up as a
+blurry bitmap on any high-DPI display.
+
+## The `.ico` is generated from the same curves, by a stdlib script
+
+Windows needs a multi-size `.ico` for the window, the taskbar, the `.exe`'s
+resource and the Apps & Features entry; GTK just scales the `.svg`. The
+options were to add a rasterizer (cairosvg, or Pillow which can't read SVG
+anyway) as a build dependency, or to hand-draw the icon a second time and let
+the two drift. Neither. `windows/tools/make_icon.py` re-evaluates the same
+four cubic beziers from `icon.svg`, strokes them as capsules (distance to
+segment ≤ radius, which gives the round caps and joins for free),
+supersamples 4× and box-filters down, and writes the ICO container itself
+with `struct` and `zlib` — DIB entries for the small sizes, PNG for 128 and
+256 so the file doesn't carry a quarter-megabyte bitmap. About 150 lines,
+no dependency, runs on the Linux development machine. The `.ico` is
+committed, so an ordinary build never runs it; re-run it after editing the
+SVG.
+
+## Build: PyInstaller for the `.exe`, WiX for the `.msi`, on a Windows runner
+
+Two artifacts because they answer different questions. `TheUninstaller.exe`
+is `--onefile --windowed`: download, double-click, nothing installed —
+which is what people actually want from a tool whose job is to clean up
+after installers. The `.msi` is the same executable placed in Program Files
+with a Start Menu shortcut and an Apps & Features entry, so the uninstaller
+can itself be uninstalled the ordinary way. That felt like a hard requirement
+for this app in particular.
+
+Rejected: **cx_Freeze**, which can emit both from one tool, because its MSI
+support is the weaker half and it produces a directory rather than a single
+portable file — the `.exe` is the artifact most people will take.
+**Inno Setup / NSIS**, which produce a setup `.exe`, not the `.msi` that
+group policy and `msiexec /i /qn` deployment need. The WiX source is ~40
+lines for one file, one shortcut and `MajorUpgrade`; a directory-chooser UI
+was skipped because there is one file to place.
+
+Neither artifact can be produced on Linux — PyInstaller freezes the
+interpreter of the OS it runs on, and WiX needs Windows Installer. So
+`.github/workflows/windows-build.yml` is the build machine: it runs the test
+suite and the GUI smoke test, builds both, writes `SHA256SUMS.txt`, uploads
+them as workflow artifacts, and on a `v*` tag attaches them to that release
+with the preinstalled `gh` (no third-party action, no stored token).
+
+## `run.py` exists because a frozen `__main__` isn't a package member
+
+PyInstaller runs the entry script as `__main__`, not as `uninstaller.__main__`,
+so the package's relative imports have no package to resolve against and the
+build fails at startup. `run.py` is a three-line absolute-import shim. The
+`__main__.py` beside it stays for `python -m uninstaller` from a checkout.
