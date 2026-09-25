@@ -51,9 +51,21 @@ def main() -> int:
     selected = {window.apps[i].name for i in window.selected}
     assert "Microsoft.VCLibs.140.00" not in selected, "Select All must skip Critical"
     assert len(selected) == 3
+    assert window.tray_list.size() == 3, "the removal tray mirrors the selection"
 
     window._on_select_none()
     assert not window.selected
+    assert window._tray_indices == []
+
+    # Rows are sorted biggest first: Spotify, VC++, VCLibs, neovim.
+    window._toggle_row(0)
+    window._toggle_row(3, extend=True)
+    selected = {window.apps[i].name for i in window.selected}
+    assert "Microsoft.VCLibs.140.00" not in selected, "Shift+click range must skip Critical"
+    assert len(selected) == 3
+    window._toggle_row(0)
+    assert len(window.selected) == 2, "a plain click toggles one row off"
+    window._on_select_none()
 
     window.source_filter = Source.SCOOP.value
     window._refresh_rows()

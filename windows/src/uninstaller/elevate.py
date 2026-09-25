@@ -9,9 +9,12 @@ go through this, and the password/consent dialog is the OS's, never ours.
 """
 
 import ctypes
+import locale
+import re
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 # Keeps a console window from flashing up behind every scan/uninstall call —
@@ -23,6 +26,13 @@ _SEE_MASK_NO_CONSOLE = 0x00008000
 _SW_HIDE = 0
 _INFINITE = 0xFFFFFFFF
 _ERROR_CANCELLED = 1223
+_TH32CS_SNAPPROCESS = 0x2
+# Fast while the launcher lives — a hand-off launcher can start its copy
+# and exit in well under half a second — slower once it's gone.
+_POLL_FAST, _POLL_SLOW = 0.1, 0.5
+# Names installers give the temp copy they hand off to: Inno Setup's
+# _iu*.tmp (any .tmp image), NSIS's Au_.exe / Un_A.exe.
+_HANDOFF_NAME = re.compile(r"\.tmp$|^au_\.exe$|^un_a\.exe$", re.IGNORECASE)
 
 
 def is_admin() -> bool:
@@ -39,17 +49,130 @@ def split_command(command_line: str) -> list[str]:
     wrong), and the OS ships the exact parser every program uses to read its
     own arguments: CommandLineToArgvW.
     """
+    # Declared, not left to ctypes' default: an undeclared restype is a C int,
+    # which turned the returned LPWSTR* into a plain (truncated) integer and
+    # crashed every registry uninstall before it started.
+    to_argv = ctypes.windll.shell32.CommandLineToArgvW
+    to_argv.argtypes = [ctypes.c_wchar_p, ctypes.POINTER(ctypes.c_int)]
+    to_argv.restype = ctypes.POINTER(ctypes.c_wchar_p)
     argc = ctypes.c_int()
-    argv = ctypes.windll.shell32.CommandLineToArgvW(command_line, ctypes.byref(argc))
+    argv = to_argv(command_line, ctypes.byref(argc))
     if not argv:
         return []
     try:
-        return [ctypes.wstring_at(argv[i]) for i in range(argc.value)]
+        return [argv[i] for i in range(argc.value)]
     finally:
-        ctypes.windll.kernel32.LocalFree(argv)
+        ctypes.windll.kernel32.LocalFree(ctypes.cast(argv, ctypes.c_void_p))
 
 
-def _run_elevated(argv: list[str]) -> tuple[int, str]:
+def elevated_cmd_params(argv: list[str], log: Path) -> str:
+    """cmd.exe's parameters for running `argv` with its output sent to `log`.
+
+    The quotes wrap everything *after* `/c`: cmd then strips just the outer
+    pair and runs the rest as typed. Quoting the whole thing including `/c`
+    broke every elevated uninstall — a program under `C:\\Program Files`
+    came out as "'C:\\Program' is not recognized", and switches were lost.
+    """
+    return f'/c "{subprocess.list2cmdline(argv)} > "{log}" 2>&1"'
+
+
+def family_of(
+    root: int, processes: dict[int, tuple[int, str]], known: set[int],
+    baseline: frozenset = frozenset(),
+) -> set[int]:
+    """`known` plus `root` plus every process descended from any of them.
+
+    Pure: `processes` is pid -> (parent pid, image name). Dead members stay in
+    the set, so a grandchild is still found after its parent has exited —
+    parent pids survive the parent, which is what makes a hand-off traceable.
+
+    That needs the parent to have been seen alive at least once. A launcher
+    that spawns its copy and exits between two polls breaks the chain, so an
+    installer temp copy (`_HANDOFF_NAME`) that wasn't running before launch
+    (`baseline`) and whose parent is already gone is adopted as well.
+    """
+    parents = {pid: parent for pid, (parent, _name) in processes.items()}
+    family = set(known) | {root}
+    family |= {
+        pid for pid, (parent, name) in processes.items()
+        if pid not in baseline and parent not in processes and _HANDOFF_NAME.search(name)
+    }
+    while True:
+        new = {pid for pid, parent in parents.items() if parent in family} - family
+        if not new:
+            return family
+        family |= new
+
+
+def _process_table() -> dict[int, tuple[int, str]]:
+    """pid -> (parent pid, image name) for every running process, elevated
+    ones included (a Toolhelp32 snapshot needs no access to the processes)."""
+    from ctypes import wintypes
+
+    class _ProcessEntry(ctypes.Structure):
+        _fields_ = [
+            ("dwSize", wintypes.DWORD),
+            ("cntUsage", wintypes.DWORD),
+            ("th32ProcessID", wintypes.DWORD),
+            ("th32DefaultHeapID", ctypes.c_size_t),
+            ("th32ModuleID", wintypes.DWORD),
+            ("cntThreads", wintypes.DWORD),
+            ("th32ParentProcessID", wintypes.DWORD),
+            ("pcPriClassBase", ctypes.c_long),
+            ("dwFlags", wintypes.DWORD),
+            ("szExeFile", ctypes.c_wchar * 260),
+        ]
+
+    k = ctypes.windll.kernel32
+    k.CreateToolhelp32Snapshot.restype = ctypes.c_void_p  # a HANDLE, not an int
+    k.Process32FirstW.argtypes = k.Process32NextW.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+    k.CloseHandle.argtypes = [ctypes.c_void_p]
+    snapshot = k.CreateToolhelp32Snapshot(_TH32CS_SNAPPROCESS, 0)
+    if snapshot in (None, ctypes.c_void_p(-1).value):
+        return {}
+    entry = _ProcessEntry()
+    entry.dwSize = ctypes.sizeof(entry)
+    table = {}
+    try:
+        more = k.Process32FirstW(snapshot, ctypes.byref(entry))
+        while more:
+            table[entry.th32ProcessID] = (entry.th32ParentProcessID, entry.szExeFile)
+            more = k.Process32NextW(snapshot, ctypes.byref(entry))
+    finally:
+        k.CloseHandle(snapshot)
+    return table
+
+
+def _wait_for_family(root: int, root_done, done=None, baseline=frozenset()) -> None:
+    """Wait until `root` and everything it started have exited, or `done()`.
+
+    Uninstallers commonly hand off and exit: Inno Setup copies itself to
+    %TEMP% (_iu*.tmp), NSIS to Au_.exe, and the copy does the removal — and
+    asks "are you sure?" — after the process we launched is gone. Waiting on
+    that process alone reported IObit's uninstall as finished (and failed)
+    while its own prompt was still on screen.
+
+    `done` lets the caller stop early once the job is verifiably done (the
+    app's registry entry is gone), so a browser page the uninstaller opened
+    on its way out doesn't hold the wait open. ponytail: a reused pid can
+    adopt an unrelated process into the family; the wait then ends when that
+    process exits or at `done()`.
+    """
+    family = {root}
+    while True:
+        processes = _process_table()
+        family = family_of(root, processes, family, baseline)
+        if not root_done():
+            time.sleep(_POLL_FAST)
+            continue
+        if not (family - {root}) & processes.keys():
+            return
+        if done is not None and done():
+            return
+        time.sleep(_POLL_SLOW)
+
+
+def _run_elevated(argv: list[str], follow: bool = False, done=None) -> tuple[int, str]:
     """Launch through UAC and wait for it.
 
     An elevated process runs at a higher integrity level than this one, so it
@@ -79,55 +202,80 @@ def _run_elevated(argv: list[str]) -> tuple[int, str]:
             ("hProcess", wintypes.HANDLE),
         ]
 
-    with tempfile.TemporaryDirectory() as tmp:
+    # A process left running after an early `done()` may still hold the log
+    # open; failing to delete a temp file must not fail the uninstall.
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
         log = Path(tmp, "output.txt")
-        inner = subprocess.list2cmdline(argv)
-        params = f'/c {inner} > "{log}" 2>&1'
 
         info = _ShellExecuteInfoW()
         info.cbSize = ctypes.sizeof(info)
         info.fMask = _SEE_MASK_NOCLOSEPROCESS | _SEE_MASK_NO_CONSOLE
         info.lpVerb = "runas"
         info.lpFile = "cmd.exe"
-        info.lpParameters = f'"{params}"'
+        info.lpParameters = elevated_cmd_params(argv, log)
         info.nShow = _SW_HIDE
 
+        baseline = frozenset(_process_table()) if follow else frozenset()
         if not ctypes.windll.shell32.ShellExecuteExW(ctypes.byref(info)):
             code = ctypes.get_last_error() or ctypes.GetLastError()
             if code == _ERROR_CANCELLED:
                 return 1, "Cancelled at the Windows permission prompt."
             return 1, f"Could not start the uninstaller with administrator rights (error {code})."
 
-        ctypes.windll.kernel32.WaitForSingleObject(info.hProcess, _INFINITE)
+        k = ctypes.windll.kernel32
+        k.WaitForSingleObject.argtypes = [ctypes.c_void_p, wintypes.DWORD]
+        k.GetProcessId.argtypes = [ctypes.c_void_p]
+        process = info.hProcess
+        if follow:
+            _wait_for_family(
+                k.GetProcessId(process), lambda: k.WaitForSingleObject(process, 0) == 0,
+                done, baseline,
+            )
+        k.WaitForSingleObject(process, _INFINITE)
         exit_code = wintypes.DWORD()
-        ctypes.windll.kernel32.GetExitCodeProcess(info.hProcess, ctypes.byref(exit_code))
-        ctypes.windll.kernel32.CloseHandle(info.hProcess)
+        k.GetExitCodeProcess(process, ctypes.byref(exit_code))
+        k.CloseHandle(process)
         output = log.read_text(errors="replace").strip() if log.exists() else ""
         return exit_code.value, output
 
 
-def run(argv: list[str], elevated: bool = False) -> tuple[int, str]:
+def run(argv: list[str], elevated: bool = False, follow: bool = False, done=None) -> tuple[int, str]:
     """Run a command, with or without a UAC prompt. Returns (exit code, output).
+
+    `follow` also waits for every process the command starts (uninstallers
+    that hand off to a copy of themselves — see `_wait_for_family`), until
+    they exit or `done()` says the work is verifiably finished.
 
     On success `output` is stdout, on failure it's stderr — a scan needs the
     former (PowerShell happily writes warnings to stderr while returning
     perfectly good data on stdout) and a failed uninstall needs the latter.
     """
     if elevated and not is_admin():
-        return _run_elevated(argv)
-    try:
-        result = subprocess.run(
-            argv, capture_output=True, text=True, check=False,
-            creationflags=_NO_WINDOW, errors="replace",
-        )
-    except OSError as exc:
-        # The tool isn't installed or isn't on PATH. Returned rather than
-        # raised: this runs on a worker thread, and an exception here would
-        # kill the thread before it could re-enable the window.
-        return 1, f"Could not run {argv[0]}: {exc}"
-    if result.returncode == 0:
-        return 0, (result.stdout or "").strip()
-    return result.returncode, (result.stderr or result.stdout or "").strip()
+        return _run_elevated(argv, follow, done)
+    # Files, not pipes: reading a pipe to the end waits for every process that
+    # inherited it, and uninstallers often leave one running (a browser
+    # "sorry to see you go" page, an updater) — that hung the uninstall until
+    # it closed. A file only needs the uninstaller itself to exit.
+    encoding = locale.getpreferredencoding(False)
+    baseline = frozenset(_process_table()) if follow else frozenset()
+    with tempfile.TemporaryFile() as out, tempfile.TemporaryFile() as err:
+        try:
+            process = subprocess.Popen(argv, stdout=out, stderr=err, creationflags=_NO_WINDOW)
+        except OSError as exc:
+            # The tool isn't installed or isn't on PATH. Returned rather than
+            # raised: this runs on a worker thread, and an exception here would
+            # kill the thread before it could re-enable the window.
+            return 1, f"Could not run {argv[0]}: {exc}"
+        if follow:
+            _wait_for_family(process.pid, lambda: process.poll() is not None, done, baseline)
+        code = process.wait()
+        out.seek(0)
+        err.seek(0)
+        stdout = out.read().decode(encoding, errors="replace").strip()
+        stderr = err.read().decode(encoding, errors="replace").strip()
+    if code == 0:
+        return 0, stdout
+    return code, stderr or stdout
 
 
 def powershell(script: str, elevated: bool = False) -> tuple[int, str]:

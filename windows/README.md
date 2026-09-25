@@ -55,14 +55,18 @@ $env:PYTHONPATH = "src"; python -m uninstaller
 
 ### First run
 
-The app only scans (read-only) until you check items and click **Uninstall
-Selected**, which always shows a confirmation first. Removing anything
-installed for the whole machine raises Windows' standard permission prompt —
-this app never asks for credentials itself, and never stores any.
+The app only scans (read-only) until you add apps to the **Removal tray**
+(click a row; Shift+click selects a range) and click **Review & uninstall**, which always shows a
+confirmation first. Removing anything installed for the whole machine raises
+Windows' standard permission prompt — this app never asks for credentials
+itself, and never stores any.
 
-A progress bar and "Scanning for installed software…" show while it's finding
-apps; uninstalling shows a per-item bar (green on success, red on failure)
-naming the app currently being removed. The 🌙/☀ button switches light/dark.
+The bar across the top is your installed software's disk space split by
+source; click a segment (or its label) to show only that source. A progress
+bar and "Scanning for installed software…" show while it's finding apps;
+uninstalling shows a per-item bar (green on success, red on failure) naming
+the app currently being removed. The **Light mode** / **Dark mode** button
+switches themes. Double-click an app in the tray to take it back out.
 
 Programs that publish a silent uninstall command get removed without further
 clicks. Those that don't will open their own uninstaller window for you to

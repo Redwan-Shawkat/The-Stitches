@@ -143,12 +143,21 @@ class RegistryBackend:
         # A per-machine program writes under Program Files and HKLM, so its
         # uninstaller needs administrator rights (CLAUDE.md non-negotiable:
         # that consent prompt is Windows', not ours). Per-user installs don't.
-        code, output = run(argv, elevated=app.extra.get("scope") == "machine")
-        if code == 0:
+        #
+        # "Did it go?" is asked of the registry, not the exit code — as the
+        # Linux build trusts dpkg's status over a failing postrm, and the
+        # Android build asks the package manager. A hand-off uninstaller's exit
+        # code describes the launcher, not the removal (and MSI's 1605,
+        # "already removed", is covered by the same check).
+        def registered() -> bool:
+            return any(entry["key"] == app.id for entry in read_uninstall_entries())
+
+        code, output = run(
+            argv, elevated=app.extra.get("scope") == "machine",
+            follow=True, done=lambda: not registered(),
+        )
+        if not registered():
             return True, ""
-        # 1605 = "this action is only valid for installed products": the MSI is
-        # already gone, so the files are too — same reasoning as the Linux
-        # build trusting dpkg's status over a failing postrm's exit code.
-        if code == 1605:
-            return True, "Windows reported it was already removed."
+        if code == 0:
+            return False, "The uninstaller finished, but it is still installed — was it cancelled?"
         return False, output or f"The uninstaller exited with code {code}."
