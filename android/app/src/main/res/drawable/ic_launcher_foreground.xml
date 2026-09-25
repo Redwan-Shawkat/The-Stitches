@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The same two curves as the Linux build's src/uninstaller/icon.svg: a
+<!-- The same two curves as the Linux build's linux/src/uninstaller/icon.svg: a
      normal "A" crossed with its own 180-degree-rotated twin. Android's vector
      drawable format takes SVG path data verbatim, so the artwork is ported by
      copying the `d` attributes — no rasteriser, no generator script and no

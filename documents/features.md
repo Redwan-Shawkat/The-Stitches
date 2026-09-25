@@ -4,7 +4,7 @@ Checked before starting any work (see [CLAUDE.md](../CLAUDE.md)). Keep this
 in sync with [ai-knowledgebase.md](ai-knowledgebase.md) — every entry here
 that involved a design decision should have a matching note there.
 
-## Done — Linux (`src/`)
+## Done — Linux (`linux/`)
 
 - [x] APT/dpkg backend — lists manually-installed packages (`apt-mark
       showmanual` + `dpkg-query`), tags System via Essential/Priority.
@@ -60,7 +60,7 @@ that involved a design decision should have a matching note there.
       `dpkg-deb`; installs to `/usr`, declares its apt dependencies (so
       `apt install ./x.deb` pulls GTK in), and is `apt remove`-able.
 
-## Planned — Linux (`src/`)
+## Planned — Linux (`linux/`)
 
 - [ ] Reverse-dependency check for apt packages (currently heuristic-only,
       see ai-knowledgebase.md "Risk heuristic, not a dependency graph").
@@ -101,6 +101,27 @@ leaves. Design decisions in
       ignores configured colours).
 - [x] Correct taskbar icon via an explicit AppUserModelID, and DPI awareness
       so the UI isn't a blurry upscale.
+- [x] "Graphite & Signal" redesign — dark-first palette with one lime accent,
+      disk-space-by-source bar that doubles as the source filter, biggest-first
+      list with a shape-coded risk glyph (● ▲ ■), a Removal tray with a
+      running "frees up" total, receipt-style final check. Leftovers now
+      start unticked.
+- [x] Row selection by clicking anywhere on a row, and Shift+click ranges
+      (Critical skipped, like Select All) — the redesign's toggle column had
+      been clipped off-screen at the default window size.
+- [x] Fixed per-user uninstalls never finishing when the uninstaller left a
+      process running (browser page, updater): output is captured to temp
+      files, so only the uninstaller's own exit is waited on.
+- [x] Fixed every registry (MSI/EXE) uninstall crashing before it started
+      (undeclared ctypes restype in `split_command`), and an uninstall
+      error now fails that item instead of freezing the window.
+- [x] Fixed every machine-wide (UAC) uninstall failing: the elevated
+      `cmd /c` line was mis-quoted, breaking paths under Program Files.
+- [x] Installer uninstalls wait for the uninstaller's whole process tree
+      (Inno/NSIS hand off to a temp copy and exit), and success is decided
+      by whether the registry entry is gone, not by the exit code. Fast
+      polling plus adoption of new installer temp copies (`*.tmp`, `Au_.exe`)
+      covers launchers that exit before they're ever seen.
 - [x] Custom app icon — `icon.ico` (16–256px) generated from the Linux
       build's `icon.svg` curves by `tools/make_icon.py`, stdlib only.
 - [x] `.exe` release build — PyInstaller `--onefile --windowed`, portable,
