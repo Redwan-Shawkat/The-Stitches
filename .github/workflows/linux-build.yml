@@ -16,6 +16,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: linux
 
     steps:
       - uses: actions/checkout@v4
@@ -27,16 +30,19 @@ jobs:
         run: |
           ./build-deb.sh
           VERSION=$(sed -n 's/^version = "\(.*\)"$/\1/p' pyproject.toml)
-          git archive --format=tar.gz --prefix="stitches-$VERSION/" -o "dist/stitches-$VERSION.tar.gz" HEAD
+          # From the repo root: inside linux/, git archive would keep only linux/linux/.
+          # The tarball is linux/ itself, so install.sh is at its top, where the self-updater looks.
+          git -C .. archive --format=tar.gz --prefix="stitches-$VERSION/" --add-file=LICENSE --add-file=README.md \
+            -o "linux/dist/stitches-$VERSION.tar.gz" HEAD:linux
           cd dist && sha256sum stitches_*_all.deb stitches-*.tar.gz > SHA256SUMS-linux.txt && cat SHA256SUMS-linux.txt
 
       - uses: actions/upload-artifact@v4
         with:
           name: stitches-linux
           path: |
-            dist/*.deb
-            dist/*.tar.gz
-            dist/SHA256SUMS-linux.txt
+            linux/dist/*.deb
+            linux/dist/*.tar.gz
+            linux/dist/SHA256SUMS-linux.txt
 
       - name: Attach to the release
         if: github.ref_type == 'tag'

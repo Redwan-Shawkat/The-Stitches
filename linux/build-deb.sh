@@ -52,7 +52,7 @@ StartupWMClass=$APP_ID
 EOF
 
 # Policy wants both of these in /usr/share/doc/<package>.
-cp "$ROOT/README.md" "$DOC_DIR/"
+cp "$ROOT/../README.md" "$DOC_DIR/"
 {
     echo "$APP_NAME ($VERSION) unstable; urgency=low"
     echo
@@ -69,7 +69,7 @@ cp "$ROOT/README.md" "$DOC_DIR/"
     echo "Files: *"
     echo "Copyright: 2026 Redwan Shawkat"
     echo "License: MIT"
-    sed 's/^$/./; s/^/ /' "$ROOT/LICENSE"
+    sed 's/^$/./; s/^/ /' "$ROOT/../LICENSE"
 } > "$DOC_DIR/copyright"
 
 chmod -R a+rX,go-w "$STAGE"

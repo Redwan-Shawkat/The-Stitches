@@ -171,8 +171,8 @@ On any Debian/Ubuntu machine:
 ```bash
 ./build-deb.sh                     # -> dist/stitches_<version>_all.deb
 VERSION=$(sed -n 's/^version = "\(.*\)"$/\1/p' pyproject.toml)
-git archive --format=tar.gz --prefix=stitches-$VERSION/ \
-  -o dist/stitches-$VERSION.tar.gz HEAD   # -> dist/stitches-<version>.tar.gz
+git -C .. archive --format=tar.gz --prefix=stitches-$VERSION/ --add-file=LICENSE --add-file=README.md \
+  -o linux/dist/stitches-$VERSION.tar.gz HEAD:linux   # -> dist/stitches-<version>.tar.gz
 ```
 
 `build-deb.sh` reads the version from `pyproject.toml`, stages a tree under
@@ -234,7 +234,7 @@ grep keyPassword   android/keystore.properties | cut -d= -f2- | gh secret set AN
 **Every release:**
 
 1. Bump the version where it changed: `pyproject.toml` and
-   `src/stitches/__init__.py` (Linux), `windows/pyproject.toml` (Windows),
+   `linux/src/stitches/__init__.py` (Linux), `windows/pyproject.toml` (Windows),
    `versionName`/`versionCode` in `android/app/build.gradle.kts` (Android).
 2. Commit and push to `master`.
 3. Tag and push the tag:

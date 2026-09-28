@@ -282,6 +282,13 @@ does that in one command, honours `.gitignore` automatically (no
 `__pycache__` or `dist/` leaking into the tarball), and needs no packaging
 toolchain (`setuptools`/`build`/`dpkg-deb`) on the release machine.
 
+Since the Linux build moved into `linux/`, the tarball is the `HEAD:linux`
+tree plus the root `LICENSE` and `README.md` (`--add-file`). That keeps
+`install.sh` at the tarball's top, where `selfupdate.install` looks for
+`*/install.sh`. `git archive` has to run from the repo root (`git -C ..`):
+run inside `linux/`, it keeps only paths under the current folder, which in
+the `linux` tree means `linux/linux/`, and the tarball comes out empty.
+
 A wheel/sdist via `python3 -m build` was rejected: `pip install` is not the
 documented install path (the app deliberately uses system PyGObject rather
 than a venv, see [Stack choice](#stack-choice)), so shipping a wheel would
@@ -972,6 +979,15 @@ grid, not the card.
   path to the store's, and the select-all circle covers only what the filter
   shows (the same `_shown()` pattern as Updates). A ticked row that gets
   filtered out stays ticked, and the confirm dialog still lists it.
+- **The "Removed from" log moves under the table when the window is narrow.**
+  The table sits in a sideways-scrolling card, so in a window narrower than
+  table + log (about 940 px) the SIZE column scrolled out of sight and the
+  "password" tags were cut to "…". The body box listens to `size-allocate`
+  and switches to vertical once its width is below the tree's natural
+  width + the log card's + 40 (borders, spacing, scrollbar). The switch goes
+  through `idle_add`, because GTK can't take an orientation change in the
+  middle of an allocation. The numbers come from the widgets, not a fixed
+  breakpoint, so they stay right when a column changes.
 
 ### Drivers: no log, no Update all
 
@@ -994,7 +1010,7 @@ so the tiles stay apart without borders.
 ## A sibling tree, not one cross-platform package
 
 `windows/` is a parallel copy of the project, not a `if sys.platform` layer
-inside `linux/src/uninstaller`. The two builds share the *shape* — `models.py`,
+inside `linux/src/stitches`. The two builds share the *shape* — `models.py`,
 `risk.py`, `leftovers.py`, `scanner.py`, `uninstaller.py` and a `backends/`
 directory with one file per source — and share almost none of the *code*,
 because every leaf is platform-specific: the backends shell out to different

@@ -48,7 +48,7 @@ class CleanupPage(Page):
         shown.connect("changed", self._on_filter_changed)
         self.header.pack_end(shown, False, False, 0)
 
-        table, _tree, self.select_all = make_table(
+        table, self.tree, self.select_all = make_table(
             self.filter_model, [("LOCATION", COL_NAME, True), ("WHAT REMOVING IT MEANS", COL_REASON, "wrap"),
                                 ("SIZE", COL_SIZE, False)],
             on_toggle=self._on_toggled, toggle_col=COL_SELECTED, on_toggle_all=self._select,
@@ -67,10 +67,22 @@ class CleanupPage(Page):
         empty.show()
         self.log.set_placeholder(empty)
         self.log_scroll = scrolled(self.log)
+        self.log_scroll.set_min_content_height(110)  # when it sits under the table
         aside.pack_start(self.log_scroll, True, True, 0)
-        self.body.pack_start(card(aside), False, False, 0)
+        self.aside = card(aside)
+        self.body.pack_start(self.aside, False, False, 0)
+        self.body.connect("size-allocate", self._fit_aside)
 
         self.remove_button = self.bar.add_button("Remove selected", self._on_remove_clicked, "destructive-action")
+
+    def _fit_aside(self, body, allocation):
+        """The log sits beside the table while both fit and under it when the
+        window is narrower, so the table's SIZE column never scrolls out of
+        sight. 40 covers the card borders, spacing and a scrollbar."""
+        need = self.tree.get_preferred_width()[1] + self.aside.get_preferred_width()[1] + 40
+        want = Gtk.Orientation.HORIZONTAL if allocation.width >= need else Gtk.Orientation.VERTICAL
+        if body.get_orientation() != want:
+            GLib.idle_add(body.set_orientation, want)  # not mid-allocation
 
     def _on_filter_changed(self, combo):
         self.keep = _FILTERS[combo.get_active_text()]

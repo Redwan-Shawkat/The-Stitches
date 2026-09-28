@@ -178,8 +178,13 @@ that involved a design decision should have a matching note there.
       with stand-ins for themes that lack them.
 - [x] Drivers: the Update log card is gone; failed updates open a dialog.
 - [x] Defrag: one card per OS group, tiles side by side inside it.
+- [x] Cleanup: in a narrow window the "Removed from" log sits under the
+      table, so SIZE and the password tags stay in view.
+- [x] The Linux code lives in `linux/src/stitches`, next to the `install.sh`,
+      `build-deb.sh` and tests that read it from there. The release tarball
+      is `linux/` itself, so `install.sh` is at its top.
 
-## Planned — Linux (`src/`)
+## Planned — Linux (`linux/`)
 
 - [ ] Fan sensors on boards whose sensor chip driver isn't loaded
       (`nct6775`, `it87`): detect the chip and offer to load the module.
