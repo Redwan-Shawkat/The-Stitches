@@ -875,14 +875,19 @@ class Table(Rounded):
         if anchor == "e":
             c.create_text(end, y, text=fit_text(cell, width, font), anchor="e", font=font, fill=THEME["dim"])
             return
-        for part in cell if isinstance(cell, list) else [cell]:
+        parts = cell if isinstance(cell, list) else [cell]
+        for n, part in enumerate(parts):
             kind, text = ("fg", part) if isinstance(part, str) else part[:2]
             if not text or x >= end:
                 continue
             if kind == "tag":
                 x = draw_tag(c, x, y, text, part[2]) + px(6)
             else:
-                text = fit_text(text, end - x, font)
+                # Tags after the text keep their room: a narrow window cuts a
+                # long reason short, never the risk label that ends it.
+                room = sum(FONTS["small"].measure(p[1]) + px(18) for p in parts[n + 1:]
+                           if not isinstance(p, str) and p[0] == "tag")
+                text = fit_text(text, end - x - room, font)
                 c.create_text(x, y, text=text, anchor="w", font=font, fill=THEME["dim" if kind == "dim" else "fg"])
                 x += font.measure(text) + px(6)
 

@@ -298,6 +298,7 @@ leaves. Design decisions in
 - [x] Cleanup — Windows Update downloads, browser caches, shader caches,
       crash dumps, error reports, Scoop's cache, temp files older than a
       day, Recycle Bin; filter, risk tag per reason, confirmation, freed total.
+      In a narrow window the reason is cut short, never its risk tag.
 - [x] Updates — Windows Update, winget, Chocolatey and Scoop in one list with
       search and a source filter; one permission prompt per batch source.
 - [x] Drivers — display/network/audio/storage/Bluetooth/firmware devices with

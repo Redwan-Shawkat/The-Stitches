@@ -1458,6 +1458,13 @@ update on every start.
   locked, and deleting it fails and is logged instead. `is_stale` still
   walks the whole entry, because a setup unpacking into an old folder has
   fresh files inside it.
+- **A cell's text leaves room for the tags after it.** `Table._draw_cell`
+  used to cut the reason to the whole column width, and then the risk tag
+  after it had no space left and wasn't drawn at all. That broke a
+  non-negotiable in a narrow window. The text is now fitted to the width
+  minus the tags that follow it, so the reason gets "…" and the tag stays.
+  Unlike on Linux, the table never scrolls sideways: SIZE is a fixed column
+  and the reason column takes what's left.
 
 ### Drivers
 
