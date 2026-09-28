@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">The Uninstaller</string>
+    <string name="app_name">Stitches</string>
     <string name="search_hint">Search installed apps</string>
     <string name="scanning">Scanning for installed software…</string>
     <string name="select_all">Select All</string>

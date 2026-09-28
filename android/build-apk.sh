@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds the release APK: TheUninstaller-<version>.apk.
+# Builds the release APK: Stitches-<version>.apk.
 #
 # A release APK has to be signed or Android won't install it, so this creates
 # a local keystore on first run rather than handing you an unsigned artifact.
@@ -22,7 +22,7 @@ if [ ! -f "$PROPS" ]; then
   PASSWORD="$(head -c 24 /dev/urandom | base64 | tr -d '/+=')"
   keytool -genkeypair -keystore "$KEYSTORE" -storepass "$PASSWORD" -keypass "$PASSWORD" \
     -alias uninstaller -keyalg RSA -keysize 4096 -validity 10000 \
-    -dname "CN=The Uninstaller, O=The Uninstaller, C=US" >/dev/null
+    -dname "CN=Stitches, O=Stitches, C=US" >/dev/null
   cat > "$PROPS" <<PROPS_EOF
 storeFile=keystore.jks
 storePassword=$PASSWORD
@@ -38,7 +38,7 @@ APK="$ROOT/app/build/outputs/apk/release/app-release.apk"
 [ -f "$APK" ] || { echo "gradle produced no signed APK at $APK" >&2; exit 1; }
 
 mkdir -p "$ROOT/dist"
-OUT="$ROOT/dist/TheUninstaller-$VERSION.apk"
+OUT="$ROOT/dist/Stitches-$VERSION.apk"
 cp "$APK" "$OUT"
 ( cd "$ROOT/dist" && sha256sum "$(basename "$OUT")" > SHA256SUMS.txt )
 

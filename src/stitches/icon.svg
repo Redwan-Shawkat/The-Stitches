@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="18" fill="#1f2937"/>
+  <!-- A running stitch round the edge, like a sewn-on patch. -->
+  <rect x="7" y="7" width="86" height="86" rx="12" fill="none" stroke="#6b7280" stroke-width="3" stroke-dasharray="6 4.5"/>
+  <!-- The same hourglass as before, a normal "A" crossed with its upside-down
+       twin, now sewn: a faint seam line, and the thread over it in stitches.
+       Each curve is 129 units long, so 9-on 6-off puts a stitch on both tips
+       and the apex. Square ends: round caps would close the gaps, and at dock
+       size the thread would read as a solid line. -->
+  <path d="M 22,78 C 34,50 38,38 50,20 C 62,38 66,50 78,78 M 22,22 C 34,50 38,62 50,80 C 62,62 66,50 78,22"
+        fill="none" stroke="#4b5563" stroke-width="2"/>
+  <path d="M 22,78 C 34,50 38,38 50,20 C 62,38 66,50 78,78" fill="none" stroke="#e5e7eb" stroke-width="6" stroke-dasharray="9 6"/>
+  <path d="M 22,22 C 34,50 38,62 50,80 C 62,62 66,50 78,22" fill="none" stroke="#e5e7eb" stroke-width="6" stroke-dasharray="9 6"/>
+</svg>

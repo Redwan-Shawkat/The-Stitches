@@ -52,6 +52,12 @@ def classify_runtime_name(name: str) -> tuple[Risk, str, bool] | None:
     return None
 
 
+def classify_local(running: bool) -> tuple[Risk, str, bool]:
+    if running:
+        return Risk.CAUTION, "This is the Stitches you're using: it keeps running until you close it, then it's gone.", False
+    return Risk.SAFE, "A copy installed into your home folder by install.sh; nothing else uses it.", False
+
+
 def classify_default(source: Source) -> tuple[Risk, str, bool]:
     if source == Source.WINE:
         return Risk.SAFE, "Lives inside its own Wine prefix — removing it won't touch the rest of your system.", False

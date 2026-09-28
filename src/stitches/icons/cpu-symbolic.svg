@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Fallback for icon themes without one: a chip with pins on each side -->
+  <path fill="#2e3436" fill-rule="evenodd" d="M5 3h6a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm1 3v4h4V6z
+    M5 0h1.5v2H5zm4.5 0H11v2H9.5zM5 14h1.5v2H5zm4.5 0H11v2H9.5zM0 5h2v1.5H0zm0 4.5h2V11H0zM14 5h2v1.5h-2zm0 4.5h2V11h-2z"/>
+</svg>

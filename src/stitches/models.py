@@ -18,6 +18,7 @@ class Source(str, Enum):
     SNAP = "Snap Store"
     FLATPAK = "Flatpak"
     WINE = "Wine (Windows app)"
+    LOCAL = "Local install"
 
 
 class Risk(str, Enum):

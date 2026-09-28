@@ -1,6 +1,6 @@
-# Windows the Uninstaller
+# Stitches for Windows
 
-The Windows build of [The Uninstaller](../README.md). Same idea as the Linux
+The Windows build of [Stitches](../README.md). Same idea as the Linux
 one, pointed at a different problem: Apps & Features lists what an MSI or EXE
 installer registered, and nothing else. Microsoft Store apps live in a
 separate list. Anything you installed with `choco install` or `scoop install`
@@ -38,10 +38,10 @@ Design decisions and why:
 
 Pick one:
 
-- **`TheUninstaller-0.1.0-x64.msi`** — installs to `Program Files`, adds a
+- **`Stitches-0.1.0-x64.msi`** — installs to `Program Files`, adds a
   Start Menu shortcut, and shows up in Apps & Features so it can be removed
   the ordinary way. Recommended.
-- **`TheUninstaller.exe`** — one portable file. Download, double-click, done.
+- **`Stitches.exe`** — one portable file. Download, double-click, done.
   Nothing is installed and nothing is left behind.
 
 Neither needs Python: the interpreter is inside the executable.
@@ -78,7 +78,7 @@ and the .NET SDK:
 .\build-all.ps1
 ```
 
-That produces `dist\TheUninstaller.exe`, `dist\TheUninstaller-0.1.0-x64.msi`
+That produces `dist\Stitches.exe`, `dist\Stitches-0.1.0-x64.msi`
 and `dist\SHA256SUMS.txt`. The two halves also run on their own
 (`.\build-exe.ps1`, `.\build-msi.ps1`). PyInstaller and WiX are installed by
 the scripts if they're missing; they're build-time only, and the app itself

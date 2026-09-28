@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Fallback for icon themes without one: a screen with a magnifier on it -->
+  <path fill="#2e3436" fill-rule="evenodd" d="M2 2h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm-.5 1.5v8h13v-8z
+    M5 14h6v1.5H5z
+    M7 4.2a2.8 2.8 0 1 1 0 5.6a2.8 2.8 0 1 1 0-5.6zm0 1.1a1.7 1.7 0 1 0 0 3.4a1.7 1.7 0 1 0 0-3.4z
+    M8.17 9.23l1.06-1.06 2.2 2.2-1.06 1.06z"/>
+</svg>

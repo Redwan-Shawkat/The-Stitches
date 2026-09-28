@@ -334,6 +334,661 @@ Specific choices worth not re-litigating:
 
 ---
 
+# Stitches (Linux 0.2)
+
+The Linux build grew from one uninstall list into seven tools and was renamed
+twice: The Uninstaller → SoftHUB → **Stitches**. Everything above still holds
+for the Uninstall page; this section covers what's new.
+
+## The rename: what moved and what didn't
+
+`src/uninstaller` → `src/stitches`, command `stitches`, GTK application id
+`io.github.stitches` (the `.desktop` file and icon are named after it, same
+Wayland rule as before), window/app/menu name "Stitches". This supersedes
+"Displayed app name is 'The Uninstaller'" above. The `.deb` package is now
+`stitches` with `Conflicts:`/`Replaces: softhub, linux-the-uninstaller`, so
+installing it removes either older package instead of leaving two menu
+entries; `install.sh` does the same for per-user copies under either earlier
+name. The module `uninstaller.py` keeps its name: it still orchestrates one
+uninstall.
+
+**A rename unpins the app.** GNOME stores taskbar/dock pins
+(`org.gnome.shell favorite-apps`) as `.desktop` file names, so deleting
+`io.github.linux-the-uninstaller.desktop` made the pinned icon vanish; that
+is what actually happened on the development machine after the first
+reinstall. `install.sh` now rewrites that list after writing the new entry:
+an old name becomes the new one in the same position, and a duplicate is
+dropped. It uses python3 (already required) and does nothing where
+`gsettings` or that key doesn't exist.
+
+Windows and Android show "Stitches" wherever a person sees the name: window
+title, `Stitches.exe`, `Stitches-<v>-x64.msi`, the Start menu and Apps &
+Features entry, the Android app label and `Stitches-<v>.apk`. Their
+identities stay: the MSI's `UpgradeCode` (so it upgrades an installed The
+Uninstaller in place — the component got a new GUID, because its file and
+folder names changed and a component keeps one key path for life), the
+Windows AppUserModelID and `uninstaller` package, and Android's
+`applicationId` and Kotlin package. Changing the applicationId would make
+Android treat it as a different app, so installed copies could never update.
+
+Deliberately not renamed: the repository and folder (the user will do that),
+and `SRS.md`, which still describes 0.1.
+
+## Window: a sidebar and a stack, one module per page
+
+`gui.py` is now only the window: a dark sidebar (`Gtk.ListBox`) switching a
+`Gtk.Stack`. `Gtk.StackSidebar` was the native option, but it can't carry an
+icon or a count badge per row, and the approved design has both; a ListBox
+row with an icon, a label and a badge is about fifteen lines. Each tool is
+its own module under `pages/`, and what they share lives in `widgets.py`:
+the `Page` scaffold (title, subtitle, action bar), the checkbox table, the
+tag markup and the confirm/info dialogs. The 0.1 note that one window stays
+one module was right for one screen; five screens of ~150–250 lines each
+are five responsibilities. (The sidebar was later replaced by a dock — see
+*Third round* below; the stack and the page modules didn't change.)
+
+Styling is one CSS block in `widgets.py`, and it only colours what the
+design fixes regardless of theme: the sidebar and the action bar (always
+dark), and the accent. Page backgrounds and cards use `@theme_bg_color` /
+`@theme_base_color`, so the existing light/dark switch (moved into the
+sidebar) keeps working with every theme exactly as before. The design's
+Geist font isn't bundled; the system font is used.
+
+Tags (source, risk) are Pango `background` spans inside `TreeView` cells.
+Rounded pill corners would need a custom cell renderer or a `ListBox` of
+widgets per row; the TreeView was kept because Uninstall lists 300+ rows
+with filtering, and square-cornered tags were the cheap trade.
+
+A page locks only itself while it works (`Page.set_busy`), not the whole
+window, so an update can run while you look at another tool. The cost: two
+pages can start apt at once, and the second fails with apt's own "Could not
+get lock" message — honest, and rare enough not to warrant a global lock.
+
+## The line loader
+
+The requested "straight line loading" is a `Gtk.ProgressBar` restyled to a
+3px glowing line along the top edge of each page's action bar. It pulses
+(`pulse()`) while scanning, and while work runs it reuses 0.1's crawl-toward-
+92%-then-snap approach (`ActionBar.slice/settle`), because apt, snap,
+fwupd and e4defrag report no progress we can read. It's accent-blue while
+working and red once anything fails; the 0.1 green-on-success colour was
+dropped for the design's accent.
+
+## `shell.py`: C locale, nothing on stdin
+
+Every new module reads other programs through `shell.output()`, which runs
+them with `LC_ALL=C` and stdin at `/dev/null`. The C locale is not
+hypothetical: the development machine runs a Bengali locale, and apt,
+flatpak and snap translate the very strings the parsers match
+(`[upgradable from: …]`, `Nothing unused to uninstall`). The empty stdin
+means no tool can ever sit waiting for an answer nobody can see.
+`shell.run()` is for commands that change something: it returns stdout and
+stderr together, stderr last, so a failure's reason is at the tail the GUI
+shows.
+
+## Updates
+
+| Source | Found with | Updated with |
+|---|---|---|
+| APT | `apt list --upgradable` + one `apt-cache policy` for the repo host | `pkexec apt-get install --only-upgrade -y …` |
+| Snap | `snap refresh --list` + `snap list` for the installed version | `pkexec snap refresh …` |
+| Flatpak | `flatpak remote-ls --updates` + `flatpak list` | `flatpak update -y --noninteractive <ref>` |
+| GitHub | an AppImage's embedded update info + the GitHub releases API | download, verify, swap in place |
+
+- **"From a website" means a vendor repo.** A `.deb` downloaded from a
+  website has no update feed, so nothing can check it (features.md, out of
+  scope). A vendor that ships an apt repo does, and `apt-cache policy`
+  names the host, so VS Code shows `packages.microsoft.com` rather than
+  looking like a distro package.
+- **APT and Snap update as one batch each.** `pkexec` asks for a password
+  every time; one per package would make bulk update unusable. The cost is
+  that per-package progress inside a batch isn't visible, so the whole
+  batch shares one status. Flatpak and AppImages need no password and go
+  one at a time.
+- **No `apt update` first.** It needs root, so every "Check again" would
+  cost a password. The list is as fresh as the system's own daily refresh.
+- **`--force-confdef --force-confold`.** There's no terminal to answer
+  dpkg's "keep your changed config file?" question, and an unanswered
+  prompt fails the whole run. Keeping the user's file is also apt's own
+  default.
+- **GitHub AppImages.** Every AppImage carries an ELF section `.upd_info`;
+  the common form is `gh-releases-zsync|owner|repo|tag|glob.zsync`.
+  `read_update_info` reads it with `struct`, no extraction and no running
+  the binary. The newest matching release asset is compared **by size** to
+  the local file (`ponytail:` in the code) — sizes of compressed images
+  essentially never repeat across builds, while hashing would read every
+  AppImage on each check. The download goes to `<file>.part`, must match
+  the asset's size and, when GitHub publishes one, its sha256 `digest`, and
+  only then replaces the file under the same name, so launchers that point
+  at the path keep working. A cut-off download never replaces a working
+  app.
+- The four sources are checked in parallel (`ThreadPoolExecutor`): three
+  of them wait on the network.
+
+## Cleanup
+
+Each `Location` carries either paths to delete as the user, or a command
+to run, plus the `(what, bytes)` lines the removal log shows:
+
+| Location | How | Risk |
+|---|---|---|
+| APT package cache | `pkexec apt-get clean` | Safe |
+| Old Snap revisions | `pkexec sh -c 'snap remove X --revision=N && …'` | Safe |
+| App caches (`~/.cache/*` except thumbnails) | delete per child | Safe |
+| Thumbnails | delete per child | Safe |
+| Logs older than 7 days | `pkexec journalctl --vacuum-time=7d` | Safe |
+| Unused Flatpak runtimes | `flatpak uninstall --unused -y` | Caution |
+| Temp files older than a day | delete per entry | Caution |
+| Trash | `gio trash --empty` | Caution |
+
+- Nothing is pre-selected (Safe ones were, until the fourth round); removal
+  always goes through the confirmation dialog (CLAUDE.md).
+- **Unused Flatpak runtimes are listed by asking flatpak.** Working out
+  "unused" ourselves means reimplementing flatpak's knowledge of
+  extensions, SDKs and GL drivers — wrong answers delete things apps need.
+  `flatpak uninstall --unused` prints its list and then asks to proceed;
+  with no terminal it answers no by itself (why CI scripts need `-y`), and
+  "n" is piped to stdin as well.
+- **Temp files: only the user's own, untouched for a day, and holding no
+  socket anywhere inside.** A running ssh-agent or tmux keeps its socket
+  in a `/tmp` directory for its whole life, often longer than a day;
+  deleting it breaks the session. `is_stale` walks the entry once for
+  both the socket check and the newest mtime.
+- For command locations the log shows the sizes measured at scan time,
+  since `apt-get clean` and friends don't report per-item sizes.
+- One password prompt per admin location (up to three); see features.md.
+
+## Drivers
+
+On Linux most drivers are part of the kernel and update with it; what
+updates separately comes from three places, and the page says so rather
+than pretending to a Windows-style driver catalogue:
+
+- **`ubuntu-drivers devices`**: devices with a proprietary driver (mostly
+  NVIDIA). An update means the recommended package isn't the installed one;
+  it's installed with `apt-get install`, like `ubuntu-drivers install`
+  does.
+- **fwupd/LVFS**: devices come from `fwupdmgr get-devices --json` (only
+  those flagged `updatable`), updates from `get-updates --json`.
+  `get-devices` embeds `Releases` too, but those include releases that
+  aren't upgrades (seen on this machine: a KEK certificate offering its
+  own current version), so only `get-updates` decides. Flashing runs as
+  `pkexec fwupdmgr update <id> --assume-yes --no-reboot-check`; UEFI
+  firmware lands on the next reboot, and the page says so.
+- **`linux-firmware*`** from `apt list --upgradable`. It also appears on
+  Updates; that's deliberate, since it's where people look for it.
+
+The device list is PCI devices in the classes someone would recognise
+(display, network, audio, storage, wireless) from `lspci -vmmnnkD`, shown
+with the kernel driver in use. Names keep a GPU's bracketed marketing name
+("Radeon R7 240") but not other brackets, which say things like
+"[AHCI Mode]".
+
+The system spec (on Home since the second round) reads `/etc/os-release`,
+`/proc/cpuinfo`, `/proc/meminfo` and `/sys/class/dmi/id` directly. Two details: self-built desktops report
+"System manufacturer / System Product Name" in DMI, so those placeholders
+fall back to the board's vendor and name; and disk models come from
+`lsblk`, because `/sys/block/*/device/model` cuts ATA models at 16
+characters.
+
+## Defrag
+
+ext4 (`e4defrag`), btrfs (`btrfs filesystem defragment -r`) and XFS
+(`xfs_fsr`) are the filesystems Linux can defragment online, all run as
+root on the mountpoint. Every drive with a filesystem is listed, and the
+ones that won't be touched say why: an SSD (no benefit, and wear), not
+mounted, a filesystem with no Linux defragmenter (NTFS, FAT, exFAT), or a
+missing tool package. btrfs is marked "unshares snapshots": defragmenting
+copies extents that snapshots share, which can use more space.
+
+There's no "Analyze" step, although the design had one: `e4defrag -c` run
+unprivileged prints nothing, so a fragmentation score would cost a
+password prompt just to look. `e4defrag` itself skips files that aren't
+fragmented, so running it is its own analysis.
+
+## Second round: Home, Diagnose, themes, self-update
+
+### Home: numbers with a verdict
+
+The spec moved off Drivers to Home, and the request was "not just numbers":
+every reading carries Good / Warning / Critical, and every BIOS setting a
+sentence saying what it does. `sysinfo.describe_firmware` is pure over a
+facts dict, so the wording is tested; the facts come from files any user can
+read — `/sys/class/dmi/id` (BIOS vendor, version, date), `/sys/firmware/efi`
+(UEFI or legacy), the `SecureBoot-8be4…` efivar (last byte is the value),
+`/sys/class/tpm`, and the `vmx`/`svm` CPU flag plus `/dev/kvm`. A BIOS can't
+be read "settings-wise" beyond that without root and vendor tools, so those
+five are the settings shown.
+
+Temperatures come from hwmon (`/sys/class/hwmon/*/temp*_input`) and use the
+chip's own `max`/`crit` when it reports them — coretemp says 80°/100° — with
+Critical starting 5° short of the chip's critical point, and 75°/90° when a
+chip reports nothing. A CPU with many cores collapses to its package reading
+plus "hottest of N more". Drive temperatures come from SMART via UDisks2.
+Fans are `fan*_input`; many desktop boards expose none until their sensor-chip
+driver (`nct6775`, `it87`) is loaded, and Home says exactly that instead of
+showing an empty card. Live values refresh every 5 seconds, only while Home is
+on screen.
+
+Partition usage is one `lsblk -o …,FSUSED,FSSIZE` call rather than statvfs
+per mount, because lsblk also lists the partitions that aren't mounted (their
+usage is unknown until they are, and the page says so).
+
+### UDisks2 through `busctl --json`, not Gio
+
+SMART health comes from UDisks2 — the same source GNOME Disks uses, readable
+without root, nothing to install. It's fetched with
+`busctl --system --json=short call … GetManagedObjects` and parsed as JSON,
+rather than through `gi.repository.Gio`, so `vitals.py` and `diagnose.py`
+import nothing from GObject and their tests run on a CI runner without
+PyGObject. ATA drives report `SmartFailing`, bad sectors and failing
+attributes; NVMe reports a `SmartCriticalWarning` list; temperatures are in
+kelvin. A drive with no SMART data (USB sticks, some adapters) is "Info", not
+a failure.
+
+### Diagnose: the Windows tools, mapped
+
+| Check | Stands in for | How | Fix |
+|---|---|---|---|
+| System files | `sfc /scannow` | `dpkg --verify` as the user | `apt-get install --reinstall` the owning packages |
+| Package database | `DISM /CheckHealth` | `dpkg --audit`, `apt-get check -o Debug::NoLocking=1` | `dpkg --configure -a && apt-get -f install` |
+| Disk health | CrystalDiskInfo | UDisks2 SMART | — |
+| File systems | `chkdsk` | `/sys/fs/ext4/*/errors_count` | `tune2fs -E force_fsck`, then restart |
+| Memory, quick | Memory Diagnostic | pattern test in-process | — |
+| Memory, full | Memory Diagnostic (restart) | memtest86+ via `grub-reboot` | restart |
+| Free space, Services, Errors since startup | Storage Sense, services.msc, Event Viewer | lsblk, `systemctl --failed`, `journalctl -b -p err -o json` | restart failed services |
+
+Decisions worth keeping:
+
+- **Every check reads without a password.** `dpkg --verify` works as the user
+  (about 70–80 s on a desktop install; files only root can read report "?" and
+  are counted as "can only be checked with admin rights", not as damage).
+  Config files are skipped, since they're meant to be edited, and so are
+  diversion targets: Zorin diverts `/etc/gtk-3.0/settings.ini` and
+  `dpkg --verify` reports the moved original "missing", which was the one
+  false positive on the development machine. `apt-get check` needs the dpkg
+  lock unless told `Debug::NoLocking=1`; it only reads, so that's safe.
+- **Diagnose doesn't scan on its own.** Every other page scans when the window
+  opens; this one reads every installed file, so it waits for **Scan**.
+- **The quick memory test is honest about its reach.** It writes five
+  patterns over up to 1 GiB (a quarter of what's free) and compares them in
+  1 MiB slices; a `bytearray` slice comparison is a memcmp, while comparing
+  `memoryview` slices goes byte by byte and took 17 s instead of 3. It can
+  only test memory the kernel hands it, and the result says so.
+- **Restart fixes set the next boot only, and ask twice.** The full memory test
+  uses `grub-reboot memtest86+` (the menu entry's id, so it doesn't depend on
+  the translated title). `grub-reboot` works regardless of `GRUB_DEFAULT`,
+  because `00_header` always honours `next_entry` and clears it after one use.
+  With Secure Boot on, unsigned memtest86+ may be refused by the firmware, and
+  the caution says that before anything is set. A file-system check at restart
+  uses `tune2fs -E force_fsck`, e2fsprogs' own "check at next mount" flag, which
+  systemd-fsck acts on at boot. Both fixes explain what will happen, and then
+  a second dialog asks before actually restarting.
+
+### Drivers say what each thing is
+
+The question was "is this even for Linux?" — fair, since "KEK CA" and
+"linux-firmware-amd-graphics" explain nothing. Each row now carries a
+`purpose` in its own **What it is** column: fwupd items are mapped by plugin
+(`uefi_capsule` is the motherboard's BIOS, other `uefi_*` are Secure Boot key
+lists, `ata`/`nvme` is the drive's own firmware…) and all say they apply to
+every OS, because they run inside the hardware. `linux-firmware*` says which
+chips it's for and that it's Linux only; kernel drivers say they update with
+the kernel. The source moved under the version to keep the table inside a
+1180 px window.
+
+### Stitches lists itself
+
+A per-user install from `install.sh` lives in `~/.local`, which no package
+manager knows about, so the one app Stitches couldn't list was itself. That was
+the exact situation on the development machine (an old 0.1 install). A
+fifth backend, `local_backend.py`, recognises this app's own install layout
+(under its current name and both earlier ones) and removes exactly what
+`install.sh` places.
+It deliberately doesn't try to find other script-installed apps: there's no
+common layout to recognise, and guessing what to delete is the wrong kind of
+guess. If it's the running copy it's rated Caution. `backends/base.py` is
+left untouched (its docstring still says four) because it's kept
+byte-identical with the Windows copy.
+
+### Themes
+
+Light and Dark are still the system theme's own variants. AMOLED and Glass
+are extra CSS loaded one priority step above the base CSS, both on the dark
+variant for its text colours. Glass is translucency, not blur: GTK3 can't
+blur what's behind a window. The window asks for an RGBA visual whenever the
+screen is composited; opaque themes simply paint over it. Theme choice is
+stored in `~/.config/stitches/settings.json`; the 0.1 note about deferring
+persistence until someone asks is answered.
+
+Buttons that only repeat an action's name (refresh; select all/none/safe until the
+fourth round replaced them with a header checkbox) are icon-only
+with the name on hover. Buttons that carry a count or change the system
+(Update selected · 14, Remove selected · 9.5 GB) keep their words.
+
+### Update all (removed in the fifth round)
+
+Updates and Drivers each got **Update all**: every pending item, no ticking.
+It went through the same batching as Update selected, so APT and Snap still
+asked for the password once each. The fifth round removed it: the
+select-all circle does the same in two clicks, and two buttons that both
+update read as a choice that isn't one.
+
+### Self-update from GitHub releases
+
+`selfupdate.py` asks `api.github.com/…/releases/latest` once at start-up on a
+thread; offline or rate-limited just means no notice, never an error. A newer
+tag shows a toast that dismisses itself after 4 seconds (10 before the fourth
+round), and marks the
+dock's update button. Installing picks the asset matching how this copy
+got here, decided from its own path: `/usr/…` is a `.deb` install, so it
+downloads `stitches_*_all.deb` and runs `pkexec apt-get install` on it;
+`~/.local/lib/…` is `install.sh`'s, so it downloads `stitches-*.tar.gz`,
+extracts it (with the `data` filter where Python has it) and runs its
+`install.sh`; a git checkout is told to `git pull`. Downloads go through the
+same `updates.download()` as AppImages: size and GitHub's sha256 digest must
+match before anything is installed. Restart is `os.execv` of the same
+interpreter, which keeps the launcher's `PYTHONPATH`.
+
+`REPO` still names `Redwan-Shawkat/The-Uninstaller`. GitHub redirects the API
+after a rename, so it keeps working, but update it when the repo is renamed.
+
+### Releasing is pushing a tag
+
+Every release needs the `.deb` and the tarball for the self-updater to work,
+so `linux-build.yml` builds both on a `v*` tag instead of relying on someone
+uploading them. The three workflows run in parallel. Previously each ran
+`gh release upload`, which fails if no release exists, and each uploaded
+`SHA256SUMS.txt` with `--clobber`, so the last one overwrote the other two.
+Now each first tries `gh release create` (the first to finish wins, the
+others' "already exists" is ignored) and uploads its own
+`SHA256SUMS-<platform>.txt`.
+
+## Real screenshots without the screenshot portal
+
+The Screenshots note in the README says GNOME's screenshot APIs refused a
+non-interactive caller. `Gtk.Widget.draw()` onto a cairo image surface
+renders the real, running window, from inside the process, on Wayland too,
+with no portal involved. That is how the 0.2 pages were checked visually
+during development. The window does open on the desktop while this runs:
+a click on it changes the page (or the theme) between two captures, and a
+hidden window (on Wayland) stops being laid out, so a capture can come back
+stale. Check which dock icon is lit in the image before trusting it.
+
+## Third round: a dock, a sewn logo, a compact Home
+
+### A dock instead of a sidebar
+
+The tools moved from a left sidebar to one row of icons centred under the
+page, like a desktop dock (the request: "no sidebar… a dock at center").
+The buttons are one `Gtk.RadioButton` group with `draw_indicator=False`,
+which GTK renders as plain buttons with `:checked` on the open tool — the
+radio group is what keeps exactly one lit, so there's no selection code.
+Each icon sits in a `Gtk.Overlay` with 4 px of margin, so the count badge
+lands in the corner instead of on the icon. Names and counts are the
+tooltip. The dock is packed under the stack, not overlaid on it: overlaid,
+it would cover every page's action bar. The collapse button and its
+`collapsed` setting went with the sidebar; an old settings file that still
+has the key is simply ignored. The dock stayed dark in the Light theme, like
+the action bar above it, until the fourth round gave it its own theme.
+
+### The sewn logo
+
+Asked for "the same logo, but like catch stitches". Kept: the tile, the
+colours and the A-over-V curves. Added: `stroke-dasharray` on both curves,
+so they read as thread between needle holes, and a dashed rounded rect
+inside the tile edge, the running stitch of a sewn-on patch. Tried and
+dropped: straight lines with overshooting tips (a literal catch-stitch
+diagram) and over/under gaps at the crossings. At 30 px both read as a
+broken "AV", not as stitching. Windows (`tools/make_icon.py`) and Android
+(a vector drawable, which has no dash support) still draw the plain curves.
+
+### Compact Home
+
+Everything on one screen at the default 1180×760 window. Home is three
+equal columns (This PC + Memory, BIOS/UEFI, Temperatures & fans) above a
+full-width storage strip. The last card in each column stretched, so the
+columns ended level; the fourth round undid that (cards only as tall as
+their content). A `compact` CSS class sets 12 px labels and 11 px notes
+on Home only; other pages keep their size. Fans became a line inside the
+temperatures card, because on most desktops without the sensor driver the
+Fans card held one sentence. Unmounted partitions are one line ("sda2 ntfs
+200 GB · …") instead of a row each. The page still sits in a
+`ScrolledWindow`, so a smaller window scrolls instead of clipping. Page
+titles went from 26 to 22 px on every page, with tighter header margins,
+to make room for the dock.
+
+## Fourth round: groups, mixed themes, and saying more per page
+
+### The icon that didn't show, and the logo that didn't look sewn
+
+**Missing icon.** The pin and the `.desktop` file were right, and
+`Gtk.IconTheme` found the SVG, yet GNOME Shell showed a generic icon. GTK
+(and St, the Shell's copy of `GtkIconTheme`) only rescans an icon theme when
+the mtime of the theme's *top* folder (`~/.local/share/icons/hicolor`)
+changes. The icon goes into `scalable/apps`, which only changes that
+subfolder's mtime. `gtk-update-icon-cache` would have touched the top
+folder, but it refuses to run on a user folder with no `index.theme`, and
+`|| true` hid that. A Shell started before the icon was installed therefore
+never saw it. `install.sh` and `uninstall.sh` now `touch` the top folder.
+This is the old RPM-scriptlet idiom, and the reason for it.
+
+**Not stitched.** The dashed curves used round caps as wide as the gaps (7
+units each), and each cap reaches half its width past the dash end. So the
+caps met and closed every gap: at dock size (30 px) the thread was a solid
+line. Now:
+- the thread has square caps, 9 on and 6 off, with the width down to 6;
+- each curve is 129 units long, so that pattern puts a stitch on both tips
+  and on the apex (tested at 24, 30, 48, 64 and 128 px);
+- a faint 2-unit seam line runs underneath, so the A/V shape still reads
+  where the gaps fall;
+- the border stitch is lighter (`#6b7280`) and thicker, so it survives 30 px.
+
+### Dock groups and mixed themes
+
+The dock is now `Icon | Home | Diagnose, Cleanup | Updates, Uninstall |
+Drivers, Defrag | theme, update` (the fifth round made the logo the Home
+button). The window holds `self.groups`, a list of
+page lists, and `self.pages` is that flattened. The dock puts a separator
+before each group, and the radio group still runs across all of them.
+
+The window and the dock each take one of the four themes, so any mix works
+("dark, only nav white", "light with a black or glass dock"). `DOCK_CSS`
+(Light, AMOLED, Glass; Dark is the base `CSS`) is concatenated onto
+`THEME_CSS` and loaded into the same provider. `THEME_CSS` no longer styles
+`.dock`, so the two choices can't fight. The popover shows two radio columns,
+Window and Dock. `_apply_theme(theme=None, dock=None)` writes both settings
+*before* moving any radio, because moving one calls straight back into it.
+A settings file from before the split has no `dock` key; it then follows
+the old behaviour (AMOLED and Glass styled the dock, other themes kept it
+dark), so nobody's dock changes on upgrade.
+
+### Home: cards only as tall as what they hold (no cards since the fifth round)
+
+The last card in each column no longer stretches, and the columns are
+`valign=START`, so leftover height sits below the cards, not inside them.
+The gaps are 8 px. Fixing that turned up a GTK3 trap: a container works out
+its size-request mode (height-for-width or constant) the first time it's
+measured, and never again. Home's grids are empty until the readings arrive.
+So they, and every box above them, settled on constant-size, and sized each
+wrapping label as if squeezed to one word per line (This PC asked for 368 px
+to show 208). Each grid now starts with a wrapping "Reading…" note. That
+fixes the mode, and it's a useful placeholder anyway. The same applies to
+any container filled later with wrapping labels: give it one from the start.
+
+### Diagnose shows its output as it happens
+
+An output panel (dark, monospace, next to the checks; titled Terminal
+since the fifth round) shows each check's
+name, every command it runs (`$ …`, in the accent colour), what that command
+prints, and the verdict coloured by status. A fix's own output streams there
+too, so a reinstall of packages is watched line by line.
+
+- **`shell`.** `output()` and `run()` take `on_line`: `Popen`, read `stdout`
+  line by line, and hand each line over as it arrives.
+  - `output()` keeps `stderr` out: its callers parse `stdout`, and a stray
+    warning line would read as a failed unit.
+  - `run()` merges `stderr` in, since for a fix the user wants all of it, in
+    order.
+- **The checks.** Each one takes `log`, and `run_check(check, log)` frames it
+  with the name and the result.
+  - JSON output (`journalctl -o json`) is logged as its command only: it's
+    no use to read.
+  - Checks that go through `vitals` (UDisks2, `lsblk`) log a line saying
+    what they read, since nothing there prints.
+- **The page.** `log` comes from the worker thread, so `_log` passes each
+  line on through `GLib.idle_add`.
+
+### One select-all circle, and nothing ticked at first
+
+The select-all/none icon buttons in the action bars are gone (and so is
+Cleanup's "select safe only"). The ticks' column header holds a checkbox
+instead:
+- `make_table(..., on_toggle_all=)` sets it as the column's header widget;
+- the column is clickable, because the header button takes the click, not
+  the checkbox inside it;
+- `make_table` returns it as a third value;
+- `show_select_all()` keeps it ticked, unticked or dashed as rows change;
+- CSS rounds it to match the round row ticks this theme draws.
+
+What "all" means is per page:
+- **Updates and Uninstall:** only the rows the search and source filter
+  leave on screen. Changing the filter re-syncs the header.
+- **Uninstall:** also skips Critical rows. They stay one at a time, as
+  "Select all non-critical" did.
+- **Drivers and Defrag:** skips rows with nothing to do.
+
+No page pre-selects anything any more. That includes Updates, which ticked
+everything, and Cleanup, which ticked Safe.
+
+### Cleanup says what it touches
+
+Cleanup now says what it removes in two places:
+- **A card above the removal log** (the fifth round cut it to one line
+  in the action bar). Only rebuildable or re-downloadable things go. Your files, settings and passwords stay. Every installed app
+  stays installed. The Trash is the one exception.
+- **The reason, in its own column** (with the risk tag at its end since
+  the fifth round). It was only a tooltip before. Each
+  reason was reworded to say whether software or personal data is involved,
+  e.g. Snap: "every app stays installed, at the version you use"; Trash:
+  "this is your own data".
+
+### Drivers: when it was released, and a source icon
+
+A Released column shows when the maker released the version on offer: the
+new one if there's an update, else the installed one.
+
+| Row | Date comes from |
+|---|---|
+| APT packages (`ubuntu-drivers`, `linux-firmware`) | The first sign-off line of the changelog: `/usr/share/doc/<pkg>/changelog.Debian.gz` for the installed version, `timeout 10 apt-get changelog <pkg>` for a waiting update (1–2 s each; the one on disk is the old version's). |
+| Kernel drivers | The same, for `linux-image-$(uname -r)`. `uname -v` isn't used: the kernel truncates it to 64 characters, cutting off the year. |
+| fwupd | The LVFS release's `Created` for that version. For the BIOS itself (`uefi_capsule`), the board's `/sys/class/dmi/id/bios_date` when LVFS has nothing. Anything else with no release published shows "—". |
+
+The source moved out of the Driver column into an icon column: computer
+(kernel), download (ubuntu-drivers), cloud (LVFS), package (linux-firmware).
+A click opens a popover naming the source and what it is. The click is
+found with `get_path_at_pos` on `button-release-event`, and the popover
+points at `get_cell_area`, converted from bin-window to widget coordinates.
+Screenshots from `Gtk.Widget.draw()` draw every popover at the window's
+top-left, the stock theme menu included. That's the capture, not the
+placement.
+
+### Defrag: tiles, grouped by OS
+
+Partitions are grouped Linux, Windows, macOS, Boot and Other, by `os_of()`:
+the GPT partition type lsblk reports (`PARTTYPENAME`: "Microsoft basic
+data", "Windows recovery environment", "EFI System", "Linux filesystem"),
+else the filesystem.
+- **Tiles.** Each group is a `Gtk.FlowBox` of tiles, side by side, 2–4 per
+  line (each tile a card of its own until the fifth round). A tile has a drive icon (HDD, SSD, USB), a name (mount point, else
+  the partition label, else "Not mounted"), the device, filesystem, size and
+  kind, and the status.
+- **Ticking.** Only Ready drives get a checkbox. A group with any Ready drive
+  gets one in its heading that ticks them all. Keeping the heading in step
+  calls `set_active()`, which fires `toggled`, so the sync runs inside
+  `handler_block`.
+
+### The update notice: 4 seconds, and a line that runs down
+
+`_TOAST_SECONDS` went from 10 to 4. A timed toast now runs
+`ActionBar.countdown()`: the bar's line starts full and shrinks to nothing,
+timed against `GLib.get_monotonic_time()` so it doesn't drift, then the toast
+hides. Busy toasts still sweep, and toasts with no timeout still stay up.
+`settle()` now shows the line as well, so a failed self-update's red line
+appears instead of settling on a hidden bar.
+
+## Fifth round: fewer boxes, fewer buttons
+
+### The logo is Home
+
+The dock's logo was a picture next to a Home button. Now it *is* the Home
+button: `HomePage` has no `icon`, and `_dock_button` gives an icon-less page
+the logo at 26 px (the 18 px icons plus their 4 px margins), so every
+button in the dock is the same size. The dock reads `Home (logo) |
+Diagnose, Cleanup | Updates, Uninstall | Drivers, Defrag | theme, update`.
+
+### Our own icons, and stand-ins
+
+Uninstall's icon was a trash can, which says "delete a file". There's no
+standard name for "uninstall an app": GNOME Software's `app-remove-symbolic`
+is a trash can too. So `icons/stitches-uninstall-symbolic.svg` draws an app
+grid with one tile taken out (a minus where it was). Drivers moved from the
+firmware icon to `cpu-symbolic`, a chip. Diagnose went from a shield (which
+says security) to `device-diagnostics-symbolic`, a screen with a magnifier,
+the icon GNOME Settings uses for its own Diagnostics. Cleanup went from a
+crossed circle (which says cancel) to `tool-brush-symbolic`, a brush.
+
+`main()` adds `src/stitches/icons/` with `IconTheme.append_search_path()`.
+GTK3 looks there *after* the icon theme and its parents, so it serves two
+purposes:
+- **Our own names** (`stitches-uninstall-symbolic`), found only there.
+- **Stand-ins** for names only some themes have: `cpu`, `memory`,
+  `sensors-temperature`, `device-diagnostics`, `tool-brush`. Zorin has them; Adwaita doesn't. A theme that has
+  one still wins, so the icons match the desktop where they can.
+
+Loose `-symbolic.svg` files in a search path are recoloured like themed
+ones, so they follow the dock and theme colours. `build-deb.sh` and
+`install.sh` copy the whole package folder, so `icons/` travels with it.
+
+### Home: groups, not cards
+
+The Home cards are gone. Each section is a group: a small accent-coloured
+icon and its title over the grid (computer, firmware, thermometer, RAM,
+drive). With no borders, the space between groups (18 px) is what sets
+them apart. The GTK3 "Reading…" placeholder is still needed: it's about the
+grid, not the card.
+
+### Cleanup: one table, a filter, the risk inline
+
+- **The explanation card is gone.** The action bar now reads "Removes only
+  what gets rebuilt or downloaded again. Your files and installed apps stay;
+  Trash is the one exception." Each row's own reason already says what that
+  row means.
+- **No Risk column.** The risk tag sits at the end of the reason, in the
+  same wrapped cell, so a column isn't spent on one word.
+- **A filter** in the header, like Updates and Uninstall: All locations,
+  Safe, Caution, No password needed. `_FILTERS` maps each name to a test on
+  the `Location`. The table shows a `TreeModelFilter`, so ticks convert the
+  path to the store's, and the select-all circle covers only what the filter
+  shows (the same `_shown()` pattern as Updates). A ticked row that gets
+  filtered out stays ticked, and the confirm dialog still lists it.
+
+### Drivers: no log, no Update all
+
+The Update log card on the right was empty on every launch until something
+was updated, and nothing kept it between runs. It's gone. Like Updates, a
+driver update that fails now opens a dialog with the end of what it printed
+(`tail(text, 4)` per job), and the action bar says how many went through.
+The table gets the full width.
+
+### Defrag: one card per group
+
+Tiles lost their own cards. Each OS group is a single card, with its heading
+and all its tiles side by side inside it, and wider column spacing (24 px)
+so the tiles stay apart without borders.
+
+---
+
 # Windows port (`windows/`)
 
 ## A sibling tree, not one cross-platform package
@@ -536,8 +1191,8 @@ SVG.
 
 ## Build: PyInstaller for the `.exe`, WiX for the `.msi`, on a Windows runner
 
-Two artifacts because they answer different questions. `TheUninstaller.exe`
-is `--onefile --windowed`: download, double-click, nothing installed —
+Two artifacts because they answer different questions. `Stitches.exe` (named
+`TheUninstaller.exe` before the rename) is `--onefile --windowed`: download, double-click, nothing installed —
 which is what people actually want from a tool whose job is to clean up
 after installers. The `.msi` is the same executable placed in Program Files
 with a Start Menu shortcut and an Apps & Features entry, so the uninstaller
@@ -784,6 +1439,24 @@ Rather than design around a review outcome, the release artifact is a signed
 APK on GitHub Releases, same as the Windows `.exe`. A Play-flavoured build
 with a declared query list is in features.md as a separate thing, because it
 would be a materially less useful app.
+
+## Health check: what an app can see, and nothing it can't
+
+The Linux Diagnose page's Android counterpart is a menu item and one dialog,
+not a new screen. Scanning system files, testing RAM and reading the storage
+chip's wear all need root on Android, so they're absent rather than faked,
+and the dialog says so. Android's own answer to `sfc /scannow` is verified
+boot, so `ro.boot.verifiedbootstate` (green / yellow / orange) leads the
+list; it's read with `getprop` because `SystemProperties` is hidden API, and
+some devices refuse even that, which shows as "Info". The rest are public
+APIs: `StatFs`, `ActivityManager.MemoryInfo`, the sticky
+`ACTION_BATTERY_CHANGED` broadcast, `PowerManager.currentThermalStatus`
+(API 29+), `SECURITY_PATCH` (parsed with `SimpleDateFormat`, since
+`java.time` needs API 26 and the app supports 24), `KeyguardManager`,
+`DevicePolicyManager.storageEncryptionStatus`, the developer-options and ADB
+settings, and an `su` binary on the usual paths. Each verdict is a pure
+function in `Health.kt` over plain values, tested on the JVM like everything
+else here. The APK grew from 57 to about 60 KB.
 
 ## The icon is the same path data, not a second drawing
 

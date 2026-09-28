@@ -123,4 +123,29 @@ class CoreTest {
 
         storage.deleteRecursively()
     }
+
+    @Test
+    fun healthVerdicts() {
+        assertEquals(Health.OK, integrityFinding("green").health)
+        assertEquals(Health.PROBLEM, integrityFinding("orange").health) // unlocked bootloader
+        assertEquals(Health.INFO, integrityFinding("").health) // the device won't say
+        assertEquals(Health.WARNING, storageFinding(free = 9, total = 100).health)
+        assertEquals(Health.PROBLEM, storageFinding(free = 4, total = 100).health)
+        assertEquals(Health.OK, storageFinding(free = 40, total = 100).health)
+        assertEquals(Health.WARNING, memoryFinding(1, 10, low = true).health)
+        assertEquals(Health.OK, batteryFinding(android.os.BatteryManager.BATTERY_HEALTH_GOOD, 310).health)
+        assertEquals(Health.WARNING, batteryFinding(android.os.BatteryManager.BATTERY_HEALTH_GOOD, 470).health)
+        assertEquals(Health.PROBLEM, batteryFinding(android.os.BatteryManager.BATTERY_HEALTH_DEAD, 300).health)
+        assertEquals(Health.OK, thermalFinding(0).health)
+        assertEquals(Health.PROBLEM, thermalFinding(4).health)
+        val day = 24L * 60 * 60 * 1000
+        val patched = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US).parse("2026-01-01")!!.time
+        assertEquals(Health.OK, patchFinding("2026-01-01", patched + 30 * day).health)
+        assertEquals(Health.WARNING, patchFinding("2026-01-01", patched + 200 * day).health)
+        assertEquals(Health.PROBLEM, patchFinding("2026-01-01", patched + 400 * day).health)
+        assertEquals(Health.INFO, patchFinding("", patched).health)
+        assertEquals(Health.PROBLEM, lockFinding(false).health)
+        assertEquals(Health.WARNING, debuggingFinding(developerOptions = true, usbDebugging = true).health)
+        assertEquals(Health.WARNING, rootFinding(true).health)
+    }
 }

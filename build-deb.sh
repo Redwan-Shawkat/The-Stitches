@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Builds linux-the-uninstaller_<version>_all.deb using dpkg-deb, which every
+# Builds stitches_<version>_all.deb using dpkg-deb, which every
 # Debian-based system already has — no debhelper, no dh_make, no packaging
 # toolchain to install. See documents/ai-knowledgebase.md ("Packaging: a
 # staged tree + dpkg-deb").
 set -euo pipefail
 
-APP_NAME="linux-the-uninstaller"
+APP_NAME="stitches"
 # Must match the Gtk.Application id in gui.py, same reason as install.sh.
-APP_ID="io.github.linux-the-uninstaller"
+APP_ID="io.github.stitches"
 MAINTAINER="Redwan-Shawkat <redwanshawkat@gmail.com>"
 HOMEPAGE="https://github.com/Redwan-Shawkat/The-Uninstaller"
 
@@ -27,23 +27,23 @@ install -d "$STAGE/DEBIAN" "$LIB_DIR" "$STAGE/usr/bin" \
 
 # The app package itself. icon.svg travels with it because gui.py loads the
 # window icon relative to __file__.
-cp -r "$ROOT/src/uninstaller" "$LIB_DIR/"
+cp -r "$ROOT/src/stitches" "$LIB_DIR/"
 # Ship .pyc alongside: /usr/lib isn't writable by the user running the app,
 # so without these Python re-compiles on every single launch.
-python3 -m compileall -q "$LIB_DIR/uninstaller" >/dev/null
-cp "$ROOT/src/uninstaller/icon.svg" \
+python3 -m compileall -q "$LIB_DIR/stitches" >/dev/null
+cp "$ROOT/src/stitches/icon.svg" \
    "$STAGE/usr/share/icons/hicolor/scalable/apps/$APP_ID.svg"
 
 cat > "$STAGE/usr/bin/$APP_NAME" <<EOF
 #!/bin/sh
-exec env PYTHONPATH="/usr/lib/$APP_NAME" python3 -m uninstaller "\$@"
+exec env PYTHONPATH="/usr/lib/$APP_NAME" python3 -m stitches "\$@"
 EOF
 
 cat > "$STAGE/usr/share/applications/$APP_ID.desktop" <<EOF
 [Desktop Entry]
 Type=Application
-Name=The Uninstaller
-Comment=Find and remove software regardless of how it was installed
+Name=Stitches
+Comment=Update, uninstall and clean up software, update drivers, defrag drives
 Exec=$APP_NAME
 Icon=$APP_ID
 Terminal=false
@@ -85,18 +85,24 @@ Section: utils
 Priority: optional
 Architecture: all
 Depends: python3 (>= 3.10), python3-gi, gir1.2-gtk-3.0, pkexec | policykit-1
+Conflicts: softhub, linux-the-uninstaller
+Replaces: softhub, linux-the-uninstaller
 Maintainer: $MAINTAINER
 Homepage: $HOMEPAGE
 Installed-Size: $INSTALLED_SIZE
-Description: find and remove software however it was installed
- One list of everything installed on a Debian-based system, whether it came
- from apt, a downloaded .deb, Snap, Flatpak, or Wine - the built-in app store
- only manages what it installed itself.
+Description: update, uninstall and clean up software however it was installed
+ One place for the software on a Debian-based system, whether it came from
+ apt, a downloaded .deb, Snap, Flatpak, Wine or a GitHub AppImage - the
+ built-in app store only manages what it installed itself.
  .
- Every entry is tagged with where it came from and rated Safe, Caution or
- Critical in plain language, so it is clear what is safe to remove. Supports
- bulk uninstall behind a confirmation dialog, and finds the configuration and
- cache files a package manager leaves behind afterwards.
+ Updates: pending updates from every source, updated in bulk.
+ Uninstall: every app tagged with where it came from and rated Safe, Caution
+ or Critical, with leftover-file cleanup afterwards.
+ Cleanup: caches, temp files, old logs and old Snap revisions, showing
+ exactly what is removed from where.
+ Drivers: detected hardware, driver and firmware updates from ubuntu-drivers,
+ fwupd and linux-firmware, and the system spec.
+ Defrag: ext4, btrfs and XFS on spinning disks.
 EOF
 
 # --root-owner-group writes root:root ownership without needing fakeroot.

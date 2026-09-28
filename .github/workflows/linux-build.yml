@@ -1,0 +1,48 @@
+# Builds the Linux release: the .deb (installed with apt) and the source
+# tarball (unpacked and installed with install.sh). Stitches's own update
+# button installs whichever of the two matches how it was installed, so
+# every release needs both. Run it from the Actions tab for a test build, or
+# push a v* tag to have both attached to that release.
+name: Linux build
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write # only used by the release-upload step below
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tests
+        run: python3 tests/test_core.py
+
+      - name: Build
+        run: |
+          ./build-deb.sh
+          VERSION=$(sed -n 's/^version = "\(.*\)"$/\1/p' pyproject.toml)
+          git archive --format=tar.gz --prefix="stitches-$VERSION/" -o "dist/stitches-$VERSION.tar.gz" HEAD
+          cd dist && sha256sum stitches_*_all.deb stitches-*.tar.gz > SHA256SUMS-linux.txt && cat SHA256SUMS-linux.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: stitches-linux
+          path: |
+            dist/*.deb
+            dist/*.tar.gz
+            dist/SHA256SUMS-linux.txt
+
+      - name: Attach to the release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Whichever platform finishes first creates the release (see android-build.yml).
+        run: |
+          gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --generate-notes 2>/dev/null || true
+          gh release upload "$GITHUB_REF_NAME" dist/*.deb dist/*.tar.gz dist/SHA256SUMS-linux.txt --clobber

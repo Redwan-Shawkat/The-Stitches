@@ -11,5 +11,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TheUninstaller"
+rootProject.name = "Stitches"
 include(":app")

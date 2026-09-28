@@ -1,6 +1,6 @@
-# Android the Uninstaller
+# Stitches for Android
 
-The Android build of [The Uninstaller](../README.md). The gap here is a
+The Android build of [Stitches](../README.md). The gap here is a
 different shape from the Linux and Windows ones, and worth stating honestly:
 Settings › Apps *does* list everything installed. What it won't tell you is
 where any of it came from. A sideloaded APK, a Play install, an F-Droid
@@ -36,6 +36,14 @@ Three of those signals are things Android will answer directly rather than
 guesses: which package is the home screen, which ones hold device-admin
 rights, and which keyboard is active.
 
+**Health check** (in the menu): whether Android's own boot-time integrity
+check passed — the nearest thing to `sfc /scannow` an app can see — plus free
+storage, memory pressure, battery health and temperature, throttling,
+security patch age, screen lock, encryption, USB debugging and root. Each
+comes with OK / Warning / Problem and what to do. Scanning system files,
+testing RAM or reading the storage chip's wear all need root on Android, so
+they aren't offered rather than faked.
+
 Design decisions and why:
 [../documents/ai-knowledgebase.md](../documents/ai-knowledgebase.md).
 
@@ -44,7 +52,7 @@ Design decisions and why:
 **Requirements:** Android 7.0 (API 24) or newer. Any architecture — there's no
 native code in it.
 
-Download `TheUninstaller-<version>.apk` from the
+Download `Stitches-<version>.apk` from the
 [Releases page](https://github.com/Redwan-Shawkat/The-Uninstaller/releases)
 and open it. Android will ask once for permission to install apps from
 wherever you downloaded it; that prompt is Android's, not this app's.
@@ -82,7 +90,7 @@ the two things that actually exist. The app reports "Disabled" rather than
 ## Build
 
 ```bash
-./build-apk.sh          # -> dist/TheUninstaller-<version>.apk
+./build-apk.sh          # -> dist/Stitches-<version>.apk
 ```
 
 Needs a JDK 17 and an Android SDK (`local.properties` points at it, or set
@@ -92,7 +100,7 @@ Gradle with R8 shrinking on, and signs it. On first run it generates
 install an unsigned APK — keep that file, since Android only accepts updates
 signed with the same key. Neither is in git.
 
-The result is about 57 KB. The app depends on no Android libraries at all:
+The result is about 60 KB. The app depends on no Android libraries at all:
 no AndroidX, no Material Components, no Compose — see the knowledge base.
 
 **No SDK set up?** Push a `v*` tag, or run **Android build** from the repo's

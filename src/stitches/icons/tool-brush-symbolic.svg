@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Fallback for icon themes without one: a brush, handle up, bristles down -->
+  <path fill="#2e3436" d="M7 0h2a1 1 0 0 1 1 1v6H6V1a1 1 0 0 1 1-1z
+    M4 7.5h8a.5.5 0 0 1 .5.5v1.5h-9V8a.5.5 0 0 1 .5-.5z
+    M3.5 10.5h9l1 5.5h-2.5l-.5-2-.5 2H9l-.5-2-.5 2H6.5l-.5-2-.5 2H2.5z"/>
+</svg>

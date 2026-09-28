@@ -8,7 +8,7 @@
 -->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Package
-      Name="The Uninstaller"
+      Name="Stitches"
       Manufacturer="Redwan Shawkat"
       Version="$(var.Version)"
       UpgradeCode="{1ABBD8C4-5327-4223-A0DB-3F92A3932AFD}"
@@ -17,7 +17,7 @@
 
     <!-- Installing a newer build replaces the older one in place instead of
          leaving two entries behind. -->
-    <MajorUpgrade DowngradeErrorMessage="A newer version of The Uninstaller is already installed." />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Stitches is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
     <Icon Id="AppIcon" SourceFile="$(var.IconSource)" />
@@ -25,22 +25,25 @@
     <Property Id="ARPHELPLINK" Value="https://github.com/Redwan-Shawkat/The-Uninstaller" />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
-      <Directory Id="INSTALLFOLDER" Name="The Uninstaller" />
+      <Directory Id="INSTALLFOLDER" Name="Stitches" />
     </StandardDirectory>
     <StandardDirectory Id="ProgramMenuFolder" />
 
-    <Feature Id="Main" Title="The Uninstaller" Level="1">
+    <Feature Id="Main" Title="Stitches" Level="1">
       <ComponentGroupRef Id="AppComponents" />
     </Feature>
 
     <ComponentGroup Id="AppComponents">
-      <Component Directory="INSTALLFOLDER" Guid="{22BC4DA9-6BC8-4361-9C28-589A911D6F2A}">
+      <!-- A new GUID for the 0.2 rename: the file and folder names changed, and a
+         component keeps one key path for life. The UpgradeCode above is what
+         makes this package replace an installed "The Uninstaller". -->
+      <Component Directory="INSTALLFOLDER" Guid="{2414B306-DB87-497F-91D8-6BE4767333C8}">
         <File Id="MainExecutable" Source="$(var.ExeSource)" KeyPath="yes">
           <!-- Nested in the File so the shortcut needs no component and no
                registry key of its own to be its KeyPath. -->
           <Shortcut Id="StartMenuShortcut"
                     Directory="ProgramMenuFolder"
-                    Name="The Uninstaller"
+                    Name="Stitches"
                     Description="Find and remove software regardless of how it was installed"
                     Icon="AppIcon"
                     Advertise="yes" />

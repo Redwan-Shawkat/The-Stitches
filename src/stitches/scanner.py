@@ -4,6 +4,7 @@ instead of crashing the whole scan."""
 
 from .backends.apt_backend import AptBackend
 from .backends.flatpak_backend import FlatpakBackend
+from .backends.local_backend import LocalBackend
 from .backends.snap_backend import SnapBackend
 from .backends.wine_backend import WineBackend
 from .models import App, Source
@@ -13,6 +14,7 @@ _BY_SOURCE = {
     Source.SNAP: SnapBackend(),
     Source.FLATPAK: FlatpakBackend(),
     Source.WINE: WineBackend(),
+    Source.LOCAL: LocalBackend(),
 }
 
 

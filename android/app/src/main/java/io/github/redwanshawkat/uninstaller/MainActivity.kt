@@ -20,8 +20,10 @@ import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.ProgressBar
+import android.widget.ScrollView
 import android.widget.Spinner
 import android.widget.TextView
 import java.io.File
@@ -118,6 +120,7 @@ class MainActivity : Activity() {
             recreate() // the theme is applied at inflation, so the activity restarts
             true
         }
+        R.id.action_health -> { showHealthDialog(); true }
         R.id.action_rescan -> { startScan(); true }
         R.id.action_permissions -> { showPermissionsDialog(); true }
         else -> super.onOptionsItemSelected(item)
@@ -153,6 +156,41 @@ class MainActivity : Activity() {
             .setNeutralButton("Usage") { _, _ -> startSettings(usageAccessIntent()) }
             .setNegativeButton("Not now", null)
             .show()
+    }
+
+    // ---- health check ----
+
+    /** Every check reads a system value, so it's quick enough for the main thread. */
+    private fun showHealthDialog() {
+        val pad = (16 * resources.displayMetrics.density).toInt()
+        val rows = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(pad, pad / 2, pad, 0) }
+        for (finding in healthCheck(this)) {
+            rows.addView(TextView(this).apply {
+                text = "${finding.title} · ${finding.health.label}"
+                setTextColor(healthColour(finding.health))
+                textSize = 15f
+                setPadding(0, pad / 2, 0, 0)
+            })
+            rows.addView(TextView(this).apply { text = finding.detail })
+        }
+        rows.addView(TextView(this).apply {
+            text = "Android doesn't let an app scan system files, test memory or read the storage chip's wear " +
+                "without root; System integrity above is Android's own boot-time check."
+            alpha = 0.6f
+            setPadding(0, pad, 0, pad)
+        })
+        AlertDialog.Builder(this)
+            .setTitle("Health check")
+            .setView(ScrollView(this).apply { addView(rows) })
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    private fun healthColour(health: Health) = when (health) {
+        Health.OK -> 0xFF1E8A4C.toInt()
+        Health.WARNING -> 0xFFB8860B.toInt()
+        Health.PROBLEM -> 0xFFC62828.toInt()
+        Health.INFO -> 0xFF4C5CE6.toInt()
     }
 
     private fun startSettings(intent: Intent) {

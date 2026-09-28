@@ -3,9 +3,9 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "linux-the-uninstaller"
-version = "0.1.0"
-description = "Finds and removes Linux software regardless of how it was installed: apt/.deb, Snap, Flatpak, or Wine."
+name = "stitches"
+version = "0.2.0"
+description = "Linux system toolkit: updates, uninstall, cleanup, drivers and defrag across apt/.deb, Snap, Flatpak, Wine and GitHub AppImages."
 requires-python = ">=3.10"
 license = "MIT"
 license-files = ["LICENSE"]
@@ -14,7 +14,7 @@ license-files = ["LICENSE"]
 dependencies = []
 
 [project.scripts]
-linux-the-uninstaller = "uninstaller.gui:main"
+stitches = "stitches.gui:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]

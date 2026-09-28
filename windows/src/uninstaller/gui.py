@@ -92,7 +92,7 @@ class _Tooltip:
 class UninstallerWindow(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("The Uninstaller")
+        self.title("Stitches")
         self.geometry("900x560")
         self.minsize(720, 420)
         try:
