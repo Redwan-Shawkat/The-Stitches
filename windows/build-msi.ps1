@@ -13,9 +13,11 @@ if (-not (Test-Path $exe)) {
 $version = (Select-String -Path "$root\pyproject.toml" -Pattern '^version = "(.+)"').Matches[0].Groups[1].Value
 
 # WiX ships as a .NET tool. Installed here rather than assumed, because a
-# clean machine (and a clean CI runner) has neither.
+# clean machine (and a clean CI runner) has neither. Pinned: WiX 7 won't build
+# until its maintenance-fee EULA is accepted, which stops an unattended CI
+# build; 5.0.2 reads the same v4 schema Stitches.wxs is written in.
 if (-not (Get-Command wix -ErrorAction SilentlyContinue)) {
-    dotnet tool install --global wix
+    dotnet tool install --global wix --version 5.0.2
     $env:PATH = "$env:PATH;$env:USERPROFILE\.dotnet\tools"
 }
 

@@ -1358,6 +1358,12 @@ suite and the GUI smoke test, builds both, writes `SHA256SUMS.txt`, uploads
 them as workflow artifacts, and on a `v*` tag attaches them to that release
 with the preinstalled `gh` (no third-party action, no stored token).
 
+WiX is pinned to 5.0.2 in `build-msi.ps1`. Unpinned, `dotnet tool install`
+fetched WiX 7, which won't build until its Open Source Maintenance Fee EULA
+has been accepted. That failed the v0.2.1 CI build at the `.msi` step, after
+the `.exe` had built. Accepting that licence is the maintainer's call, not a
+build script's. 5.0.2 reads the same v4 `.wxs` schema.
+
 ## `run.py` exists because a frozen `__main__` isn't a package member
 
 PyInstaller runs the entry script as `__main__`, not as `uninstaller.__main__`,
