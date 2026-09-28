@@ -254,7 +254,7 @@ what's there (`--clobber`).
 ## Test
 
 ```bash
-python3 linux/tests/test_core.py     # or: pytest linux/tests/
+python3 tests/test_core.py     # or: pytest tests/
 ```
 
 Covers every parser (dpkg, apt, snap, flatpak, the Wine registry, lspci,

@@ -254,7 +254,8 @@ def tail(text: str, lines: int = 4) -> str:
     return "\n".join(text.strip().splitlines()[-lines:])
 
 
-def run(argv: list[str], elevated: bool = False, on_line=None, encoding=None) -> tuple[int, str]:
+def run(argv: list[str], elevated: bool = False, on_line=None, encoding=None, follow: bool = False,
+        done=None) -> tuple[int, str]:
     """Run a command, with or without a UAC prompt. Returns (exit code, output).
 
     `follow` also waits for every process the command starts (uninstallers
@@ -269,15 +270,16 @@ def run(argv: list[str], elevated: bool = False, on_line=None, encoding=None) ->
     command's output only exists once it has finished, so it comes all at once.
     """
     if elevated and not is_admin():
-        code, output = _run_elevated(argv)
+        code, output = _run_elevated(argv, follow, done)
         for line in output.splitlines() if on_line else ():
             on_line(line)
         return code, output
     if on_line:
         return _stream(argv, on_line, encoding)
     try:
-        result = subprocess.run(
-            argv, capture_output=True, text=True, check=False, stdin=subprocess.DEVNULL,
+        baseline = frozenset(_process_table()) if follow else frozenset()
+        process = subprocess.Popen(
+            argv, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.DEVNULL, text=True,
             creationflags=_NO_WINDOW, encoding=encoding, errors="replace",
         )
     except OSError as exc:
@@ -285,9 +287,12 @@ def run(argv: list[str], elevated: bool = False, on_line=None, encoding=None) ->
         # raised: this runs on a worker thread, and an exception here would
         # kill the thread before it could re-enable the window.
         return 1, f"Could not run {argv[0]}: {exc}"
-    if result.returncode == 0:
-        return 0, (result.stdout or "").strip()
-    return result.returncode, (result.stderr or result.stdout or "").strip()
+    stdout, stderr = process.communicate()
+    if follow:  # the launcher is done; its hand-off copy may not be
+        _wait_for_family(process.pid, lambda: True, done, baseline)
+    if process.returncode == 0:
+        return 0, (stdout or "").strip()
+    return process.returncode, (stderr or stdout or "").strip()
 
 
 def _stream(argv: list[str], on_line, encoding=None) -> tuple[int, str]:
