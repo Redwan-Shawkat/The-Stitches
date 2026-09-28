@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stitches"
-version = "0.2.0"
+version = "0.2.1"
 description = "Linux system toolkit: updates, uninstall, cleanup, drivers and defrag across apt/.deb, Snap, Flatpak, Wine and GitHub AppImages."
 requires-python = ">=3.10"
 license = "MIT"

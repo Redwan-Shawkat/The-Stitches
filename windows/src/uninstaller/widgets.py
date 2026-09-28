@@ -46,7 +46,8 @@ THEMES = {
                   hover="#2a2d3e", tick="#8e909c", bar="#0b0c13", bar_border="#2b2e3d", bar_text="#b9bbc6",
                   dock="#0b0c13", dock_hover="#23263a", dock_icon="#c9cad3", dock_separator="#2b2e3d"),
 }
-THEME = {}  # the palette in use, filled in place by set_theme()
+THEME = dict(THEMES["Dark"])  # the palette in use, replaced in place by set_theme(); a real one
+# from the start, because a page can draw before the window applies the chosen theme
 
 RISK_TAG = {  # (text, background), the Linux build's
     Risk.SAFE: ("#17663a", "#e6f5ec"),

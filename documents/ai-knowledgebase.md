@@ -1528,6 +1528,20 @@ runs from:
   next start.
 - **Not frozen:** a checkout, told to `git pull`.
 
+### Two Tk traps the first CI run caught
+
+- **`THEME` starts as the Dark palette, not empty.** Pages are built before
+  the window applies the saved theme, and a Table's `<Configure>` redraw can
+  run in between, which used to raise `KeyError: 'card'`. `set_theme` still
+  replaces it in place.
+- **The update notice is an `ActionBar`, which is a Canvas.** `Canvas.lift`
+  is `tag_raise`, which raises items drawn *on* the canvas. So the notice is
+  raised with `tk.Misc.lift(notice)`.
+
+The GUI smoke test can run on Linux with a Python that has tkinter:
+`python-build-standalone`'s 2025-03 build aborts in xcb here, the 2025-10
+build works.
+
 ---
 
 # Android port (`android/`)

@@ -172,7 +172,7 @@ class UninstallerWindow(tk.Tk):
             notice.action.pack_forget()
         notice.fit()
         notice.place(relx=0.5, y=px(14), anchor="n")
-        notice.lift()
+        tk.Misc.lift(notice)  # a Canvas's own lift() raises items drawn on it, not the widget
         if busy:
             notice.pulse()
         elif seconds:
