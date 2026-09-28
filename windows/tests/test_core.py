@@ -58,6 +58,53 @@ def test_uninstall_command_line():
     assert uninstall_command_line({"key": "Nothing"}) == ""
 
 
+def test_split_command():
+    # Windows' own argv parser, via ctypes — so Windows-only. IObit's real
+    # QuietUninstallString: a quoted path with spaces, then a switch.
+    if sys.platform != "win32":
+        return
+    from uninstaller.elevate import split_command
+
+    exe = r"C:\Program Files (x86)\IObit\IObit Uninstaller\unins000.exe"
+    assert split_command(f'"{exe}" /SILENT') == [exe, "/SILENT"]
+
+
+def test_elevated_cmd_params():
+    # Pure string building, so it runs anywhere; the Windows-only check below
+    # actually hands it to cmd.exe, which is the part that went wrong.
+    from uninstaller.elevate import elevated_cmd_params
+
+    exe = r"C:\Program Files\Windows Defender\MpCmdRun.exe"
+    log = Path(tempfile.gettempdir(), "elevated_cmd_test.txt")
+    params = elevated_cmd_params([exe, "-h"], log)
+    assert params.startswith('/c "'), "the switch must stay outside the quotes"
+    if sys.platform != "win32" or not Path(exe).exists():
+        return
+    import subprocess
+
+    log.unlink(missing_ok=True)
+    assert subprocess.run(f"cmd.exe {params}", capture_output=True).returncode == 0
+    assert "Antimalware" in log.read_text(errors="replace"), "the spaced path must run"
+    log.unlink()
+
+
+def test_family_of():
+    # launcher 10 -> unins000 20 (exited, so absent) -> _iu.tmp 30 -> child 40;
+    # 99 is unrelated. The dead 20 is known from an earlier poll.
+    from uninstaller.elevate import family_of
+
+    processes = {30: (20, "_iu14D2N.tmp"), 40: (30, "IObitUninstaler.exe"), 99: (1, "x.exe")}
+    assert family_of(10, processes, {10, 20}) == {10, 20, 30, 40}
+    # Launcher 20 came and went between polls: the chain is broken, but an
+    # installer temp copy that's new since launch, with a dead parent, is
+    # adopted — along with what it started.
+    assert family_of(10, processes, {10}, frozenset({99})) == {10, 30, 40}
+    # The same copy already running before launch isn't ours.
+    assert family_of(10, processes, {10}, frozenset({30, 40, 99})) == {10}
+    # An ordinary orphan (not a temp copy) isn't guessed at.
+    assert family_of(10, {50: (20, "notepad.exe")}, {10}) == {10}
+
+
 def test_classify_installer():
     risk, _reason, is_system = classify_installer("Realtek High Definition Audio Driver", False, "")
     assert risk == Risk.CRITICAL and is_system

@@ -52,6 +52,8 @@ Each item is also rated:
 Full requirements: [documents/SRS.md](documents/SRS.md). Design decisions
 and why: [documents/ai-knowledgebase.md](documents/ai-knowledgebase.md).
 
+The Linux build lives in [linux/](linux/); everything below is about it.
+
 **On Windows?** Apps & Features has the same blind spots — it can't see
 Microsoft Store apps in the same list, and it can't see Chocolatey or Scoop
 at all. The Windows build lives in [windows/](windows/) and ships as an
@@ -97,7 +99,7 @@ Installs into your home directory only. Needs `git` if you clone.
 1. **Get the code** — either clone it:
    ```bash
    git clone https://github.com/Redwan-Shawkat/The-Uninstaller.git
-   cd The-Uninstaller
+   cd The-Uninstaller/linux
    ```
    or download `stitches-<version>.tar.gz` from the
    [Releases page](https://github.com/Redwan-Shawkat/The-Uninstaller/releases)
@@ -132,7 +134,8 @@ Pick one of A or B, not both: the `~/.local/bin` launcher from Option B
 comes earlier on `PATH` than the packaged `/usr/bin` one, so a stale per-user
 copy would quietly win over the `.deb`.
 
-**Don't want to install anything?** Run it straight from the checkout:
+**Don't want to install anything?** Run it straight from the checkout's
+`linux/` folder:
 ```bash
 PYTHONPATH=src python3 -m stitches
 ```
@@ -251,7 +254,7 @@ what's there (`--clobber`).
 ## Test
 
 ```bash
-python3 tests/test_core.py     # or: pytest tests/
+python3 linux/tests/test_core.py     # or: pytest linux/tests/
 ```
 
 Covers every parser (dpkg, apt, snap, flatpak, the Wine registry, lspci,
@@ -266,7 +269,7 @@ The image above is a mockup, not a live screenshot: this repo was put
 together in a sandboxed environment where GNOME's screenshot D-Bus API
 (`org.gnome.Shell.Screenshot`) refuses non-interactive callers, and the
 `xdg-desktop-portal` equivalent needs a human to click through it. Run the
-app on your own desktop and drop a real screenshot in `screenshots/` —
+app on your own desktop and drop a real screenshot in `linux/screenshots/` —
 happy to update this README to reference it.
 
 ## Safety notes

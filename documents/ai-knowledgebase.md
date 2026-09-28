@@ -994,7 +994,7 @@ so the tiles stay apart without borders.
 ## A sibling tree, not one cross-platform package
 
 `windows/` is a parallel copy of the project, not a `if sys.platform` layer
-inside `src/uninstaller`. The two builds share the *shape* — `models.py`,
+inside `linux/src/uninstaller`. The two builds share the *shape* — `models.py`,
 `risk.py`, `leftovers.py`, `scanner.py`, `uninstaller.py` and a `backends/`
 directory with one file per source — and share almost none of the *code*,
 because every leaf is platform-specific: the backends shell out to different
@@ -1004,6 +1004,11 @@ mechanism. A merged tree would be four files of genuinely shared logic
 branches everywhere else, and every Windows change would risk the Linux
 build. Two trees, one architecture: a reader who knows one knows the other.
 The identical module names are the point.
+
+The Linux build started at the repo root and was later moved into `linux/`,
+so all three builds are sibling folders and the root holds only what they
+share (README, LICENSE, `documents/`, CI). Its scripts resolve paths from
+their own location, so the move changed no code, only documented commands.
 
 Kept byte-identical on purpose so the correspondence stays obvious:
 `uninstaller.py` and the `Backend` protocol in `backends/base.py`.
@@ -1043,6 +1048,43 @@ Threading is the same design: work on a daemon thread, results marshalled
 back with `self.after(0, …)` — tkinter's equivalent of `GLib.idle_add`, and
 equally non-negotiable, since touching widgets off the main thread corrupts
 Tk's interpreter state.
+
+## GUI look: "Graphite & Signal"
+
+The Windows window was redesigned from a mockup (dark graphite, one lime
+accent, disk space as the headline) rather than aiming for a native Fluent
+look, which `clam` can't reach anyway. What was decided, and why:
+
+- **System fonts only.** The mockup used Bricolage Grotesque and IBM Plex;
+  the app uses Segoe UI Variable (Windows 11) → Segoe UI, and Cascadia Mono →
+  Consolas, picked by `_pick_family` from what's installed. Bundling font
+  files would mean registering them per process (`AddFontResourceEx`) and
+  shipping licences for a cosmetic gain — not worth it.
+- **Dark is the default**, light is the toggle. Both palettes live in
+  `_PALETTES`; source colours are keyed by `Source` in the same dicts.
+- **The disk bar is the source filter** (the old combobox is gone). A
+  `tk.Canvas` of rectangles sized by bytes per source. Only registry
+  installs report a size today, so Store/Chocolatey/Scoop get a minimum
+  clickable sliver, and the bar falls back to app counts when no source has
+  a size at all. Canvases have no alpha, so an inactive segment is a colour
+  blended toward the background (`_blend`).
+- **Risk is a shape as well as a colour** (● safe, ▲ caution, ■ critical),
+  so it doesn't depend on telling red from green. A Treeview can only colour
+  whole rows, so the coloured shape is a 12px `PhotoImage` in the tree
+  column (`_glyph_image`), redrawn per palette.
+- **The selection is a "Removal tray"** — a Listbox beside the list with a
+  running total of the space it frees. It mirrors `self.selected`; the
+  source of truth is unchanged.
+- **A click anywhere on a row toggles it; Shift+click adds a range.** The
+  first cut toggled only from a `+`/`✓` column at the far right, which the
+  default window clipped off-screen — nothing was selectable. Whole-row
+  clicks can't clip. The range skips Critical rows, the same rule as
+  Select All; hovering (the risk tooltip) still selects nothing.
+- **The list is sorted biggest first** on every scan: the reason to open an
+  uninstaller is usually disk space.
+- **Leftovers start unticked** (they were pre-ticked). The dialog says
+  "nothing goes unless you tick it", which is the opt-in the non-negotiables
+  ask for; the Android build's planned list has the same concern.
 
 ## The four sources, and why `winget` isn't one of them
 
@@ -1118,6 +1160,92 @@ Three things this forced:
 `CREATE_NO_WINDOW` is set on every non-elevated call. This is a `--windowed`
 build with no console, so without it each scan would flash console windows
 across the screen.
+
+## Output goes to files, not pipes
+
+`elevate.run` used `capture_output=True`, which reads the child's pipes to
+EOF — and EOF only arrives when *every* process holding the pipe has exited.
+Uninstallers routinely start something on their way out (a browser page
+asking why you left, an updater) that inherits those handles, so an
+uninstall that had finished sat on "Uninstalling…" for as long as that
+process lived — indefinitely, for a browser. Reproduced with a fake
+uninstaller that exits at once but leaves a 20 s child: `run()` returned
+after 19.3 s; with temp files, 0.1 s. `subprocess.run` with file handles
+waits for the uninstaller's own exit and nothing else. The elevated path
+already did this (`cmd /c … > file`).
+
+## `split_command` crashed every registry uninstall; workers can't die silently
+
+The first "uninstall never finishes" report (IObit Uninstaller) wasn't the
+pipe issue above: the worker thread had died before launching anything.
+`CommandLineToArgvW` was called with ctypes' default restype, a C `int`, so
+the returned `LPWSTR*` came back as a plain (on 64-bit, truncated) integer
+and indexing it raised `TypeError`. The traceback went to stderr of a
+`--windowed` app — nowhere — and the GUI waited forever for a callback the
+dead thread would never schedule. Found with `py-spy dump` (only the main
+thread left) and by reading the process's console buffer.
+
+Two fixes: declare `argtypes`/`restype` (any ctypes call returning a
+pointer needs this — the default silently truncates), and the uninstall
+worker catches any exception and reports it as that item's failure, so a
+future bug shows up as a red bar and a message instead of a hang.
+`test_split_command` covers the parser with IObit's real command line.
+
+The next error behind it: `_run_elevated` quoted cmd's whole parameter
+string *including* `/c` (`"/c "C:\Program Files\…\unins.exe" /S > "log""`).
+cmd's quote-stripping then split the program path at its first space —
+`'C:\Program' is not recognized` — and mangled switches even for paths
+without spaces, so every machine-wide uninstall failed. The quotes belong
+after the switch: `/c "<command> > "log" 2>&1"`, where cmd strips only the
+outer pair. Built by the pure `elevated_cmd_params`, and
+`test_elevated_cmd_params` runs the result through a real `cmd.exe` with a
+`Program Files` path.
+
+## Hand-off uninstallers: follow the process tree, then ask the registry
+
+With the quoting fixed, IObit's uninstall ran — and was reported *failed*
+while IObit's own "why are you uninstalling?" prompt was still on screen;
+the rescan that followed still listed it, though it was gone moments later.
+Inno Setup's `unins000.exe` (like NSIS's `Au_.exe`) copies itself to
+%TEMP%, launches the copy and exits. Our wait ended with the launcher.
+
+Two changes, registry uninstalls only (`run(..., follow=True, done=…)`):
+
+- **Wait for the whole process family.** A Toolhelp32 snapshot every 0.5 s
+  gives pid → parent pid for every process, elevated ones included, with no
+  access rights needed. Parent pids survive the parent's exit, so a
+  grandchild launched through an already-dead copy is still traced —
+  provided we saw the copy while it lived, hence polling from launch rather
+  than looking once at the end. `family_of` is the pure part, tested.
+- **"Did it go?" is the registry's call, not the exit code** — the Linux
+  build trusting dpkg's status, the Android build asking the package
+  manager. A launcher's exit code says nothing about the removal. The same
+  check ends the wait early once the Uninstall key is gone, so a browser
+  page the uninstaller opens on its way out can't hold the wait open (the
+  pipe problem above, in another form). Still registered after a clean
+  exit → reported as "still installed — was it cancelled?".
+
+Proven with a fake launcher → middle (exits) → worker (3 s): no follow
+returned at 0.2 s; follow waited 3.7 s; follow with `done()` true returned
+at the first poll.
+
+Second report, same symptom (IObit Software Updater: "failed", then gone):
+tracing needs the launcher seen alive once, and at a 0.5 s poll a launcher
+that copies itself and exits in ~100 ms slips between snapshots — the copy's
+parent pid then points at a process we never saw. Two fixes: poll every
+0.1 s while the launched process lives (0.5 s after), and adopt any
+*installer temp copy* — an image named `*.tmp` (Inno's `_iu*.tmp`) or
+`Au_.exe`/`Un_A.exe` (NSIS) — that wasn't running before launch (a
+snapshot taken just before `ShellExecuteEx`/`Popen`) and whose parent is
+gone. Names, not paths: Toolhelp gives the image name for free, and a
+full path of an elevated process would need a handle per process. Tested
+with python.exe copied to `%TEMP%\_iu_test.tmp`, launched by a parent that
+exits at once: the wait lasted the copy's 3 s.
+
+The other way an uninstall looks stuck is legitimate: a program with no
+silent uninstall opens its own wizard and waits for clicks, possibly behind
+our window. The status line says so ("finish any window it opens") rather
+than the app guessing a silent switch — see README.
 
 ## Risk heuristic: registry fields, same as the Linux build reads dpkg fields
 
@@ -1624,7 +1752,7 @@ first icon had no script.*
 
 Android vector drawables take SVG path data verbatim in `android:pathData`,
 and support `strokeWidth`/`strokeLineCap`, so the two curves from
-`src/uninstaller/icon.svg` are copied across as-is inside a `<group>` that
+`linux/src/uninstaller/icon.svg` are copied across as-is inside a `<group>` that
 scales the 100×100 viewBox into the 108×108 adaptive-icon canvas. No
 rasteriser, no generator script, and no committed bitmaps — this is the one
 place Android is *simpler* than the Windows build, which needed 150 lines of
