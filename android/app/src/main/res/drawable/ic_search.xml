@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Search: a magnifier. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="18dp"
+    android:height="18dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="1.6"
+        android:pathData="M7,2.5a4.5,4.5 0 1 1 0,9a4.5,4.5 0 1 1 0,-9z" />
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="1.8" android:strokeLineCap="round"
+        android:pathData="M10.4,10.4l3.6,3.6" />
+</vector>

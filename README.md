@@ -55,14 +55,17 @@ and why: [documents/ai-knowledgebase.md](documents/ai-knowledgebase.md).
 **On Windows?** Apps & Features has the same blind spots — it can't see
 Microsoft Store apps in the same list, and it can't see Chocolatey or Scoop
 at all. The Windows build lives in [windows/](windows/) and ships as an
-`.exe` and an `.msi`.
+`.exe` and an `.msi`. It has the same dock and all seven tools, built on
+Windows' own: Windows Update, winget, `chkdsk`, `sfc`, `DISM` and
+`Optimize-Volume`.
 
 **On Android?** Settings lists your apps but never says where any of them
 came from, removes them one at a time, and leaves behind whatever an app
 wrote to your storage. The Android build lives in [android/](android/) and
-ships as an `.apk`; its menu also has a **Health check** (verified boot,
-storage, battery, temperature, security patch age, screen lock, USB
-debugging, root).
+ships as an `.apk`. It looks like the Linux build (a dock with the sewn logo
+as Home, dark action bars, round ticks, Light/Dark/AMOLED/Glass), and its
+Home page is a health check (verified boot, storage, battery, temperature,
+security patch age, screen lock, USB debugging, root).
 
 ## Installation
 

@@ -132,8 +132,8 @@ that involved a design decision should have a matching note there.
       logo, theme and update buttons sit at its ends.
 - [x] The theme button is icon-only; the theme list opens from it.
 - [x] Logo: the same A-over-V hourglass, sewn — dashed thread strokes (a
-      catch stitch) inside a running-stitch border. Linux only so far; the
-      Windows `.ico` and the Android icon still draw the plain strokes.
+      catch stitch) inside a running-stitch border. Windows and Android
+      followed in their own Stitches rounds.
 - [x] Compact Home: three columns plus a storage strip in a smaller font,
       on one screen without scrolling at the default window size. Fans
       folded into the temperatures card; unmounted partitions on one line.
@@ -198,8 +198,8 @@ that involved a design decision should have a matching note there.
       unprivileged prints nothing.
 - [ ] AppImage update formats beyond `gh-releases-zsync` (plain zsync URLs,
       GitLab, `latest-pre`), and AppImages outside the usual folders.
-- [ ] Bring the Windows and Android builds the new tools where the platform
-      allows (the design canvas that sketched them has been deleted).
+- [ ] Bring the Android build the new tools where the platform allows
+      (Windows has them all since its Stitches round; see below).
 
 - [ ] Reverse-dependency check for apt packages (currently heuristic-only,
       see ai-knowledgebase.md "Risk heuristic, not a dependency graph").
@@ -250,7 +250,46 @@ leaves. Design decisions in
       built on the Linux dev machine), with checksums, and attaches them to
       a `v*` tag's release.
 
+### Windows — the Stitches design and tools (0.2.0)
+
+- [x] The Linux window: a dock along the bottom in groups (Home, the logo |
+      Diagnose, Cleanup | Updates, Uninstall | Drivers, Defrag | theme,
+      update), a dark action bar per page with the line loader, and round
+      ticks with a select-all circle; nothing ticked at first.
+- [x] Four themes (Light, Dark, AMOLED, Glass), remembered in
+      `%APPDATA%\Stitches\settings.json`; first run follows Windows' own app
+      mode, and the title bar goes dark with the window.
+- [x] The sewn logo in `icon.ico` (`tools/make_icon.py`), also the dock's Home
+      button.
+- [x] Home — model, Windows, CPU, GPU, memory, uptime; BIOS/UEFI settings in
+      words; memory and every drive rated Good/Warning/Critical, refreshed
+      every 5 s. No temperatures (Windows gives those only to an admin).
+- [x] Diagnose — ten checks behind **Scan** with a Terminal panel: drive
+      health, file systems (fix: `chkdsk /scan`), free space, failed
+      services (fix: start them), errors since startup, a pending restart,
+      a quick memory test; Memory Diagnostic, `DISM /RestoreHealth` and
+      `sfc /scannow` as fixes that say what happens first.
+- [x] Cleanup — Windows Update downloads, browser caches, shader caches,
+      crash dumps, error reports, Scoop's cache, temp files older than a
+      day, Recycle Bin; filter, risk tag per reason, confirmation, freed total.
+- [x] Updates — Windows Update, winget, Chocolatey and Scoop in one list with
+      search and a source filter; one permission prompt per batch source.
+- [x] Drivers — display/network/audio/storage/Bluetooth/firmware devices with
+      driver version, release date and what each is; Windows Update driver
+      updates in one batch.
+- [x] Defrag — drive tiles grouped by disk; `Optimize-Volume` defragments hard
+      disks and trims SSDs, one prompt for all.
+- [x] Self-update from GitHub releases: the `.msi` copy hands the new `.msi`
+      to Windows Installer, the portable `.exe` swaps itself; checked first.
+- [x] Version 0.2.0, in step with Linux, so the self-updater compares like
+      with like.
+
 ## Planned — Windows (`windows/`)
+
+- [ ] Count badges on the Updates and Drivers dock buttons (Linux has them).
+- [ ] `sfc /verifyonly` as a real check when Stitches already runs as admin.
+- [ ] Windows' own temp folder (`C:\Windows\Temp`) and Delivery Optimization's
+      cache in Cleanup; both need admin rights to even measure.
 
 - [ ] Registry leftovers (orphaned `HKCU\Software\<Vendor>` keys). Needs its
       own confirmation UI before it ships — a wrongly deleted key has no
@@ -291,21 +330,40 @@ leaves. Design decisions in
       list with source/risk/size per row, checkbox bulk select, search,
       source filter, confirm-before-uninstall dialog with a Critical
       acknowledgement, leftover cleanup dialog, scan and removal progress.
-- [x] Light/dark toggle (two platform Material themes, one risk palette that
-      reads on both).
-- [x] App icon as a vector drawable carrying the Linux build's `icon.svg`
-      path data verbatim — adaptive on API 26+, plain vector below it. No
-      rasteriser, no generator script, no committed bitmaps.
+- [x] ~~Light/dark toggle~~ — four themes since the Stitches design (below).
+- [x] App icon as a vector drawable — adaptive on API 26+, plain vector
+      below it. Sewn since the Stitches design, generated by
+      `tools/make_logo.py`.
 - [x] `.apk` release build — `build-apk.sh` runs the tests, builds through
       Gradle with R8 shrinking, and signs with a locally generated key if
       there isn't one. ~60 KB.
 - [x] `android-build.yml` — tests, builds and signs on a Linux runner with
       the repository's key, with checksums, and attaches the APK to a `v*`
       tag's release.
-- [x] Health check (menu): verified-boot state, storage, memory, battery
+- [x] Health check: verified-boot state, storage, memory, battery
       health and temperature, thermal throttling, security patch age, screen
       lock, encryption, USB debugging, root — each OK/Warning/Problem with
-      what to do.
+      what to do (a menu dialog, then the Home page).
+
+### Android — the Stitches design
+
+- [x] A dock along the bottom, as on Linux: the sewn logo is Home, then
+      Uninstall, then theme and optional access. It replaces the ⋮ menu.
+- [x] Home page: This phone (model, Android, build, kernel), How it's doing
+      and Security, as borderless groups with an icon per heading; read again
+      each time it's opened.
+- [x] Uninstall page: title and subtitle, pill search and source filter, a
+      card list with round ticks, the source tag after each name and the
+      risk tag at the end of each reason.
+- [x] Select-all circle over the list (ticked, dash, empty); never ticks
+      Critical or preinstalled apps; nothing ticked at first.
+- [x] A dark action bar per page with the line loader (sweeps while
+      looking, fills while removing, red after a failure) and the page's
+      one button.
+- [x] Four themes: Light, Dark, AMOLED, Glass (the wallpaper shows
+      through); first run follows the phone's light/dark setting.
+- [x] The sewn logo as the launcher icon and the dock's Home button.
+- [x] Dialogs in the phone's own style (rounded on current Android).
 
 ## Planned — Android (`android/`)
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Look again: a circling arrow. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path android:strokeColor="#FFFFFF" android:strokeWidth="1.6" android:strokeLineCap="round"
+        android:pathData="M13,8a5,5 0 1 1 -1.46,-3.54" />
+    <path android:fillColor="#FFFFFF" android:pathData="M13.8,1.8v4.4h-4.4z" />
+</vector>

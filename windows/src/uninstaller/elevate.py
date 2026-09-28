@@ -8,7 +8,9 @@ it with no new dependency. CLAUDE.md non-negotiable: machine-wide removals
 go through this, and the password/consent dialog is the OS's, never ours.
 """
 
+import base64
 import ctypes
+import re
 import subprocess
 import sys
 import tempfile
@@ -102,23 +104,46 @@ def _run_elevated(argv: list[str]) -> tuple[int, str]:
         exit_code = wintypes.DWORD()
         ctypes.windll.kernel32.GetExitCodeProcess(info.hProcess, ctypes.byref(exit_code))
         ctypes.windll.kernel32.CloseHandle(info.hProcess)
-        output = log.read_text(errors="replace").strip() if log.exists() else ""
+        output = ""
+        if log.exists():
+            with log.open(newline="", errors="replace") as f:  # newline="": keep the \r clean_output looks for
+                output = clean_output(f.read())
         return exit_code.value, output
 
 
-def run(argv: list[str], elevated: bool = False) -> tuple[int, str]:
+def clean_output(text: str) -> str:
+    """What a console would show: sfc writes UTF-16, which arrives with a NUL
+    after every letter, and progress lines ("Verification 45% complete")
+    redraw themselves after a carriage return, of which only the last counts."""
+    return re.sub(r"[^\r\n]*\r(?!\n)", "", text.replace("\x00", "")).strip()
+
+
+def tail(text: str, lines: int = 4) -> str:
+    """The end of a failed command's output, where its reason is."""
+    return "\n".join(text.strip().splitlines()[-lines:])
+
+
+def run(argv: list[str], elevated: bool = False, on_line=None, encoding=None) -> tuple[int, str]:
     """Run a command, with or without a UAC prompt. Returns (exit code, output).
 
     On success `output` is stdout, on failure it's stderr — a scan needs the
     former (PowerShell happily writes warnings to stderr while returning
     perfectly good data on stdout) and a failed uninstall needs the latter.
+    With `on_line`, each line goes there as it's printed (stdout and stderr
+    together, in order: whoever watches wants all of it). An elevated
+    command's output only exists once it has finished, so it comes all at once.
     """
     if elevated and not is_admin():
-        return _run_elevated(argv)
+        code, output = _run_elevated(argv)
+        for line in output.splitlines() if on_line else ():
+            on_line(line)
+        return code, output
+    if on_line:
+        return _stream(argv, on_line, encoding)
     try:
         result = subprocess.run(
-            argv, capture_output=True, text=True, check=False,
-            creationflags=_NO_WINDOW, errors="replace",
+            argv, capture_output=True, text=True, check=False, stdin=subprocess.DEVNULL,
+            creationflags=_NO_WINDOW, encoding=encoding, errors="replace",
         )
     except OSError as exc:
         # The tool isn't installed or isn't on PATH. Returned rather than
@@ -130,8 +155,26 @@ def run(argv: list[str], elevated: bool = False) -> tuple[int, str]:
     return result.returncode, (result.stderr or result.stdout or "").strip()
 
 
-def powershell(script: str, elevated: bool = False) -> tuple[int, str]:
-    return run(
-        ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
-        elevated=elevated,
-    )
+def _stream(argv: list[str], on_line, encoding=None) -> tuple[int, str]:
+    try:
+        process = subprocess.Popen(argv, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
+                                   text=True, creationflags=_NO_WINDOW, encoding=encoding, errors="replace")
+    except OSError as exc:
+        return 1, f"Could not run {argv[0]}: {exc}"
+    lines = []
+    for line in process.stdout:
+        line = line.replace("\x00", "").rstrip()
+        if line:
+            lines.append(line)
+            on_line(line)
+    return process.wait(), "\n".join(lines)
+
+
+def powershell(script: str, elevated: bool = False, on_line=None) -> tuple[int, str]:
+    shell = ["powershell", "-NoProfile", "-NonInteractive"]
+    if elevated and not is_admin():
+        # An elevated command travels through cmd /c, whose quoting knows
+        # nothing of PowerShell's; base64 has nothing left to quote.
+        encoded = base64.b64encode(script.encode("utf-16-le")).decode()
+        return run([*shell, "-EncodedCommand", encoded], elevated=True, on_line=on_line)
+    return run([*shell, "-Command", script], on_line=on_line)

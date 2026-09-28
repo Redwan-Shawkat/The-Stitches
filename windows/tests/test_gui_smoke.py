@@ -1,6 +1,8 @@
 """Builds the real window, drives the parts that are easy to get wrong
-(theme switch, row rendering, filtering, selection rules) against synthetic
-apps, and tears it down. `python tests/test_gui_smoke.py`.
+(all four themes, row drawing, filtering, the select-all circle's rules,
+Home's rows, every other tool's page, the update notice, the line loader)
+against synthetic data, and tears it down.
+`python tests/test_gui_smoke.py`.
 
 Separate from test_core.py because it needs tkinter and a desktop session:
 it skips cleanly where there's neither, so the same command works on a
@@ -8,11 +10,18 @@ developer's Windows box and in CI.
 """
 
 import sys
+import tempfile
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
+from uninstaller.cleanup import Location
+from uninstaller.defrag import Volume
+from uninstaller.diagnose import Fix, Result
+from uninstaller.drivers import Driver
 from uninstaller.models import App, Risk, Source
+from uninstaller.updates import WINDOWS_UPDATE, WINGET, Update
 
 _FIXTURES = [
     App(name="Spotify", id="Spotify", source=Source.INSTALLER, version="1.2.3",
@@ -35,40 +44,98 @@ def main() -> int:
         print("skip: tkinter is not installed")
         return 0
 
-    from uninstaller.gui import UninstallerWindow
+    from uninstaller import gui
+    from uninstaller.widgets import THEMES
 
+    gui._SETTINGS = Path(tempfile.mkdtemp()) / "settings.json"  # leave the real theme choice alone
     try:
-        window = UninstallerWindow()
+        window = gui.UninstallerWindow()
     except tkinter.TclError as exc:
         print(f"skip: no display available ({exc})")
         return 0
 
     window.withdraw()  # keep CI from flashing a window around
-    window._on_scan_done(_FIXTURES)
-    assert len(window.tree.get_children()) == 4, "every app should get a row"
+    pages = {p.title: p for p in window.pages}
+    home, page = pages["Home"], pages["Uninstall"]
+    deadline = time.monotonic() + 30
+    while page.busy and time.monotonic() < deadline:  # the real scan at startup, or it lands on the fixtures
+        window.update()
+        time.sleep(0.02)
+    page._on_scan_done(_FIXTURES)
+    assert len(page.visible) == 4, "every app should get a row"
 
-    window._on_select_all()
-    selected = {window.apps[i].name for i in window.selected}
-    assert "Microsoft.VCLibs.140.00" not in selected, "Select All must skip Critical"
-    assert len(selected) == 3
+    page._on_select_all()
+    selected = {page.apps[i].name for i in page.selected}
+    assert "Microsoft.VCLibs.140.00" not in selected, "the circle must skip Critical"
+    assert len(selected) == 3 and page._ticked() == "all"
+    page._on_select_all()
+    assert not page.selected and page._ticked() == "none", "a full circle clears"
 
-    window._on_select_none()
-    assert not window.selected
+    critical = next(i for i, app in enumerate(page.apps) if app.risk == Risk.CRITICAL)
+    page.selected.add(critical)  # ticked by hand
+    assert page._ticked() == "some"
+    page.source_filter = Source.STORE.value
+    page._refresh_rows()
+    assert [page.apps[i].name for i in page.visible] == ["Microsoft.VCLibs.140.00"]
+    page._on_select_all()
+    assert not page.selected, "with only Critical rows on screen, the circle clears them"
 
-    window.source_filter = Source.SCOOP.value
-    window._refresh_rows()
-    assert [window.apps[i].name for i in window.visible_rows] == ["neovim"]
+    page.source_filter = "All sources"
+    page.search_text = "vclibs"
+    page._refresh_rows()
+    assert len(page.visible) == 1
 
-    window.source_filter = "All sources"
-    window.search_text = "vclibs"
-    window._refresh_rows()
-    assert len(window.visible_rows) == 1
+    home._on_static(([("Windows", "Windows 11 Pro 24H2")], "3 h 2 min",
+                     [("Secure Boot", "On", "Only signed boot loaders can start.", "Good")]))
+    home._on_live(((6 << 30, 16 << 30), [("C:", "Windows · NTFS", 460 << 30, 476 << 30)]))
+    # The other tools, on synthetic rows. Their own scans may still be running;
+    # a result landing afterwards only replaces what's drawn.
+    updates_page = pages["Updates"]
+    updates_page._on_found([Update("Firefox", "Mozilla.Firefox", WINGET, "128.0", "129.0", detail="winget"),
+                            Update("2024-09 Cumulative Update (KB5043076)", "abc", WINDOWS_UPDATE, "", "KB5043076",
+                                   500 << 20, "KB5043076")])
+    updates_page.table.toggle_all()
+    assert len(updates_page.table.chosen()) == 2
+    updates_page._on_filter(WINGET)
+    assert len(updates_page.table.visible) == 1
 
-    for _ in range(2):  # light -> dark -> light, both palettes applied for real
-        window._on_theme_toggled()
+    drivers_page = pages["Drivers"]
+    drivers_page._on_scanned([Driver("Intel UHD", "Display", "30.0", "2022-01-01", "Windows driver", "u1", "31.0"),
+                              Driver("Realtek Audio", "Audio", "6.0", "2021-05-05", "Windows driver")])
+    drivers_page.table.toggle_all()
+    assert [d.name for d in drivers_page.table.chosen()] == ["Intel UHD"], "only rows with an update tick"
 
-    window._start_progress_slice(0.0, 0.5)
-    window._stop_progress_slice()
+    cleanup_page = pages["Cleanup"]
+    cleanup_page._on_scanned([Location("Crash dumps", "CrashDumps", Risk.SAFE, "Snapshots.", [("a", 10)]),
+                              Location("Recycle Bin", "Clear-RecycleBin", Risk.CAUTION, "Yours.", [("bin", 99)],
+                                       "Clear-RecycleBin")])
+    cleanup_page._on_filter("Caution")
+    assert [loc.name for loc in (cleanup_page.table.items[i] for i in cleanup_page.table.visible)] == ["Recycle Bin"]
+
+    defrag_page = pages["Defrag"]
+    defrag_page._on_scanned([Volume("C:", "NTFS", "Windows", 500 << 30, 100 << 30, "Disk 0 · SSD", "SSD", "trim", "SSD"),
+                             Volume("E:", "exFAT", "Stick", 32 << 30, 1 << 30, "Disk 1", "", "", "Can't.")])
+    defrag_page.ticks["C:"].set(True)
+    assert [v.letter for v in defrag_page._chosen()] == ["C:"]
+
+    diagnose_page = pages["Diagnose"]
+    diagnose_page._log("▶ Services · services.msc")
+    diagnose_page._log("$ Get-CimInstance Win32_Service")
+    diagnose_page._show_result(3, Result("Problem", "1 service failed.", ["Spooler: error 1"],
+                                         Fix("Start 1 service", "Start-Service -Name 'Spooler'")))
+    assert diagnose_page.fix_buttons, "a fix gets its button"
+
+    for name in THEMES:  # every palette applied for real, pages redrawn in it
+        window.apply_theme(name)
+    for i in reversed(range(len(window.pages))):
+        window.show(i)
+    window._on_checked({"tag_name": "v9.9.9"}, quiet=True)  # the update notice and the dock's mark
+    assert window.update_button.marked
+
+    page.bar.slice(0.0, 0.5)
+    page.bar.settle(0.5, ok=False)
+    page.bar.pulse()
+    page.bar.done()
 
     window.update()
     window.destroy()

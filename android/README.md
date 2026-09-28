@@ -14,6 +14,13 @@ This is one list for all of it — tagged by how it got onto your phone, tagged
 Safe/Caution/Critical to remove in plain language, with bulk uninstall and
 leftover-file cleanup.
 
+It looks like the Linux build: a dock along the bottom (the sewn logo is
+**Home**, then **Uninstall**, then theme and optional access), a dark action
+bar on each page with a thin line that sweeps while it looks and fills as it
+removes, round ticks, and coloured tags. Four themes, as on Linux: Light,
+Dark, AMOLED (pure black) and Glass (your wallpaper shows through). It starts
+in whichever of Light and Dark your phone is set to.
+
 ## What it detects
 
 | Tag | What it means |
@@ -30,17 +37,19 @@ Each item is also rated:
 - 🟡 **Caution** — preinstalled, or a background app with no icon that
   something else may be relying on; read the reason shown before removing.
 - 🔴 **Critical** — your home screen, your active keyboard, a device
-  administrator, or part of Android itself; never pre-selected by "Select All".
+  administrator, or part of Android itself; never ticked by the select-all
+  circle.
 
 Three of those signals are things Android will answer directly rather than
 guesses: which package is the home screen, which ones hold device-admin
 rights, and which keyboard is active.
 
-**Health check** (in the menu): whether Android's own boot-time integrity
-check passed — the nearest thing to `sfc /scannow` an app can see — plus free
+**Home** (the logo in the dock): the phone's model, Android version, build and
+kernel, then whether Android's own boot-time integrity check passed — the nearest thing to `sfc /scannow` an app can see — plus free
 storage, memory pressure, battery health and temperature, throttling,
-security patch age, screen lock, encryption, USB debugging and root. Each
-comes with OK / Warning / Problem and what to do. Scanning system files,
+security patch age, screen lock, encryption, USB debugging and root, in two
+groups (how it's doing, security). Each comes with OK / Warning / Problem and
+what to do, and it's all read again whenever you open the page. Scanning system files,
 testing RAM or reading the storage chip's wear all need root on Android, so
 they aren't offered rather than faked.
 
@@ -64,8 +73,10 @@ knowledge base.
 
 ### First run
 
-The app only scans (read-only) until you check items and tap **Uninstall
-Selected**, which always shows a confirmation first. Each removal then raises
+The app only scans (read-only) until you tick apps and tap **Uninstall
+selected**, which always shows a confirmation first. Nothing is ticked until
+you tick it; the circle above the list ticks everything shown that's safe to
+pick in bulk, and clears the list when there's nothing left to add. Each removal then raises
 Android's own uninstall dialog — one per app, because Android has no batch
 uninstall for a normal app and no way for this app to remove anything by
 itself. That dialog is the permission rail; this app never gets to skip it.
@@ -78,8 +89,9 @@ skippable:
 - **Usage access** — without it sizes are the app's APK size rather than its
   real footprint (code + data + cache).
 
-The app tells you what each is for and works without either. The ⋮ menu
-switches light/dark, rescans, and reopens the permission prompt.
+The app tells you what each is for and works without either. The padlock in
+the dock reopens the permission prompt; the ↻ at the top of a page looks
+again.
 
 **Preinstalled apps:** Android does not allow uninstalling one, so selecting
 one opens its App Info page, where **Disable** and **Uninstall updates** are
@@ -100,7 +112,7 @@ Gradle with R8 shrinking on, and signs it. On first run it generates
 install an unsigned APK — keep that file, since Android only accepts updates
 signed with the same key. Neither is in git.
 
-The result is about 60 KB. The app depends on no Android libraries at all:
+The result is about 85 KB. The app depends on no Android libraries at all:
 no AndroidX, no Material Components, no Compose — see the knowledge base.
 
 **No SDK set up?** Push a `v*` tag, or run **Android build** from the repo's
@@ -108,9 +120,14 @@ Actions tab: [.github/workflows/android-build.yml](../.github/workflows/android-
 builds and signs it with the repository's key and attaches it to the tagged
 release.
 
-The app icon isn't a set of generated PNGs — it's the same two curves as the
-Linux build's `icon.svg`, copied into an Android vector drawable, which takes
-SVG path data as-is. No rasteriser, no generator script, no committed bitmaps.
+The app icon isn't a set of PNGs: it's the Linux build's sewn `icon.svg` as
+Android vector drawables. Vector drawables can't draw dashed lines, so
+`tools/make_logo.py` cuts each stitch into its own short path; rerun it after
+editing `icon.svg`:
+
+```bash
+python3 tools/make_logo.py   # from android/
+```
 
 ## Test
 
@@ -118,8 +135,8 @@ SVG path data as-is. No rasteriser, no generator script, no committed bitmaps.
 ./gradlew test
 ```
 
-Covers the source mapping, the risk classifier and the leftover matcher with
-JUnit asserts — no device and no emulator, which is the point of keeping
+Covers the source mapping, the risk classifier, the leftover matcher, the
+Home verdicts and what the select-all circle may tick, with JUnit asserts — no device and no emulator, which is the point of keeping
 `Scanner.kt`'s PackageManager calls out of `Sources.kt`, `Risk.kt` and
 `Leftovers.kt`.
 
@@ -128,8 +145,8 @@ JUnit asserts — no device and no emulator, which is the point of keeping
 - Uninstalling always shows a confirmation listing exactly what's selected
   and its risk level; Critical items require an extra explicit checkbox
   before the Uninstall button unlocks.
-- "Select All" never selects Critical or preinstalled items — pick those one
-  at a time if you really mean it.
+- The select-all circle never ticks Critical or preinstalled items — pick
+  those one at a time if you really mean it.
 - Leftover files are shown with their sizes and opt-in before deletion, never
   removed silently. Your media folders (DCIM, Pictures, Music, Movies,
   Documents…) are never scanned, for the same reason the Windows build skips

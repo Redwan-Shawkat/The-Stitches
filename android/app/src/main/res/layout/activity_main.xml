@@ -1,93 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- The Stitches window, as on Linux: the open page, and a dock of icons
+     centred under it. The logo is Home; then Uninstall; then theme and
+     optional access, a divider between each part. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/banner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/banner_background"
-        android:textColor="@color/banner_text"
-        android:padding="12dp"
-        android:textSize="13sp"
-        android:visibility="gone" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="4dp">
-
-        <EditText
-            android:id="@+id/search"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/search_hint"
-            android:inputType="text"
-            android:maxLines="1"
-            android:importantForAutofill="no" />
-
-        <Spinner
-            android:id="@+id/source_filter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical" />
-    </LinearLayout>
-
-    <ProgressBar
-        android:id="@+id/progress"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="100"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/status"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
-        android:textSize="13sp" />
-
-    <ListView
-        android:id="@+id/list"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:divider="?android:attr/listDivider"
-        android:dividerHeight="1dp" />
+        android:layout_weight="1">
+
+        <include
+            android:id="@+id/page_home"
+            layout="@layout/page_home"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/page_uninstall"
+            layout="@layout/page_uninstall"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/dock"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="8dp">
+        android:padding="6dp">
 
-        <Button
-            android:id="@+id/select_all"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/select_all" />
+        <ImageButton
+            android:id="@+id/dock_home"
+            style="@style/DockButton"
+            android:contentDescription="@string/home"
+            android:padding="5dp"
+            android:src="@drawable/logo"
+            android:tint="@null" />
 
-        <Button
-            android:id="@+id/select_none"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/select_none" />
+        <View style="@style/DockSeparator" />
 
-        <Button
-            android:id="@+id/uninstall"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/uninstall_selected" />
+        <ImageButton
+            android:id="@+id/dock_uninstall"
+            style="@style/DockButton"
+            android:contentDescription="@string/uninstall"
+            android:src="@drawable/ic_uninstall" />
+
+        <View style="@style/DockSeparator" />
+
+        <ImageButton
+            android:id="@+id/dock_theme"
+            style="@style/DockButton"
+            android:contentDescription="@string/theme"
+            android:src="@drawable/ic_theme" />
+
+        <ImageButton
+            android:id="@+id/dock_access"
+            style="@style/DockButton"
+            android:contentDescription="@string/access"
+            android:src="@drawable/ic_access" />
     </LinearLayout>
 </LinearLayout>

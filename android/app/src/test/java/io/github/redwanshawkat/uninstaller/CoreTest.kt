@@ -148,4 +148,17 @@ class CoreTest {
         assertEquals(Health.WARNING, debuggingFinding(developerOptions = true, usbDebugging = true).health)
         assertEquals(Health.WARNING, rootFinding(true).health)
     }
+
+    @Test
+    fun selectAllCircleNeverBulkPicksCriticalOrSystem() {
+        val app = App("Notes", "a.notes", Source.PLAY)
+        val keyboard = App("Keyboard", "a.keys", Source.PLAY, risk = Risk.CRITICAL)
+        val preinstalled = App("Clock", "a.clock", Source.PREINSTALLED, isSystem = true)
+        val shown = listOf(app, keyboard, preinstalled)
+        assertEquals(listOf(app), shown.filter(::bulkPickable))
+        assertEquals(Ticked.NONE, ticked(shown, emptySet()))
+        assertEquals(Ticked.ALL, ticked(shown, setOf("a.notes"))) // all that the circle would tick
+        assertEquals(Ticked.SOME, ticked(shown, setOf("a.keys"))) // picked by hand
+        assertEquals(Ticked.NONE, ticked(listOf(keyboard), emptySet()))
+    }
 }

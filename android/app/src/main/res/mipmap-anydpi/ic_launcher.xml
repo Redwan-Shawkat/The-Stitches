@@ -1,22 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Android 7.x (API 24-25) predates adaptive icons, so it gets the whole
-     SVG including its rounded background rect, in one vector. -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="48dp"
-    android:height="48dp"
-    android:viewportWidth="100"
-    android:viewportHeight="100">
-    <path
-        android:pathData="M18,0 L82,0 A18,18 0 0 1 100,18 L100,82 A18,18 0 0 1 82,100 L18,100 A18,18 0 0 1 0,82 L0,18 A18,18 0 0 1 18,0 Z"
-        android:fillColor="#1F2937" />
-    <path
-        android:pathData="M 22,78 C 34,50 38,38 50,20 C 62,38 66,50 78,78"
-        android:strokeColor="#E5E7EB"
-        android:strokeWidth="7"
-        android:strokeLineCap="round" />
-    <path
-        android:pathData="M 22,22 C 34,50 38,62 50,80 C 62,62 66,50 78,22"
-        android:strokeColor="#E5E7EB"
-        android:strokeWidth="7"
-        android:strokeLineCap="round" />
-</vector>
+     tile, the same drawable the dock's Home button shows. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android" android:drawable="@drawable/logo" />

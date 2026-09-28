@@ -1221,6 +1221,162 @@ so the package's relative imports have no package to resolve against and the
 build fails at startup. `run.py` is a three-line absolute-import shim. The
 `__main__.py` beside it stays for `python -m uninstaller` from a checkout.
 
+## Windows: the Stitches design and tools (0.2.0)
+
+The Windows build now has the Linux window: the dock in the same groups,
+the same seven tools, one module per page under `pages/`, and one logic
+module per tool beside them (`updates.py`, `cleanup.py`, `drivers.py`,
+`defrag.py`, `diagnose.py`, `selfupdate.py`), each with its pure parsing and
+verdicts above an `# ---- IO below ----` line, as on Linux. The version went
+to 0.2.0 with Linux's. The self-updater compares its own `__version__` with
+the release tag, so a Windows build still saying 0.1.0 would offer the same
+update on every start.
+
+### How pages are drawn
+
+- **One ticked table.** Updates, Cleanup and Drivers share `widgets.Table`, a
+  canvas list like Uninstall's (a Treeview can't colour one cell). A cell is
+  a string or a list of parts (text, dim text, a tag), so Cleanup's "reason
+  with the risk tag at its end" is one cell. `tickable` decides which rows
+  get a tick at all (Drivers: only rows with an update), and `pickable`
+  decides what the circle may pick (Uninstall's rule of skipping Critical).
+  Uninstall keeps its own canvas: it worked, it's what the smoke test pins
+  down, and moving it would be churn. The filter and search pills and
+  `fit_text`/`draw_tag` did move into `widgets.py`, and Uninstall uses them.
+- **`Page.auto_load`.** Every page scans when the window opens except
+  Diagnose, as on Linux.
+- **The update notice** is an `ActionBar` placed over the top of the window,
+  with `countdown()`: the line starts full and runs down over 4 s. A click
+  on its text puts it away. A failure stays up with a red line.
+
+### Running things
+
+- **`elevate.run(on_line=)`** streams a command's lines (stdout and stderr
+  together) for Diagnose's Terminal. An elevated command can't stream: its
+  output only comes back through the temp file once it ends.
+- **Elevated PowerShell goes as `-EncodedCommand`.** `_run_elevated` wraps the
+  command in `cmd /c "…"`, and cmd's quoting knows nothing of PowerShell's.
+  A script with a pipe, a quote or a `$` breaks there. Base64 of UTF-16 has
+  nothing left to quote. Unelevated calls keep `-Command`.
+- **`clean_output`.** `sfc` writes UTF-16, so its text arrives with a NUL
+  after each letter. `sfc`, `DISM` and `chkdsk` also redraw their progress
+  after a bare `\r`. The temp file is read with `newline=""` so those `\r`
+  survive, and only the text after the last one on each line is kept.
+- **PowerShell output for parsing is tab-separated lines**, not CSV and not
+  `ConvertTo-Json`. Titles hold commas and quotes, and JSON of a COM object
+  or a CIM instance drags in every property.
+
+### Updates: Windows Update, winget, Chocolatey, Scoop
+
+| Source | Found with | Updated with |
+|---|---|---|
+| Windows Update | `Microsoft.Update.Session` search, `Type='Software'` (no admin needed) | the same COM API, elevated: search again by UpdateID, download, install |
+| winget | `winget upgrade`'s table | `winget upgrade --id … --exact --silent`, one at a time |
+| Chocolatey | `choco outdated -r` (pinned ones left out) | `choco upgrade … -y`, elevated, one batch |
+| Scoop | `scoop status` | `scoop update …`, one batch, no prompt |
+
+- **winget is a source here, though not on Uninstall.** Listing through it
+  would double-list every program the registry already shows. Its upgrade
+  feed is different: it's the only thing that knows a newer version of an
+  ordinary installer exists, the way a vendor apt repo does on Linux.
+- **The winget table is read from the right.** Its headers are translated,
+  so they can't be used to find columns. Id, Version, Available and Source
+  never contain spaces; Name does, and is cut with "…". `< 1.2` (a version
+  winget can't pin down) is re-joined. The table ends at the first blank
+  line. winget writes UTF-8 when not on a console, so it's read as UTF-8.
+- **`scoop status` columns are cut where the dashes start**, because its
+  header names ("Installed Version") have spaces in them.
+- **Windows Update ids go into a PowerShell script**, so only hex and dashes
+  are let through. A search result can't cross processes, so the elevated
+  script searches again and picks by id. It says when Windows wants a
+  restart and never restarts by itself.
+- Batches follow the Linux rule: one permission prompt per source, not one
+  per package. winget installers ask for elevation themselves if they need
+  it, so they go one at a time, each with its own progress slice.
+
+### Cleanup
+
+| Location | How | Risk |
+|---|---|---|
+| Windows Update downloads | elevated: stop `wuauserv`/`bits`, empty `SoftwareDistribution\Download`, start them | Safe |
+| Browser caches | Chromium's `Cache`, `Code Cache`, `GPUCache` per profile; Firefox's `cache2` | Safe |
+| Shader caches | `D3DSCache`, NVIDIA and AMD shader caches | Safe |
+| Crash dumps, error reports | `%LOCALAPPDATA%\CrashDumps`, `…\Microsoft\Windows\WER` | Safe |
+| Scoop download cache | `$SCOOP\cache` | Safe |
+| Temp files older than a day | `%TEMP%`, per entry; stale all the way down | Caution |
+| Recycle Bin | size from `SHQueryRecycleBinW`, emptied with `Clear-RecycleBin` | Caution |
+
+- **Left out on purpose:** thumbnails (`thumbcache_*.db` is always held open
+  by Explorer, so the row would fail every time); `C:\Windows\Temp` and
+  Delivery Optimization (admin just to measure; features.md); `Prefetch`
+  (Windows' own speed-up, not junk).
+- Temp needs no socket check: Windows keeps a file a program has open
+  locked, and deleting it fails and is logged instead. `is_stale` still
+  walks the whole entry, because a setup unpacking into an old folder has
+  fresh files inside it.
+
+### Drivers
+
+One place to ask, unlike Linux's three: `Win32_PnPSignedDriver` for the
+devices, and Windows Update (`Type='Driver'`) for the updates, which is also
+where firmware and UEFI capsules come from. Only the device classes a person
+recognises are shown (display, network, audio, storage, Bluetooth,
+firmware). Devices Windows made up in software (`ROOT\`, `SWD\`: WAN
+miniports, virtual audio) are left out. An update is matched to its device
+by `DriverModel` against `DeviceName`; one with no device in the list gets a
+row of its own. The new version comes from the update's title ("Intel -
+Display - 31.0.101.4502"), since the API has only its date. Vendor tools
+(GeForce Experience, Adrenalin) stay the vendors'.
+
+### Defrag
+
+`Optimize-Volume` picks by itself: it defragments a hard disk and sends TRIM
+to an SSD. So on Windows an SSD is something to do, not something to skip
+as on Linux. Tiles are grouped by disk rather than OS: with drive letters,
+everything visible is Windows'. What's left out: file systems `defrag.exe`
+won't take (exFAT, none), and USB flash drives, which gain nothing and
+wear. All ticked drives go in one elevated script, so there's one prompt,
+and each drive's failure is reported while the rest still run.
+
+### Diagnose: the tools themselves, not stand-ins
+
+On Linux each check stands in for a Windows tool. Here the tools are there,
+so the "like" line names the tool itself. The Linux rule holds: every check
+reads without admin rights.
+- **Checks:** drive health (`Get-PhysicalDisk`), file systems
+  (`Get-Volume`), free space, failed services, errors since startup
+  (`Get-WinEvent`, System and Application logs), a pending restart, the
+  quick memory test.
+  - Services: auto-start ones that stopped with a non-zero exit code. 1077
+    ("never started") is left out: a trigger-start service nothing has
+    needed yet.
+  - Pending restart: the servicing `RebootPending` and Windows Update
+    `RebootRequired` keys. `PendingFileRenameOperations` is ignored: too
+    many installers leave it set for good.
+- **Fixes you start, not checks:** `sfc` and `DISM` can't even look without
+  admin rights, so each is an Info row with a fix.
+- **Fixes with no restart:** `chkdsk /scan` (online) instead of Linux's
+  check-at-restart. The Windows Memory Diagnostic asks its own "restart now
+  or next time", so Stitches doesn't need a second dialog for that.
+- **After a fix** the check runs again and its row updates.
+
+### Self-update
+
+The same GitHub check as Linux. How to install depends on where this copy
+runs from:
+- **`sys.executable` under `%ProgramFiles%`** (the `.msi`'s copy): the new
+  `.msi` is downloaded, checked, and opened with `os.startfile`. That is
+  what a double-click does, so Windows Installer asks for elevation itself.
+  Stitches closes so the installer can replace its exe. The file stays in
+  `%TEMP%`, because the installer is still reading it.
+- **The portable exe:** a running exe can't be overwritten but can be
+  renamed. So it's renamed to `.old`, the new one moved in, and the new one
+  started. It's started with `PYINSTALLER_RESET_ENVIRONMENT=1` and without
+  `_MEIPASS2`; otherwise a onefile child reuses the parent's unpacked files,
+  which vanish when the parent exits. `tidy()` deletes the `.old` on the
+  next start.
+- **Not frozen:** a checkout, told to `git pull`.
+
 ---
 
 # Android port (`android/`)
@@ -1280,7 +1436,9 @@ What the no-library choice costs, and what was done about it:
 - **No `DayNight` theme with automatic following.** Two platform Material
   themes and `recreate()` on toggle, matching the Linux and Windows builds'
   explicit 🌙/☀ control. The risk colours are picked to read on both
-  surfaces, so unlike the Windows build there's only one palette.
+  surfaces, so unlike the Windows build there's only one palette. (The
+  Stitches design made that four themes, and first run follows the system;
+  see "The Stitches design" below.)
 
 ## The gap here is a different shape, and the docs say so
 
@@ -1442,8 +1600,8 @@ would be a materially less useful app.
 
 ## Health check: what an app can see, and nothing it can't
 
-The Linux Diagnose page's Android counterpart is a menu item and one dialog,
-not a new screen. Scanning system files, testing RAM and reading the storage
+The Linux Diagnose page's Android counterpart was a menu item and one dialog,
+not a new screen; the Stitches design made it the Home page (below). Scanning system files, testing RAM and reading the storage
 chip's wear all need root on Android, so they're absent rather than faked,
 and the dialog says so. Android's own answer to `sfc /scannow` is verified
 boot, so `ro.boot.verifiedbootstate` (green / yellow / orange) leads the
@@ -1456,9 +1614,13 @@ APIs: `StatFs`, `ActivityManager.MemoryInfo`, the sticky
 `DevicePolicyManager.storageEncryptionStatus`, the developer-options and ADB
 settings, and an `su` binary on the usual paths. Each verdict is a pure
 function in `Health.kt` over plain values, tested on the JVM like everything
-else here. The APK grew from 57 to about 60 KB.
+else here. The APK grew from 57 to about 60 KB (85 KB after the Stitches
+design).
 
-## The icon is the same path data, not a second drawing
+## The icon is the same path data, not a second drawing (until it was sewn)
+
+*Superseded by "The sewn logo needs a generator" below; kept for why the
+first icon had no script.*
 
 Android vector drawables take SVG path data verbatim in `android:pathData`,
 and support `strokeWidth`/`strokeLineCap`, so the two curves from
@@ -1492,3 +1654,95 @@ R8 shrinking and resource shrinking are on, with an **empty**
 `proguard-rules.pro`: the app has no reflection, no serialization library and
 no JNI, so the defaults are correct and a keep rule would be cargo cult. That
 empty file with a comment explaining why is the honest artifact.
+
+## The Stitches design
+
+Asked to make the Android app look like Stitches on Linux. It still uses
+only framework widgets (no AndroidX, no Material Components), so the
+design is layouts, shape and vector drawables, and one small span.
+
+**Structure, as on Linux.** `MainActivity` is the window: a `FrameLayout`
+holding both pages, and a dock under it. The Linux `pages/` split is kept:
+`HomePage.kt` and `UninstallPage.kt` each own one page's views, and `Ui.kt`
+plays `widgets.py`'s part (the tag, the action bar). The ⋮ menu is gone:
+- the logo is Home and opens first, as on Linux;
+- Uninstall is its own dock button;
+- theme and optional access sit at the dock's end;
+- refresh is the ↻ in each page header.
+
+The page index survives the `recreate()` a theme change needs, through
+`onSaveInstanceState`. Removal still runs through the Activity's
+`startActivityForResult`, and `onActivityResult` hands it to the page.
+
+**Home is the Health check.** On Linux, Home says what the machine is and
+how it's doing, and Diagnose checks and fixes. Android lets an app read the
+same kind of facts but fix none of them, so one page holds both. It's laid
+out like Linux Home: borderless groups, an accent icon by each heading.
+- **This phone:** `Build` model, release and API, `Build.DISPLAY`, and the
+  kernel from `os.version`.
+- **How it's doing:** storage, memory, battery, temperature.
+- **Security:** the rest of the findings.
+
+The split is by finding title in the page (`DOING`), not a field on
+`Finding`: it's layout, and `Health.kt` stays about verdicts. Everything is
+a system value, so the page reads it all again on every `onResume`.
+
+**Tags.** `TagSpan` is a `ReplacementSpan` that draws a rounded label at
+82% of the text size, in the Linux build's colours. That works inline: the
+source tag after an app's name, the risk tag at the end of its reason, as
+in Linux Cleanup. Its `getSize` must fill in the `FontMetricsInt` it's
+handed. A line that is *only* a tag (Home's verdicts) otherwise measures 0
+tall and vanishes, because `TextLine` takes the line's height from the
+spans when nothing else on the line gives one.
+
+**Select-all circle.** An `ImageView` over the list, drawn empty, dashed or
+ticked from `ticked()`, a pure function with a JVM test.
+- It ticks every app shown that `bulkPickable()` allows. That's never a
+  Critical or preinstalled app, as before.
+- When nothing is left to add, it clears what's shown instead. Otherwise an
+  app ticked by hand among Critical rows could never be cleared with it.
+- Nothing is ticked at first, as before.
+
+**Line loader.** A 3 dp horizontal `ProgressBar` with a layer-list trough:
+indeterminate while scanning, filled per app while removing, tinted
+`line_error` after the first failure.
+
+**Themes.** Light, Dark, AMOLED and Glass, as on Linux:
+- The surfaces are theme attributes (`cardColor`, `cardBorder`,
+  `dockColor`, `dockBorder`), which the shape drawables read. One `card.xml`
+  serves all four themes.
+- **Glass** is `windowShowWallpaper` with a translucent window background:
+  translucency without blur, as on Linux.
+- The dock follows the window theme. The separate dock theme is a desktop
+  nicety, and one choice is enough on a phone.
+- The old boolean `dark` preference is still read when no `theme` is set,
+  so an upgraded install keeps its look. A fresh one follows the system's
+  night mode.
+- Parents are `Theme.DeviceDefault`, not `Theme.Material`. It's still the
+  platform's own theme, but dialogs come out in the phone's current style
+  (rounded) instead of 2014's square grey.
+
+**Verified on an emulator** (API 35, headless, software GPU): all four
+themes, both pages, the circle's three states, the confirm dialog's
+Critical lock. On the emulator's software renderer, Glass left ghosts of
+old text where views redrew. With `debug.hwui.use_partial_updates false`
+they went, so it's that renderer's partial updates, not the app. A real
+phone should be checked once.
+
+## The sewn logo needs a generator
+
+The Linux logo is now sewn: dashed thread over a seam line, with a running
+stitch round the edge. Vector drawables take SVG path data, but have no
+`stroke-dasharray`. `android/tools/make_logo.py` (stdlib only, like
+Windows' `make_icon.py`) samples each curve and cuts every dash into its own
+polyline, simplified with Ramer–Douglas–Peucker. Each dash starts at the
+path's start, as SVG's do, so the stitches land where they do on Linux:
+checked by drawing both side by side. It writes two files:
+- **`drawable/logo.xml`:** the whole tile. It's the dock's Home button,
+  and via a one-line `<inset>` in `mipmap-anydpi/`, the API 24–25 launcher
+  icon.
+- **`drawable/ic_launcher_foreground.xml`:** seam and thread only. An
+  adaptive icon's mask would cut the square border stitch at its corners.
+
+No monochrome (themed) icon yet: in one colour, the seam line would join
+the stitches into a solid stroke.

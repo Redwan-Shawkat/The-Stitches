@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The line loader: a thin trough, and the fill the page tints (the line
+     colour, or red once something fails). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape><solid android:color="@color/bar_button" /><corners android:radius="2dp" /></shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape><solid android:color="#FFFFFF" /><corners android:radius="2dp" /></shape>
+        </clip>
+    </item>
+</layer-list>

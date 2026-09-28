@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="brand">#1F2937</color>
     <color name="icon_background">#1F2937</color>
-    <!-- One set of risk colours for both themes: each is picked to stay
-         legible on the light and the dark surface, so the manual light/dark
-         toggle doesn't need a second palette the way the Windows build did. -->
-    <color name="risk_safe">#2E9E4F</color>
-    <color name="risk_caution">#D08700</color>
-    <color name="risk_critical">#E05252</color>
+    <!-- The Linux build's palette (src/stitches/widgets.py): one accent, and
+         the dark bar and dock every theme keeps. -->
+    <color name="accent">#4C5CE6</color>
+    <color name="line">#7D8BFF</color>
+    <color name="line_error">#FF6B5E</color>
+    <color name="bar_text">#B9BBC6</color>
+    <color name="bar_button">#262833</color>
+    <color name="dock_separator">#2A2C38</color>
+    <color name="destructive">#C62F28</color>
+    <color name="destructive_pressed">#D63A33</color>
+    <color name="destructive_disabled">#73C62F28</color>
+    <!-- Round ticks: the ring reads on light and dark surfaces alike. -->
+    <color name="tick_ring">#8E909C</color>
     <color name="banner_background">#FFF3CD</color>
     <color name="banner_text">#5C4400</color>
 </resources>

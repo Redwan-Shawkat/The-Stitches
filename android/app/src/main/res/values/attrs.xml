@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The surfaces each theme sets; the drawables read them, so one card
+         shape serves all four themes. -->
+    <attr name="cardColor" format="color" />
+    <attr name="cardBorder" format="color" />
+    <attr name="dockColor" format="color" />
+    <attr name="dockBorder" format="color" />
+</resources>

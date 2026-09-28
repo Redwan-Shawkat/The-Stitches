@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home, Security: a shield. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M8,1l6,2.5v4c0,3.5 -2.5,6.5 -6,7.5c-3.5,-1 -6,-4 -6,-7.5v-4z" />
+</vector>

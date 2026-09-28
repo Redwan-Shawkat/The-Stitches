@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
+
+    <include layout="@layout/page_header" />
+
+    <TextView
+        android:id="@+id/banner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/banner"
+        android:padding="12dp"
+        android:textColor="@color/banner_text"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/search"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:background="@drawable/pill"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="8dp"
+            android:drawableTint="?android:attr/textColorSecondary"
+            android:hint="@string/search_hint"
+            android:importantForAutofill="no"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:maxLines="1"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:textSize="14sp" />
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/pill">
+
+            <Spinner
+                android:id="@+id/source_filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/list_card"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@drawable/card"
+        android:orientation="vertical">
+
+        <!-- The select-all circle, over the rows' own: every app shown that
+             can be picked in bulk, or none. -->
+        <LinearLayout
+            android:id="@+id/select_all_row"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="12dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="10dp">
+
+            <ImageView
+                android:id="@+id/select_all"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="@string/select_all"
+                android:src="@drawable/circle_empty" />
+
+            <TextView
+                android:id="@+id/shown"
+                style="@style/GroupTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/cardBorder" />
+
+        <ListView
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="?attr/cardBorder"
+            android:dividerHeight="1dp" />
+    </LinearLayout>
+
+    <include layout="@layout/page_bar" />
+</LinearLayout>

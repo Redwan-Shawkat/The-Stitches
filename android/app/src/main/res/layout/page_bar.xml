@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Every page's action bar, dark in every theme: the line loader along its
+     top edge, a status line, and the page's one button. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/action_bar"
+    android:orientation="vertical">
+
+    <ProgressBar
+        android:id="@+id/line"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_marginStart="14dp"
+        android:layout_marginEnd="14dp"
+        android:indeterminateTint="@color/line"
+        android:max="1000"
+        android:maxHeight="3dp"
+        android:minHeight="3dp"
+        android:progressDrawable="@drawable/line"
+        android:progressTint="@color/line"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="52dp"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="6dp">
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="@color/bar_text"
+            android:textSize="13sp" />
+
+        <Button
+            android:id="@+id/action"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/button_destructive"
+            android:fontFamily="sans-serif-medium"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:stateListAnimator="@null"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>
