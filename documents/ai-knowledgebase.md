@@ -1404,10 +1404,11 @@ update on every start.
 - **`elevate.run(on_line=)`** streams a command's lines (stdout and stderr
   together) for Diagnose's Terminal. An elevated command can't stream: its
   output only comes back through the temp file once it ends.
-- **Elevated PowerShell goes as `-EncodedCommand`.** `_run_elevated` wraps the
+- **Elevated PowerShell goes as a `.ps1` file.** `_run_elevated` wraps the
   command in `cmd /c "…"`, and cmd's quoting knows nothing of PowerShell's.
-  A script with a pipe, a quote or a `$` breaks there. Base64 of UTF-16 has
-  nothing left to quote. Unelevated calls keep `-Command`.
+  A script with a pipe, a quote or a `$` breaks there. It was
+  `-EncodedCommand` until 0.2.3, which turned errors into CLIXML (see
+  "Every elevated action failed" below). Unelevated calls keep `-Command`.
 - **`clean_output`.** `sfc` writes UTF-16, so its text arrives with a NUL
   after each letter. `sfc`, `DISM` and `chkdsk` also redraw their progress
   after a bare `\r`. The temp file is read with `newline=""` so those `\r`
@@ -1495,6 +1496,16 @@ won't take (exFAT, none), and USB flash drives, which gain nothing and
 wear. All ticked drives go in one elevated script, so there's one prompt,
 and each drive's failure is reported while the rest still run.
 
+It is Windows' own engine, so it's exactly as fast as Optimize Drives:
+D:, E: and F: on a 1 TB hard disk took 5½ minutes, timed from the
+Application log's `Microsoft-Windows-Defrag` 258 events. It looked like
+an hour for two reasons: the status line said "a hard disk can take an
+hour", and `slice()` crawled to 92% in a second and then sat still. An
+elevated run gives no progress, so the bar now pulses, the line says "a
+few minutes per hard disk", and the end says how long it took.
+Per-drive progress could come from polling those 258 events without admin
+rights. Skipped, since the pulse and the timing say enough.
+
 ### Diagnose: the tools themselves, not stand-ins
 
 On Linux each check stands in for a Windows tool. Here the tools are there,
@@ -1547,6 +1558,45 @@ runs from:
 The GUI smoke test can run on Linux with a Python that has tkinter:
 `python-build-standalone`'s 2025-03 build aborts in xcb here, the 2025-10
 build works.
+
+### Every elevated action failed, and nothing in CI could see it (0.2.3)
+
+Tested on a real Windows 10 PC: machine-wide uninstall, driver updates
+and Defrag all did nothing, and so did everything else that goes through
+`_run_elevated`. The command ran. Reading its output back raised
+`PermissionError`. Since Python 3.12.4, `tempfile.mkdtemp` on Windows gives
+the directory an ACL of SYSTEM, Administrators and OWNER RIGHTS only. The
+elevated `cmd` created `output.txt`, and a file created under an elevated
+token is owned by Administrators. Our unelevated token has Administrators
+only as deny-only, and we weren't the owner. CI builds with the latest
+3.12, so every release had this. Fix: `log.touch()` before launching.
+`>` then truncates a file we own, and the elevated side still writes
+through the Administrators entry.
+
+Next behind it: `-EncodedCommand` makes PowerShell 5 write its error,
+verbose and progress streams to stderr as CLIXML, so a failure dialog
+showed XML. `-OutputFormat Text` doesn't change that, and neither does
+`*>&1` inside the script (terminating errors still come out as XML).
+Elevated scripts now go as a UTF-8-with-BOM `.ps1` (PowerShell 5 reads a
+BOM-less file as ANSI) with `-ExecutionPolicy Bypass -File`. Plain text,
+real exit codes, nothing to quote, and `-EncodedCommand` was an antivirus
+red flag anyway. The ceiling is a Group Policy that forces AllSigned,
+which beats `Bypass` (marked `ponytail:`).
+
+Neither problem can show up in CI: the runner is already admin, so
+`run()` never takes the elevated path. Checked by hand instead: TRIM of
+C: through `defrag.optimize`; a fake HKLM Uninstall entry whose
+uninstaller deletes its own key, removed through `uninstaller.uninstall`
+(1.7 s, gone from the rescan); `wu_install_script` dry-run. The icon was
+fine in a PyInstaller build (exe resource, title bar, dock).
+
+The Start Menu icon was not. Windows Installer extracts an `<Icon>` to
+`C:\Windows\Installer\{ProductCode}\<Id>`, and the shortcut and Apps &
+Features point at that file. The Id was `AppIcon`, with no extension, so
+Explorer couldn't read the file and drew a blank icon. The taskbar was
+fine because it uses the running window's icon. The Id is now
+`AppIcon.ico`, checked by installing the `.msi` and reading the shortcut's
+icon back.
 
 ---
 

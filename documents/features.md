@@ -310,6 +310,12 @@ leaves. Design decisions in
       to Windows Installer, the portable `.exe` swaps itself; checked first.
 - [x] Version 0.2.0, in step with Linux, so the self-updater compares like
       with like.
+- [x] 0.2.3: every elevated action works again (machine-wide uninstall,
+      driver and Windows Update installs, Defrag, Cleanup and Diagnose
+      fixes); their failures read as text, not CLIXML. The `.msi`'s Start
+      Menu shortcut shows the icon. Defrag pulses while it runs (it used to
+      sit at 92%), says "a few minutes", not "an hour", and reports the time
+      taken. Tested on a real PC.
 
 ## Planned — Windows (`windows/`)
 

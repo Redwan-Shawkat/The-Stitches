@@ -20,8 +20,11 @@
     <MajorUpgrade DowngradeErrorMessage="A newer version of Stitches is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
-    <Icon Id="AppIcon" SourceFile="$(var.IconSource)" />
-    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <!-- The Id is the file name Windows Installer extracts the icon to, and
+         the shortcut and Apps & Features point at it. Without ".ico",
+         Explorer can't read it and the Start Menu shows a blank icon. -->
+    <Icon Id="AppIcon.ico" SourceFile="$(var.IconSource)" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon.ico" />
     <Property Id="ARPHELPLINK" Value="https://github.com/Redwan-Shawkat/The-Uninstaller" />
 
     <StandardDirectory Id="ProgramFiles6432Folder">
@@ -45,7 +48,7 @@
                     Directory="ProgramMenuFolder"
                     Name="Stitches"
                     Description="Find and remove software regardless of how it was installed"
-                    Icon="AppIcon"
+                    Icon="AppIcon.ico"
                     Advertise="yes" />
         </File>
       </Component>

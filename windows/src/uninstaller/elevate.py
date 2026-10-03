@@ -8,7 +8,6 @@ it with no new dependency. CLAUDE.md non-negotiable: machine-wide removals
 go through this, and the password/consent dialog is the OS's, never ours.
 """
 
-import base64
 import ctypes
 import re
 import subprocess
@@ -206,6 +205,10 @@ def _run_elevated(argv: list[str], follow: bool = False, done=None) -> tuple[int
     # open; failing to delete a temp file must not fail the uninstall.
     with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
         log = Path(tmp, "output.txt")
+        # Ours before cmd writes to it. Since Python 3.12.4 a temp directory
+        # admits only Administrators and a file's owner, and a file the
+        # elevated cmd created would be owned by Administrators: unreadable here.
+        log.touch()
 
         info = _ShellExecuteInfoW()
         info.cbSize = ctypes.sizeof(info)
@@ -314,7 +317,12 @@ def powershell(script: str, elevated: bool = False, on_line=None) -> tuple[int, 
     shell = ["powershell", "-NoProfile", "-NonInteractive"]
     if elevated and not is_admin():
         # An elevated command travels through cmd /c, whose quoting knows
-        # nothing of PowerShell's; base64 has nothing left to quote.
-        encoded = base64.b64encode(script.encode("utf-16-le")).decode()
-        return run([*shell, "-EncodedCommand", encoded], elevated=True, on_line=on_line)
+        # nothing of PowerShell's, so the script goes as a file. Not
+        # -EncodedCommand: with it PowerShell writes errors as CLIXML, and the
+        # failure dialog showed XML. ponytail: a Group Policy that forces
+        # AllSigned beats -ExecutionPolicy Bypass; sign the scripts if one turns up.
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmp:
+            path = Path(tmp, "stitches.ps1")
+            path.write_text(script, encoding="utf-8-sig")  # the BOM: PowerShell 5 reads ANSI without one
+            return run([*shell, "-ExecutionPolicy", "Bypass", "-File", str(path)], elevated=True, on_line=on_line)
     return run([*shell, "-Command", script], on_line=on_line)
