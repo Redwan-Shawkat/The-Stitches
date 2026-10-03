@@ -1,0 +1,692 @@
+{
+  "android/app/build.gradle.kts": {
+    "mtime": 1790590790.471505,
+    "seen": 1791003986.0560286,
+    "ast_hash": "2ed640d87d99222a5abee759986e07e1",
+    "semantic_hash": "2ed640d87d99222a5abee759986e07e1"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/Health.kt": {
+    "mtime": 1790590790.4725082,
+    "seen": 1791003986.0560286,
+    "ast_hash": "02fd17fadf74f2ffb4c46c6b3b32a34d",
+    "semantic_hash": "02fd17fadf74f2ffb4c46c6b3b32a34d"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/HomePage.kt": {
+    "mtime": 1790590790.4725082,
+    "seen": 1791003986.0560286,
+    "ast_hash": "8d61481cd0023235a28fb561069a3f48",
+    "semantic_hash": "8d61481cd0023235a28fb561069a3f48"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/Leftovers.kt": {
+    "mtime": 1790312037.4515,
+    "seen": 1791003986.0560286,
+    "ast_hash": "f712785f03028f8d45688b6f2663e04c",
+    "semantic_hash": "f712785f03028f8d45688b6f2663e04c"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/MainActivity.kt": {
+    "mtime": 1790590790.4735062,
+    "seen": 1791003986.0560286,
+    "ast_hash": "3c2505d6e6286f036221108fe7077466",
+    "semantic_hash": "3c2505d6e6286f036221108fe7077466"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/Models.kt": {
+    "mtime": 1790312037.4525023,
+    "seen": 1791003986.0560286,
+    "ast_hash": "2b0f152d36cdec08058a84ce1223cefc",
+    "semantic_hash": "2b0f152d36cdec08058a84ce1223cefc"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/Permissions.kt": {
+    "mtime": 1790312037.4525023,
+    "seen": 1791003986.0560286,
+    "ast_hash": "3ed7d35b62042f88209ed651d036334f",
+    "semantic_hash": "3ed7d35b62042f88209ed651d036334f"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/Risk.kt": {
+    "mtime": 1790312037.4535022,
+    "seen": 1791003986.0560286,
+    "ast_hash": "b3e360de9a628d2f9671c0b3899fe5f3",
+    "semantic_hash": "b3e360de9a628d2f9671c0b3899fe5f3"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/Scanner.kt": {
+    "mtime": 1790312037.4535022,
+    "seen": 1791003986.0560286,
+    "ast_hash": "68c6b8a91b74c522c8ff82ae7934e399",
+    "semantic_hash": "68c6b8a91b74c522c8ff82ae7934e399"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/Sources.kt": {
+    "mtime": 1790312037.4545023,
+    "seen": 1791003986.0560286,
+    "ast_hash": "725c0a450457c3f8e81e3e628f3cabf5",
+    "semantic_hash": "725c0a450457c3f8e81e3e628f3cabf5"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/Ui.kt": {
+    "mtime": 1790590790.4745045,
+    "seen": 1791003986.0560286,
+    "ast_hash": "e4bb7971fceff32d93db66faaec33851",
+    "semantic_hash": "e4bb7971fceff32d93db66faaec33851"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/UninstallPage.kt": {
+    "mtime": 1790590790.4745045,
+    "seen": 1791003986.0560286,
+    "ast_hash": "0461d3552831731dc84ddfd2e81de643",
+    "semantic_hash": "0461d3552831731dc84ddfd2e81de643"
+  },
+  "android/app/src/main/java/io/github/redwanshawkat/uninstaller/Uninstaller.kt": {
+    "mtime": 1790312037.4545023,
+    "seen": 1791003986.0560286,
+    "ast_hash": "28e48d3f3e838fc05cc6b88dac375913",
+    "semantic_hash": "28e48d3f3e838fc05cc6b88dac375913"
+  },
+  "android/app/src/test/java/io/github/redwanshawkat/uninstaller/CoreTest.kt": {
+    "mtime": 1790590790.495035,
+    "seen": 1791003986.0560286,
+    "ast_hash": "af4b71f09decd43657e5d2b3d012d201",
+    "semantic_hash": "af4b71f09decd43657e5d2b3d012d201"
+  },
+  "android/build-apk.sh": {
+    "mtime": 1790590790.4960315,
+    "seen": 1791003986.0560286,
+    "ast_hash": "c06e1ba56e3c63d777b549b02af636ef",
+    "semantic_hash": "c06e1ba56e3c63d777b549b02af636ef"
+  },
+  "android/build.gradle.kts": {
+    "mtime": 1790312037.4613302,
+    "seen": 1791003986.0560286,
+    "ast_hash": "f841a5a48195896a7ab433dc1cc257d1",
+    "semantic_hash": "f841a5a48195896a7ab433dc1cc257d1"
+  },
+  "android/gradlew": {
+    "mtime": 1790312037.4643414,
+    "seen": 1791003986.0560286,
+    "ast_hash": "b60a94c7e112b22b5f03b88ba3566178",
+    "semantic_hash": "b60a94c7e112b22b5f03b88ba3566178"
+  },
+  "android/settings.gradle.kts": {
+    "mtime": 1790590790.4970326,
+    "seen": 1791003986.0560286,
+    "ast_hash": "4fe07fe4089b5bbc58bbe53642985633",
+    "semantic_hash": "4fe07fe4089b5bbc58bbe53642985633"
+  },
+  "android/tools/make_logo.py": {
+    "mtime": 1790590790.4980304,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d2d71117794192a85fff3337ad0c4bf4",
+    "semantic_hash": "d2d71117794192a85fff3337ad0c4bf4"
+  },
+  "linux/build-deb.sh": {
+    "mtime": 1790590790.5020285,
+    "seen": 1791003986.0560286,
+    "ast_hash": "0969789950d7a445b85d898b36803430",
+    "semantic_hash": "0969789950d7a445b85d898b36803430"
+  },
+  "linux/install.sh": {
+    "mtime": 1790590790.5020285,
+    "seen": 1791003986.0560286,
+    "ast_hash": "51650cc098f3f2613bb926ff6c58a802",
+    "semantic_hash": "51650cc098f3f2613bb926ff6c58a802"
+  },
+  "linux/pyproject.toml": {
+    "mtime": 1790590790.5030282,
+    "seen": 1791003986.0560286,
+    "ast_hash": "1b8d96a1be75fdee4bdf28fecf4254b3",
+    "semantic_hash": "1b8d96a1be75fdee4bdf28fecf4254b3"
+  },
+  "linux/src/stitches/__init__.py": {
+    "mtime": 1790590790.5030282,
+    "seen": 1791003986.0560286,
+    "ast_hash": "c9c38eabf69add00779fa5574f81f5a5",
+    "semantic_hash": "c9c38eabf69add00779fa5574f81f5a5"
+  },
+  "linux/src/stitches/__main__.py": {
+    "mtime": 1790590790.5040274,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d784eadd7f6f3bdf7371dbdfa056a51e",
+    "semantic_hash": "d784eadd7f6f3bdf7371dbdfa056a51e"
+  },
+  "linux/src/stitches/backends/__init__.py": {
+    "mtime": 1790590790.5040274,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "linux/src/stitches/backends/apt_backend.py": {
+    "mtime": 1790590790.5040274,
+    "seen": 1791003986.0560286,
+    "ast_hash": "93fbbdc19bff6d9946a680343185e5d8",
+    "semantic_hash": "93fbbdc19bff6d9946a680343185e5d8"
+  },
+  "linux/src/stitches/backends/base.py": {
+    "mtime": 1790590790.505029,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d72d2ddfbb4552d45b698cc049ab49dd",
+    "semantic_hash": "d72d2ddfbb4552d45b698cc049ab49dd"
+  },
+  "linux/src/stitches/backends/flatpak_backend.py": {
+    "mtime": 1790590790.505029,
+    "seen": 1791003986.0560286,
+    "ast_hash": "6386fb2664a64f83dbb9915feacb5ca7",
+    "semantic_hash": "6386fb2664a64f83dbb9915feacb5ca7"
+  },
+  "linux/src/stitches/backends/local_backend.py": {
+    "mtime": 1790590790.5060287,
+    "seen": 1791003986.0560286,
+    "ast_hash": "6f966c8330800dba0571a64413a1258a",
+    "semantic_hash": "6f966c8330800dba0571a64413a1258a"
+  },
+  "linux/src/stitches/backends/snap_backend.py": {
+    "mtime": 1790590790.5060287,
+    "seen": 1791003986.0560286,
+    "ast_hash": "ac3116f5436d52f92dba1ced3b11226b",
+    "semantic_hash": "ac3116f5436d52f92dba1ced3b11226b"
+  },
+  "linux/src/stitches/backends/wine_backend.py": {
+    "mtime": 1790590790.5070276,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d31051d8ea344da090694762b0ceb2db",
+    "semantic_hash": "d31051d8ea344da090694762b0ceb2db"
+  },
+  "linux/src/stitches/cleanup.py": {
+    "mtime": 1790590790.5070276,
+    "seen": 1791003986.0560286,
+    "ast_hash": "7e83f2c9e7c34b07387708d8b2019f66",
+    "semantic_hash": "7e83f2c9e7c34b07387708d8b2019f66"
+  },
+  "linux/src/stitches/defrag.py": {
+    "mtime": 1790590790.5080287,
+    "seen": 1791003986.0560286,
+    "ast_hash": "3ebbb76ee260cb1c0c245cd19235c4ed",
+    "semantic_hash": "3ebbb76ee260cb1c0c245cd19235c4ed"
+  },
+  "linux/src/stitches/diagnose.py": {
+    "mtime": 1790590790.5080287,
+    "seen": 1791003986.0560286,
+    "ast_hash": "2e94168b4652012689fdc89eefae0875",
+    "semantic_hash": "2e94168b4652012689fdc89eefae0875"
+  },
+  "linux/src/stitches/drivers.py": {
+    "mtime": 1790590790.5090282,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d53618e01468f2b42f2cb0ae50354178",
+    "semantic_hash": "d53618e01468f2b42f2cb0ae50354178"
+  },
+  "linux/src/stitches/gui.py": {
+    "mtime": 1790590790.5090282,
+    "seen": 1791003986.0560286,
+    "ast_hash": "8291b7cc0638b76385869a6de434b002",
+    "semantic_hash": "8291b7cc0638b76385869a6de434b002"
+  },
+  "linux/src/stitches/leftovers.py": {
+    "mtime": 1790590790.5140293,
+    "seen": 1791003986.0560286,
+    "ast_hash": "996c5fae1c2e35cc74222d10b927b710",
+    "semantic_hash": "996c5fae1c2e35cc74222d10b927b710"
+  },
+  "linux/src/stitches/models.py": {
+    "mtime": 1790590790.5140293,
+    "seen": 1791003986.0560286,
+    "ast_hash": "31948bf78f22141ea105c3e7ee1b613d",
+    "semantic_hash": "31948bf78f22141ea105c3e7ee1b613d"
+  },
+  "linux/src/stitches/pages/__init__.py": {
+    "mtime": 1790590790.5150294,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "linux/src/stitches/pages/cleanup.py": {
+    "mtime": 1790590790.5150294,
+    "seen": 1791003986.0560286,
+    "ast_hash": "cf9e14b73e77af62d74ce0a6014f26b9",
+    "semantic_hash": "cf9e14b73e77af62d74ce0a6014f26b9"
+  },
+  "linux/src/stitches/pages/defrag.py": {
+    "mtime": 1790590790.5160296,
+    "seen": 1791003986.0560286,
+    "ast_hash": "db3e2fed42a00201592f3a77eeba0803",
+    "semantic_hash": "db3e2fed42a00201592f3a77eeba0803"
+  },
+  "linux/src/stitches/pages/diagnose.py": {
+    "mtime": 1790590790.5160296,
+    "seen": 1791003986.0560286,
+    "ast_hash": "f6ada38b2c28b7f389ac08f026fafe97",
+    "semantic_hash": "f6ada38b2c28b7f389ac08f026fafe97"
+  },
+  "linux/src/stitches/pages/drivers.py": {
+    "mtime": 1790590790.5170274,
+    "seen": 1791003986.0560286,
+    "ast_hash": "ef80df226705a7933ea61374df411b2b",
+    "semantic_hash": "ef80df226705a7933ea61374df411b2b"
+  },
+  "linux/src/stitches/pages/home.py": {
+    "mtime": 1790590790.5170274,
+    "seen": 1791003986.0560286,
+    "ast_hash": "f505bbdfa6da2b2128124cee301c71a7",
+    "semantic_hash": "f505bbdfa6da2b2128124cee301c71a7"
+  },
+  "linux/src/stitches/pages/uninstall.py": {
+    "mtime": 1790590790.5180283,
+    "seen": 1791003986.0560286,
+    "ast_hash": "b868c9f02598e1e09d3fdadfb0aa1bdc",
+    "semantic_hash": "b868c9f02598e1e09d3fdadfb0aa1bdc"
+  },
+  "linux/src/stitches/pages/updates.py": {
+    "mtime": 1790590790.5180283,
+    "seen": 1791003986.0560286,
+    "ast_hash": "5d4d96fe817c674a674d357c72e8687d",
+    "semantic_hash": "5d4d96fe817c674a674d357c72e8687d"
+  },
+  "linux/src/stitches/risk.py": {
+    "mtime": 1790590790.5190284,
+    "seen": 1791003986.0560286,
+    "ast_hash": "e289ae420cdeb13379e666d1f9ac1a76",
+    "semantic_hash": "e289ae420cdeb13379e666d1f9ac1a76"
+  },
+  "linux/src/stitches/scanner.py": {
+    "mtime": 1790590790.5190284,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d31cf79f253ed40dfec6889bd0c362a0",
+    "semantic_hash": "d31cf79f253ed40dfec6889bd0c362a0"
+  },
+  "linux/src/stitches/selfupdate.py": {
+    "mtime": 1790590790.520028,
+    "seen": 1791003986.0560286,
+    "ast_hash": "b8b4ac7adcc511e58b9b9ca53c42aa45",
+    "semantic_hash": "b8b4ac7adcc511e58b9b9ca53c42aa45"
+  },
+  "linux/src/stitches/shell.py": {
+    "mtime": 1790590790.520028,
+    "seen": 1791003986.0560286,
+    "ast_hash": "615114db6ef77e3891174748d28aeb8a",
+    "semantic_hash": "615114db6ef77e3891174748d28aeb8a"
+  },
+  "linux/src/stitches/sysinfo.py": {
+    "mtime": 1790590790.5210285,
+    "seen": 1791003986.0560286,
+    "ast_hash": "ef9d02b5cade0af2a3954db77a55881e",
+    "semantic_hash": "ef9d02b5cade0af2a3954db77a55881e"
+  },
+  "linux/src/stitches/uninstaller.py": {
+    "mtime": 1790590790.5210285,
+    "seen": 1791003986.0560286,
+    "ast_hash": "65ba689a86fda88ab72d299d917d17d4",
+    "semantic_hash": "65ba689a86fda88ab72d299d917d17d4"
+  },
+  "linux/src/stitches/updates.py": {
+    "mtime": 1790590790.522027,
+    "seen": 1791003986.0560286,
+    "ast_hash": "be3d026fa44133c6a8b1338e75e82f0b",
+    "semantic_hash": "be3d026fa44133c6a8b1338e75e82f0b"
+  },
+  "linux/src/stitches/vitals.py": {
+    "mtime": 1790590790.522027,
+    "seen": 1791003986.0560286,
+    "ast_hash": "fce8d6e6f748b980a79f43542556f4ce",
+    "semantic_hash": "fce8d6e6f748b980a79f43542556f4ce"
+  },
+  "linux/src/stitches/widgets.py": {
+    "mtime": 1790590790.5230284,
+    "seen": 1791003986.0560286,
+    "ast_hash": "0e8e5f977424338e9de9e291102481e3",
+    "semantic_hash": "0e8e5f977424338e9de9e291102481e3"
+  },
+  "linux/tests/test_core.py": {
+    "mtime": 1790590790.5230284,
+    "seen": 1791003986.0560286,
+    "ast_hash": "8b862ab7480b1adb674742260ac6172f",
+    "semantic_hash": "8b862ab7480b1adb674742260ac6172f"
+  },
+  "linux/uninstall.sh": {
+    "mtime": 1790590790.5240278,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d1ccf44bd768a4b669c977764a901d6a",
+    "semantic_hash": "d1ccf44bd768a4b669c977764a901d6a"
+  },
+  "windows/build-all.ps1": {
+    "mtime": 1790312037.477342,
+    "seen": 1791003986.0560286,
+    "ast_hash": "34463c9e7968c836dfe5b1076f9c3705",
+    "semantic_hash": "34463c9e7968c836dfe5b1076f9c3705"
+  },
+  "windows/build-exe.ps1": {
+    "mtime": 1790590790.5250292,
+    "seen": 1791003986.0560286,
+    "ast_hash": "423d45d4c7aae86ef63cdf252c00d7a2",
+    "semantic_hash": "423d45d4c7aae86ef63cdf252c00d7a2"
+  },
+  "windows/build-msi.ps1": {
+    "mtime": 1790590790.5260296,
+    "seen": 1791003986.0560286,
+    "ast_hash": "961933f4a66d3f57cbd15c198debeea4",
+    "semantic_hash": "961933f4a66d3f57cbd15c198debeea4"
+  },
+  "windows/pyproject.toml": {
+    "mtime": 1790997585.8945072,
+    "seen": 1791003986.0560286,
+    "ast_hash": "a9654ca31ba2c1f2a27cbe9215ca6c48",
+    "semantic_hash": "a9654ca31ba2c1f2a27cbe9215ca6c48"
+  },
+  "windows/run.py": {
+    "mtime": 1790312037.4793415,
+    "seen": 1791003986.0560286,
+    "ast_hash": "6278fe6f500186594969761c9b0423fa",
+    "semantic_hash": "6278fe6f500186594969761c9b0423fa"
+  },
+  "windows/src/uninstaller/__init__.py": {
+    "mtime": 1790997585.9365084,
+    "seen": 1791003986.0560286,
+    "ast_hash": "e8b8e5a33e1e034afe2c0eb58e486733",
+    "semantic_hash": "e8b8e5a33e1e034afe2c0eb58e486733"
+  },
+  "windows/src/uninstaller/__main__.py": {
+    "mtime": 1790312037.4803412,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d784eadd7f6f3bdf7371dbdfa056a51e",
+    "semantic_hash": "d784eadd7f6f3bdf7371dbdfa056a51e"
+  },
+  "windows/src/uninstaller/backends/__init__.py": {
+    "mtime": 1790312037.4803412,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "windows/src/uninstaller/backends/base.py": {
+    "mtime": 1790312037.4813414,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d72d2ddfbb4552d45b698cc049ab49dd",
+    "semantic_hash": "d72d2ddfbb4552d45b698cc049ab49dd"
+  },
+  "windows/src/uninstaller/backends/choco_backend.py": {
+    "mtime": 1790312037.4813414,
+    "seen": 1791003986.0560286,
+    "ast_hash": "b5dee19bf333f4b8e9045cfc3036373b",
+    "semantic_hash": "b5dee19bf333f4b8e9045cfc3036373b"
+  },
+  "windows/src/uninstaller/backends/registry_backend.py": {
+    "mtime": 1790315226.5387795,
+    "seen": 1791003986.0560286,
+    "ast_hash": "6ad4af1df65dd13a4eb63245ecf7c750",
+    "semantic_hash": "6ad4af1df65dd13a4eb63245ecf7c750"
+  },
+  "windows/src/uninstaller/backends/scoop_backend.py": {
+    "mtime": 1790312037.4823413,
+    "seen": 1791003986.0560286,
+    "ast_hash": "bf177052f8b2a1a3975d5e4bdb37a504",
+    "semantic_hash": "bf177052f8b2a1a3975d5e4bdb37a504"
+  },
+  "windows/src/uninstaller/backends/store_backend.py": {
+    "mtime": 1790312037.4823413,
+    "seen": 1791003986.0560286,
+    "ast_hash": "842993ba41f1f9137fe9fb87b77ddf59",
+    "semantic_hash": "842993ba41f1f9137fe9fb87b77ddf59"
+  },
+  "windows/src/uninstaller/cleanup.py": {
+    "mtime": 1790590790.5290296,
+    "seen": 1791003986.0560286,
+    "ast_hash": "17688a5ddd9fb6ca4453fbbcfd7a5d70",
+    "semantic_hash": "17688a5ddd9fb6ca4453fbbcfd7a5d70"
+  },
+  "windows/src/uninstaller/defrag.py": {
+    "mtime": 1790590790.5290296,
+    "seen": 1791003986.0560286,
+    "ast_hash": "29fa7cad2cabf9d0c0e3b80b6fe31d50",
+    "semantic_hash": "29fa7cad2cabf9d0c0e3b80b6fe31d50"
+  },
+  "windows/src/uninstaller/diagnose.py": {
+    "mtime": 1790590790.53003,
+    "seen": 1791003986.0560286,
+    "ast_hash": "ed6302982a486fa02f1225d0ebc7e929",
+    "semantic_hash": "ed6302982a486fa02f1225d0ebc7e929"
+  },
+  "windows/src/uninstaller/drivers.py": {
+    "mtime": 1790590790.53003,
+    "seen": 1791003986.0560286,
+    "ast_hash": "52e399b6b014b9dfc81b052b73b1c0a7",
+    "semantic_hash": "52e399b6b014b9dfc81b052b73b1c0a7"
+  },
+  "windows/src/uninstaller/elevate.py": {
+    "mtime": 1790997371.0170386,
+    "seen": 1791003986.0560286,
+    "ast_hash": "032b4d10ba8abbc921e32bea7bf4f839",
+    "semantic_hash": "032b4d10ba8abbc921e32bea7bf4f839"
+  },
+  "windows/src/uninstaller/gui.py": {
+    "mtime": 1790590790.5330305,
+    "seen": 1791003986.0560286,
+    "ast_hash": "70601bcc755b281ab2f843cec1ad4941",
+    "semantic_hash": "70601bcc755b281ab2f843cec1ad4941"
+  },
+  "windows/src/uninstaller/leftovers.py": {
+    "mtime": 1790312037.4853408,
+    "seen": 1791003986.0560286,
+    "ast_hash": "39ae3a41e045b10f79863ce440d9392f",
+    "semantic_hash": "39ae3a41e045b10f79863ce440d9392f"
+  },
+  "windows/src/uninstaller/models.py": {
+    "mtime": 1790312037.4853408,
+    "seen": 1791003986.0560286,
+    "ast_hash": "f54ca7c899a28e89e0587257e43deb79",
+    "semantic_hash": "f54ca7c899a28e89e0587257e43deb79"
+  },
+  "windows/src/uninstaller/pages/__init__.py": {
+    "mtime": 1790590790.53403,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "windows/src/uninstaller/pages/cleanup.py": {
+    "mtime": 1790590790.53403,
+    "seen": 1791003986.0560286,
+    "ast_hash": "9a6d1ff636de3dd1c482caec6caa9057",
+    "semantic_hash": "9a6d1ff636de3dd1c482caec6caa9057"
+  },
+  "windows/src/uninstaller/pages/defrag.py": {
+    "mtime": 1790998874.869774,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d5da90139c5680f82273ac7efc04c374",
+    "semantic_hash": "d5da90139c5680f82273ac7efc04c374"
+  },
+  "windows/src/uninstaller/pages/diagnose.py": {
+    "mtime": 1790590790.5350294,
+    "seen": 1791003986.0560286,
+    "ast_hash": "74d2aa15d58371a3c01bbeb3e124dcb7",
+    "semantic_hash": "74d2aa15d58371a3c01bbeb3e124dcb7"
+  },
+  "windows/src/uninstaller/pages/drivers.py": {
+    "mtime": 1790590790.5350294,
+    "seen": 1791003986.0560286,
+    "ast_hash": "8e79ed14fdfb4427459e0b7c3c6f5b71",
+    "semantic_hash": "8e79ed14fdfb4427459e0b7c3c6f5b71"
+  },
+  "windows/src/uninstaller/pages/home.py": {
+    "mtime": 1790590790.5360281,
+    "seen": 1791003986.0560286,
+    "ast_hash": "ea686d736359bdbd20047b71fe73451a",
+    "semantic_hash": "ea686d736359bdbd20047b71fe73451a"
+  },
+  "windows/src/uninstaller/pages/uninstall.py": {
+    "mtime": 1790590790.5370276,
+    "seen": 1791003986.0560286,
+    "ast_hash": "5ac65ecbbc6506ece5e57172ea4a1b80",
+    "semantic_hash": "5ac65ecbbc6506ece5e57172ea4a1b80"
+  },
+  "windows/src/uninstaller/pages/updates.py": {
+    "mtime": 1790590790.5370276,
+    "seen": 1791003986.0560286,
+    "ast_hash": "c4a3db785c5d0542e8faa514459e474c",
+    "semantic_hash": "c4a3db785c5d0542e8faa514459e474c"
+  },
+  "windows/src/uninstaller/risk.py": {
+    "mtime": 1790312037.4863412,
+    "seen": 1791003986.0560286,
+    "ast_hash": "33e9fb9f959a94d90542d026db94d64b",
+    "semantic_hash": "33e9fb9f959a94d90542d026db94d64b"
+  },
+  "windows/src/uninstaller/scanner.py": {
+    "mtime": 1790312037.4863412,
+    "seen": 1791003986.0560286,
+    "ast_hash": "c85dbabbcc8e5e49b41742f5a68f3728",
+    "semantic_hash": "c85dbabbcc8e5e49b41742f5a68f3728"
+  },
+  "windows/src/uninstaller/selfupdate.py": {
+    "mtime": 1790590790.5380292,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d07fe236c5db499cfd9738a0dd83a67a",
+    "semantic_hash": "d07fe236c5db499cfd9738a0dd83a67a"
+  },
+  "windows/src/uninstaller/sysinfo.py": {
+    "mtime": 1790590790.5380292,
+    "seen": 1791003986.0560286,
+    "ast_hash": "5480671494c682cd7a9c239afcac9619",
+    "semantic_hash": "5480671494c682cd7a9c239afcac9619"
+  },
+  "windows/src/uninstaller/uninstaller.py": {
+    "mtime": 1790312037.4863412,
+    "seen": 1791003986.0560286,
+    "ast_hash": "65ba689a86fda88ab72d299d917d17d4",
+    "semantic_hash": "65ba689a86fda88ab72d299d917d17d4"
+  },
+  "windows/src/uninstaller/updates.py": {
+    "mtime": 1790590790.53903,
+    "seen": 1791003986.0560286,
+    "ast_hash": "73ceefafa771a4c96d803c58a08cb059",
+    "semantic_hash": "73ceefafa771a4c96d803c58a08cb059"
+  },
+  "windows/src/uninstaller/widgets.py": {
+    "mtime": 1790590790.540029,
+    "seen": 1791003986.0560286,
+    "ast_hash": "67e8b6aff09e8ac6f68a788cc86274fe",
+    "semantic_hash": "67e8b6aff09e8ac6f68a788cc86274fe"
+  },
+  "windows/tests/test_core.py": {
+    "mtime": 1790590790.5430293,
+    "seen": 1791003986.0560286,
+    "ast_hash": "bad7cd845e5194570de9d567cbfe16c0",
+    "semantic_hash": "bad7cd845e5194570de9d567cbfe16c0"
+  },
+  "windows/tests/test_gui_smoke.py": {
+    "mtime": 1790590790.5430293,
+    "seen": 1791003986.0560286,
+    "ast_hash": "aa3c54ce6d5013af5ee1f0e0679c142e",
+    "semantic_hash": "aa3c54ce6d5013af5ee1f0e0679c142e"
+  },
+  "windows/tools/make_icon.py": {
+    "mtime": 1790590790.5440288,
+    "seen": 1791003986.0560286,
+    "ast_hash": "e6cfb543c16710f74302ae4c60e4bd0d",
+    "semantic_hash": "e6cfb543c16710f74302ae4c60e4bd0d"
+  },
+  ".github/workflows/android-build.yml": {
+    "mtime": 1790590790.4675043,
+    "seen": 1791003986.0560286,
+    "ast_hash": "9a44347c67bd23f1d9760ad32a01b0ee",
+    "semantic_hash": "9a44347c67bd23f1d9760ad32a01b0ee"
+  },
+  ".github/workflows/linux-build.yml": {
+    "mtime": 1790590790.4675043,
+    "seen": 1791003986.0560286,
+    "ast_hash": "fd4de684f3fc55c91e25817842ff1b62",
+    "semantic_hash": "fd4de684f3fc55c91e25817842ff1b62"
+  },
+  ".github/workflows/windows-build.yml": {
+    "mtime": 1790590790.468505,
+    "seen": 1791003986.0560286,
+    "ast_hash": "d87290d6fefb79597f580865f003a407",
+    "semantic_hash": "d87290d6fefb79597f580865f003a407"
+  },
+  "CLAUDE.md": {
+    "mtime": 1791002430.155658,
+    "seen": 1791003986.0560286,
+    "ast_hash": "cdbf6c94786a6e558acb665edaa82d13",
+    "semantic_hash": "cdbf6c94786a6e558acb665edaa82d13"
+  },
+  "README.md": {
+    "mtime": 1790590790.4695055,
+    "seen": 1791003986.0560286,
+    "ast_hash": "840f89239feb29ac574a66ea7aae6249",
+    "semantic_hash": "840f89239feb29ac574a66ea7aae6249"
+  },
+  "android/README.md": {
+    "mtime": 1790590790.470506,
+    "seen": 1791003986.0560286,
+    "ast_hash": "05d740b996a3bf23f198c3e97d41bc6c",
+    "semantic_hash": "05d740b996a3bf23f198c3e97d41bc6c"
+  },
+  "documents/SRS.md": {
+    "mtime": 1790312037.4653409,
+    "seen": 1791003986.0560286,
+    "ast_hash": "b323afe343f68ea7cf5a876f278afa88",
+    "semantic_hash": "b323afe343f68ea7cf5a876f278afa88"
+  },
+  "documents/ai-knowledgebase.md": {
+    "mtime": 1790998908.018268,
+    "seen": 1791003986.0560286,
+    "ast_hash": "424a6b1afbcad2547fd7b21545998195",
+    "semantic_hash": "424a6b1afbcad2547fd7b21545998195"
+  },
+  "documents/features.md": {
+    "mtime": 1790998909.1635737,
+    "seen": 1791003986.0560286,
+    "ast_hash": "6a4dc56e96779a34b1aff89429b1171e",
+    "semantic_hash": "6a4dc56e96779a34b1aff89429b1171e"
+  },
+  "windows/README.md": {
+    "mtime": 1790590790.5250292,
+    "seen": 1791003986.0560286,
+    "ast_hash": "8ccf710458729b46f379b5af02a7721e",
+    "semantic_hash": "8ccf710458729b46f379b5af02a7721e"
+  },
+  "linux/screenshots/main-window-mockup.png": {
+    "mtime": 1790312037.4683423,
+    "seen": 1791003986.0560286,
+    "ast_hash": "4bcebf2fd42b070cd0d21563a8d768f8",
+    "semantic_hash": "4bcebf2fd42b070cd0d21563a8d768f8"
+  },
+  "linux/src/stitches/icon.svg": {
+    "mtime": 1790590790.5100281,
+    "seen": 1791003986.0560286,
+    "ast_hash": "0476d7fad137980a67d93504d18eb4a3",
+    "semantic_hash": "0476d7fad137980a67d93504d18eb4a3"
+  },
+  "linux/src/stitches/icons/cpu-symbolic.svg": {
+    "mtime": 1790590790.5100281,
+    "seen": 1791003986.0560286,
+    "ast_hash": "1ac37bc3624482d0db068516454e23b1",
+    "semantic_hash": "1ac37bc3624482d0db068516454e23b1"
+  },
+  "linux/src/stitches/icons/device-diagnostics-symbolic.svg": {
+    "mtime": 1790590790.5110278,
+    "seen": 1791003986.0560286,
+    "ast_hash": "384b4c0f6623f31289a6520416f6c725",
+    "semantic_hash": "384b4c0f6623f31289a6520416f6c725"
+  },
+  "linux/src/stitches/icons/memory-symbolic.svg": {
+    "mtime": 1790590790.51203,
+    "seen": 1791003986.0560286,
+    "ast_hash": "891f482abaa6aa11fae4e83be3719379",
+    "semantic_hash": "891f482abaa6aa11fae4e83be3719379"
+  },
+  "linux/src/stitches/icons/sensors-temperature-symbolic.svg": {
+    "mtime": 1790590790.51203,
+    "seen": 1791003986.0560286,
+    "ast_hash": "24c126e49cea430fded6ca18a4b517b7",
+    "semantic_hash": "24c126e49cea430fded6ca18a4b517b7"
+  },
+  "linux/src/stitches/icons/stitches-uninstall-symbolic.svg": {
+    "mtime": 1790590790.51203,
+    "seen": 1791003986.0560286,
+    "ast_hash": "ce9b1d64b80c41fd1fd8e039c6495b42",
+    "semantic_hash": "ce9b1d64b80c41fd1fd8e039c6495b42"
+  },
+  "linux/src/stitches/icons/tool-brush-symbolic.svg": {
+    "mtime": 1790590790.5130286,
+    "seen": 1791003986.0560286,
+    "ast_hash": "6ac3be3d191d8bb7cafa17415c6c6009",
+    "semantic_hash": "6ac3be3d191d8bb7cafa17415c6c6009"
+  },
+  "windows/src/uninstaller/icon.svg": {
+    "mtime": 1790312037.4853408,
+    "seen": 1791003986.0560286,
+    "ast_hash": "18752ff4dd150febe2e7ebbd0ff743b3",
+    "semantic_hash": "18752ff4dd150febe2e7ebbd0ff743b3"
+  }
+}
