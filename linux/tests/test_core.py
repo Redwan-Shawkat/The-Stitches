@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from datetime import date
 
-from stitches import (appmanager, catalog, cleanup, defrag, diagnose, drivers, php, selfupdate, sysinfo, updates,
+from stitches import (appmanager, catalog, cleanup, databases, defrag, diagnose, drivers, php, selfupdate, sysinfo, updates,
                       vitals, webapps)
 from stitches.backends.local_backend import install_paths
 from stitches.backends.apt_backend import build_apps, parse_dpkg_query, parse_showmanual
@@ -437,6 +437,43 @@ def test_app_manager_catalog_and_jobs():
     assert script.endswith(" git cloudflare-warp")
     assert appmanager.manual_steps(warp)[-1] == "sudo apt install cloudflare-warp"
     assert pick("Avro Phonetic")[0].setup, "Avro's details say how to turn it on"
+
+
+def test_databases():
+    d = databases
+    assert d.valid_name("laravel_2") == "" and d.valid_name("thoth-analytics") == "" and d.valid_name("")
+    assert d.valid_name("2x") and d.valid_name("a b") and d.valid_name("a`b")
+    assert d.valid_name('x"; DROP') and d.valid_name("a" * 33) and d.valid_name("a" * 32) == ""
+    assert d.valid_password("p", "p") == "" and d.valid_password("p", "q") and d.valid_password("a\nb", "a\nb")
+    assert d.my_create_user("u", "it's\\", True) == ["CREATE USER 'u'@'localhost' IDENTIFIED BY 'it\\'s\\\\';",
+                                                    "CREATE DATABASE `u`;",
+                                                    "GRANT ALL PRIVILEGES ON `u`.* TO 'u'@'localhost';"]
+    pg = d.pg_create_user("u", "secret", True)
+    assert pg[0].startswith("CREATE ROLE \"u\" LOGIN PASSWORD 'SCRAM-SHA-256$4096:") and "secret" not in pg[0]
+    assert pg[1] == 'CREATE DATABASE "u" OWNER "u";'
+    verifier = d.scram("pencil", b"0123456789abcdef")
+    assert verifier == d.scram("pencil", b"0123456789abcdef") and verifier != d.scram("pencil")  # a new salt each time
+    assert d.my_create_database("shop_1", "u")[1] == "GRANT ALL PRIVILEGES ON `shop\\_1`.* TO 'u'@'localhost';"
+    assert d.pg_drop_database('x"y') == ['DROP DATABASE "x""y";'] and d.my_drop_database("x`y") == ["DROP DATABASE `x``y`;"]
+    assert d.shown(d.my_password("u", "%", "a'b\\c")[0]) == "ALTER USER 'u'@'%' IDENTIFIED BY '••••••';"
+    assert "SCRAM" not in d.shown(d.pg_password("u", "x")[0])
+    try:
+        d.my_drop_user("u", "x'; DROP")
+        raise AssertionError("a host with a quote got into SQL")
+    except ValueError:
+        pass
+    assert d.my_option_file("u", 'a"b\\') == '[client]\nuser=u\npassword="a\\"b\\\\"\n'
+    listing = d.parse_listing("u\troot\t@localhost\nu\tlaravel\t@%\nd\tshop\tlaravel\n")
+    assert listing.user("laravel", "%") and listing.user("laravel", "localhost") is None
+    assert listing.database("shop").owner == "laravel"
+    assert d.parse_listing("u\tpostgres\tsuperuser\n").users[0] == d.User("postgres", "", "superuser")
+    clusters = d.parse_clusters("16  main    5433 down   postgres /var/lib/x /var/log/x\n"
+                                "18  main    5432 online postgres /var/lib/y /var/log/y\n")
+    assert [(c.version, c.port, c.online, c.unit) for c in clusters] == [
+        ("16", "5433", False, "postgresql@16-main.service"), ("18", "5432", True, "postgresql@18-main.service")]
+    assert d.parse_unit("Id=mysql.service\nLoadState=not-found\nActiveState=inactive\n\n"
+                        "Id=mariadb.service\nLoadState=loaded\nActiveState=active\n") == ("mariadb.service", "active")
+    assert d.my_error("ERROR 1698 (28000): Access denied for user 'root'@'localhost'") == "1698"
 
 
 def test_php():

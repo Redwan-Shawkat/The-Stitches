@@ -1274,6 +1274,66 @@ VPN, Kooha (already there) and a paint app on Linux; Epic Games on Windows.
 - **Windows got a Games category** for the Epic Games Launcher
   (`EpicGames.EpicGamesLauncher`).
 
+## Tenth round (0.2.5): Databases
+
+Phase three of the setup spec: MySQL's and PostgreSQL's users, passwords and
+databases, in their App Manager details (`pages/databases.py:DatabasePanel`,
+logic in `databases.py`). Asked for: list users, create, change and check a
+password, delete, create databases.
+
+- **How it signs in, per server, not assumed.** PostgreSQL: `pkexec runuser
+  -u postgres -- psql`, Ubuntu's peer authentication, no database password.
+  MySQL: `pkexec mysql -u root` through the socket (Ubuntu's root is
+  auth_socket). When that's refused (error 1045/1698: root has a password),
+  the panel asks for root's MySQL password once, keeps it in memory for this
+  visit to the details (`forget()` on leaving) and passes it as an option
+  file through a pipe (`--defaults-extra-file=/dev/fd/N`), not argv, env or
+  disk.
+- **One password prompt per change, and the listing comes with it.** The
+  statements go on stdin to a small `sh -c` that runs the client, then runs
+  it again with the listing query, even when the first failed, exiting as
+  the first did (`_then_list`). So a half-done change (user made, its
+  database refused) still shows what's there now, and "did it work" is read
+  from that listing, never from the exit code. Opening the details reads
+  only the service (`systemctl show`, `pg_lsclusters`, no password); the
+  lists wait for "Show users and databases".
+- **Passwords.** PostgreSQL gets the SCRAM-SHA-256 verifier computed in
+  Python (`scram`, what psql's `\password` sends), so even a failed
+  statement in the server log has no password; NFKC stands in for SASLprep.
+  MySQL rewrites passwords out of its own logs. In SQL a password is only a
+  quoted literal (MySQL's escaped with backslashes, so every script starts
+  by dropping NO_BACKSLASH_ESCAPES from the session). The Terminal shows
+  statements through `shown()`, which hides every `PASSWORD '…'` and
+  `IDENTIFIED BY '…'`. After setting a password the panel signs in as that
+  user with it, without root (`check_password`: psql over localhost with
+  PGPASSWORD; mysql with the option-file pipe), and says whether it works.
+  That's also the "Check password" button.
+- **Names.** New names must match `[A-Za-z_][A-Za-z0-9_-]{0,31}`. Every
+  identifier is quoted anyway (`"…"` doubled, `` `…` `` doubled), because
+  names the server lists can be anything (the dev machine had
+  `thoth-analytics`). A MySQL host from the listing must match a strict
+  pattern or the statement isn't built. In a MySQL GRANT `_` and `%` are
+  wildcards, so the grant names ``` `shop\_1`.* ``` (escaped), and the listing
+  unescapes `mysql.db` names (with CHAR(92), independent of sql_mode) to
+  show which users a database is for.
+- **What can't be touched:** root, mysql.sys/session/infoschema and
+  debian-sys-maint, postgres; databases mysql, sys, information_schema,
+  performance_schema, postgres. Check password shows only on users that can
+  sign in. Deleting a database needs the critical tick; deleting a user is a
+  plain confirm (PostgreSQL refuses while the user owns a database, and says
+  so). MySQL users are created at `localhost`.
+- **Service:** state from systemd (`mysql.service` or `mariadb.service`,
+  `postgresql@<version>-<cluster>.service`), Start or Restart through
+  `pkexec systemctl`, after a confirm, then read again. Several PostgreSQL
+  clusters (16 and 18 side by side) get a picker; the default is the first
+  online one.
+- **How it was tested:** throwaway servers run as the normal user (initdb +
+  pg_ctl; a copy of mysqld, since AppArmor confines `/usr/sbin/mysqld` to
+  `/var/lib/mysql`; sockets under `/run/user/<uid>`, as a scratch path is
+  too long for a Unix socket), every operation through the real classes with
+  `sudo=()`, the GUI driven against them, and a read-only listing of the
+  real servers through pkexec. Pure parts are in `test_core.py`.
+
 ---
 
 # Windows port (`windows/`)

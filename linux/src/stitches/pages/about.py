@@ -18,7 +18,8 @@ _WHAT = {
     "App Manager": "Install the apps and developer tools people set up a Linux PC with — VS Code, Docker, "
                    "Node.js, Spotify, qBittorrent… — through APT, Snap or Flatpak, in bulk. Shows what's "
                    "installed and at what version, however it got there. Click an app for what it does and "
-                   "how to install it by hand; PHP's has a switch per extension and a Laravel check.",
+                   "how to install it by hand; PHP's has a switch per extension and a Laravel check, MySQL's "
+                   "and PostgreSQL's their users, passwords and databases.",
     "Web Apps": "Any website as an app: its own window, icon and menu entry, and its own login, so the same "
                 "site can be added twice for two accounts.",
     "Updates": "Every pending update from APT, Snap, Flatpak and GitHub-released AppImages in one list, "

@@ -250,11 +250,19 @@ that involved a design decision should have a matching note there.
 - [x] App Manager: Cloudflare WARP (the 1.1.1.1 VPN) from Cloudflare's own
       APT repository, added after a confirmation; and Pinta, a paint app.
 
+### 0.2.5 — tenth round: MySQL and PostgreSQL users and databases
+
+- [x] MySQL's and PostgreSQL's App Manager details: the service (state,
+      Start/Restart, a picker when several PostgreSQL clusters exist), and
+      the users and databases: create a user (optionally with its own
+      database), change or check a password, delete a user, create a
+      database for a user, delete a database (behind a tick-to-confirm).
+      Passwords are never on a command line, on disk or in the Terminal.
+
 ## Planned — Linux (`linux/`)
 
-- [ ] App Manager, next phases of the setup spec: phase three,
-      MySQL/PostgreSQL users, passwords, databases and service restart
-      (validated input, passwords never logged or stored); then Bangla
+- [ ] App Manager, next phases of the setup spec (phase three, databases,
+      is done): Bangla
       typing set up by Stitches (today Avro installs and its details say
       how to add the input source; adding it, verify and repair), setup
       profiles with a preview of what will change, and an activity history.

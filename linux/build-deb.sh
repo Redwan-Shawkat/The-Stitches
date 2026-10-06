@@ -43,7 +43,7 @@ cat > "$STAGE/usr/share/applications/$APP_ID.desktop" <<EOF
 [Desktop Entry]
 Type=Application
 Name=Stitches
-Comment=Install, update, uninstall and clean up software, manage PHP, update drivers, defrag drives
+Comment=Install, update, uninstall and clean up software, manage PHP and databases, update drivers, defrag drives
 Exec=$APP_NAME
 Icon=$APP_ID
 Terminal=false
@@ -105,7 +105,8 @@ Description: update, uninstall and clean up software however it was installed
  fwupd and linux-firmware, and the system spec.
  Defrag: ext4, btrfs and XFS on spinning disks.
  App Manager: a catalog of developer tools and apps, installed in bulk.
- The PHP app's details switch its extensions and check what Laravel needs.
+ The PHP app's details switch its extensions and check what Laravel needs. MySQL's and PostgreSQL's list,
+ create and delete users and databases, change and check passwords.
  Web Apps: any website as its own app in the dock.
 EOF
 

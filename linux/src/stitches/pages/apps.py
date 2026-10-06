@@ -14,6 +14,7 @@ from .. import appmanager, catalog
 from ..shell import tail
 from ..widgets import (Page, Terminal, card, confirm, esc, icon_button, info, label, os_switch, scrolled,
                        show_select_all, strong, tag)
+from .databases import DatabasePanel
 from .php import PhpPanel
 
 _SOURCE_TAG = {
@@ -32,7 +33,7 @@ _ON_DARK = {"Installed": "#5fd38d", "Done": "#5fd38d", "Failed": "#ff6b5e"}
 _ALL_CATEGORIES, _ALL_SOURCES, _ANY_STATUS = "All categories", "All sources", "Any status"
 _STATUSES = (_ANY_STATUS, "Installed", "Not installed")
 _ICON_SIZE = 36
-_PHP = next(a for a in catalog.CATALOG if a.name == "PHP")  # its details hold the extensions
+_BY_NAME = {a.name: a for a in catalog.CATALOG}
 
 
 def _combo(options, on_change):
@@ -192,10 +193,13 @@ class AppsPage(Page):
         self.setup_card.set_no_show_all(True)  # only apps with steps of their own: Avro, WARP
         box.pack_start(self.setup_card, False, False, 0)
 
-        self.php = PhpPanel(self)
-        self.php.set_no_show_all(True)
-        self.php.set_size_request(-1, 420)  # the details scroll, so on a small screen the switches still get room
-        box.pack_start(self.php, True, True, 0)
+        # The apps with more to them than installing: their own panel under the details.
+        self.panels = {_BY_NAME["PHP"]: PhpPanel(self), _BY_NAME["MySQL"]: DatabasePanel(self, "MySQL"),
+                       _BY_NAME["PostgreSQL"]: DatabasePanel(self, "PostgreSQL")}
+        for panel in self.panels.values():
+            panel.set_no_show_all(True)  # hidden from the window's show_all until its app is opened
+            panel.set_size_request(-1, 420)  # the details scroll, so on a small screen it still gets room
+            box.pack_start(panel, True, True, 0)
         details = scrolled(box)
         details.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
         return details
@@ -213,13 +217,14 @@ class AppsPage(Page):
         self.setup_card.set_no_show_all(False)
         self.setup_card.show_all() if app.setup else self.setup_card.hide()
         self._show_details()
-        if app is _PHP:
-            self.php.set_no_show_all(False)  # hidden from the window's show_all until PHP is opened
-            self.php.show_all()
-            self.php.reload()
+        self._leave_panels()
+        panel = self.panels.get(app)
+        if panel:
+            panel.set_no_show_all(False)
+            panel.show_all()
+            panel.reload()
         else:
-            self.php.hide()
-            self._show_summary()  # not PHP's hint from the last app opened
+            self._show_summary()  # not a panel's hint from the last app opened
         self.views.set_visible_child_name("details")
 
     def _show_details(self):
@@ -227,9 +232,16 @@ class AppsPage(Page):
         self.detail_line.set_markup(f"{esc(self.apps[self.shown].description)} · {line}")
         self.detail_install.set_visible(enabled)
 
+    def _leave_panels(self):
+        for panel in self.panels.values():
+            panel.hide()
+            if isinstance(panel, DatabasePanel):
+                panel.forget()  # a typed MySQL root password lasts one visit
+
     def _close(self):
         if self.shown is not None:
             self.shown = None
+            self._leave_panels()
             self.views.set_visible_child_name("tiles")
             self._show_summary()
 
@@ -287,8 +299,8 @@ class AppsPage(Page):
         self._refilter()
         self._show_summary()
         self.set_busy(False)
-        if self.shown is not None and self.apps[self.shown] is _PHP:
-            self.php.reload()
+        if self.shown is not None and self.apps[self.shown] in self.panels:
+            self.panels[self.apps[self.shown]].reload()
 
     def _show_summary(self):
         have = sum(s.installed for s in self.statuses)
