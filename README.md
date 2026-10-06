@@ -7,20 +7,24 @@ manages what it installed itself. Anything you `apt install`ed, grabbed as a
 `.deb` from a browser, added via Snap or Flatpak outside the store UI, or
 run through Wine is invisible to it.
 
-Stitches is one window for all of it, with seven tools in a dock along the bottom:
+Stitches is one window for all of it, with nine tools in a dock along the bottom:
 
 | Tool | What it does |
 |---|---|
 | **Home** | What the PC is (OS, CPU, GPU, memory, board, disks), its BIOS/UEFI settings explained in words (Secure Boot, TPM, virtualization, boot mode, BIOS age), live temperatures and fan speeds rated Good/Warning/Critical, memory use, and how full every partition is. |
 | **Diagnose** | Linux's answers to Windows' repair tools, in one scan: system files against their packages (`sfc /scannow`), the package database (`DISM`), file-system errors (`chkdsk`), SMART disk health, a memory test that needs no restart, failed services, and errors logged since startup — with a fix button where one exists, and a terminal panel showing each command and what it prints as it runs. Fixes that need a restart (a full file-system check, memtest86+) say so and ask first. |
+| **App Manager** | A built-in catalog of the apps and developer tools people set a PC up with — VS Code, Android Studio, Docker, Git, Node.js, Go, Rust, PHP, Python, Java, MySQL, PostgreSQL, Brave, LibreOffice, VLC, Spotify, Kooha, Pinta, qBittorrent, LocalSend, AnyDesk, Cloudflare WARP (1.1.1.1), Avro Phonetic, Wine and more (Epic Games on Windows) — as tiles with each app's icon, showing what's installed, at what version and through what (APT, Snap, Flatpak, or found on PATH, like an nvm Node). Click an app for what it does, a link to its own install page, and the terminal commands to install it by hand; Avro's and WARP's also say how to turn them on after installing. WARP comes from Cloudflare's own repository, which Stitches adds after asking. PHP's details also hold every extension of your PHP (from Ubuntu's packages) with an on/off switch, and a Laravel check (PHP 8.2+, Composer, bcmath, mbstring, pdo_mysql and the rest) with one button that turns on or installs only what's missing; nothing runs until you apply, you see the list of changes first, type your password once, and Apache or PHP-FPM is restarted for you if it serves PHP (Linux only). Tick any number and install them through APT, Snap or Flatpak (Flathub is added if it's missing), one password per source, with each command and its output in a terminal panel. The catalog is fixed in the source: nothing typed is ever run. A Linux · Windows switch shows which OS's apps it manages. |
+| **Web Apps** | Any website as an app of its own: paste the address and its name and icon are filled in (or pick a ready-made one: about 90 site logos and every emoji, in groups as on a phone keyboard, with a search). It gets its own menu entry, window, dock icon and login — add Facebook twice for two accounts. Runs in Chrome, Chromium, Brave, Edge or Vivaldi's app mode; nothing is compiled. |
 | **Updates** | Pending updates from APT (including vendor repos like `packages.microsoft.com`), Snap, Flatpak, and AppImages published on GitHub — tick the ones you want, or the circle at the top for all of them. |
 | **Uninstall** | Every installed app, tagged by how it got onto your system and rated Safe/Caution/Critical to remove, with bulk uninstall and leftover-file cleanup. That includes Stitches itself when `install.sh` put it in your home folder. |
 | **Cleanup** | APT's package cache, old Snap revisions, app caches, thumbnails, week-old logs, unused Flatpak runtimes, stale temp files and the Trash — each showing where it lives, what removing it means and how risky that is, filterable by risk, with a live log of what was removed from where. Your files and installed apps are never touched; the Trash (files you already deleted) is the one exception, and it says so. |
 | **Drivers** | The hardware in the machine, what each device runs on, and in plain words what each item is — a Linux driver, or firmware that runs inside the device and applies to every OS. Proprietary drivers (`ubuntu-drivers`), device firmware (fwupd/LVFS) and `linux-firmware` update in bulk. Each shows when its maker released it; the source is an icon that says what it is when clicked. |
-| **Defrag** | Every partition as a tile, grouped by the OS it belongs to (Linux, Windows, boot…); ext4, btrfs and XFS on spinning disks get defragmented. SSDs are listed and skipped — they don't need it. |
+| **Defrag** | Every partition as a tile, grouped by the OS it belongs to (Linux, Windows, boot…); ext4, btrfs and XFS on hard disks get defragmented, and SSDs get a TRIM (`fstrim`) instead, as Windows' Optimize does. NTFS drives say to defragment them from Windows. |
 
 Each tool is an icon in the dock, with its name on hover, grouped: Home
-(the logo) · Diagnose, Cleanup · Updates, Uninstall · Drivers, Defrag. The window and the
+(the logo) · Diagnose, Cleanup · App Manager, Web Apps · Updates, Uninstall ·
+Drivers, Defrag, then theme, update and **About** (the version, and a line
+and a picture for each tool). The window and the
 dock each take one of four themes — Light, Dark, AMOLED (pure black) and
 Glass (see-through) — in any mix, say a dark window with a white dock.
 Stitches checks GitHub for a newer release when it starts; the notice runs a
@@ -57,7 +61,7 @@ The Linux build lives in [linux/](linux/); everything below is about it.
 **On Windows?** Apps & Features has the same blind spots — it can't see
 Microsoft Store apps in the same list, and it can't see Chocolatey or Scoop
 at all. The Windows build lives in [windows/](windows/) and ships as an
-`.exe` and an `.msi`. It has the same dock and all seven tools, built on
+`.exe` and an `.msi`. It has the same dock and tools (PHP's extensions are Linux only), built on
 Windows' own: Windows Update, winget, `chkdsk`, `sfc`, `DISM` and
 `Optimize-Volume`.
 
@@ -291,6 +295,11 @@ happy to update this README to reference it.
   restart (a full file-system check, the memory test) explains what will
   happen and asks before it sets anything, then asks again before
   restarting.
+- App Manager only runs the install commands written into its catalog; no
+  text box, URL or file can add a command. Whether an install worked is
+  decided by asking the package manager afterwards, not by the exit code.
+- Removing a web app asks first, since its login goes with it, and only
+  ever deletes the folder Stitches made for that app.
 
 ## License
 

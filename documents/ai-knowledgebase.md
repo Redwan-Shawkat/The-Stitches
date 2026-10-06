@@ -438,7 +438,7 @@ shows.
 | Source | Found with | Updated with |
 |---|---|---|
 | APT | `apt list --upgradable` + one `apt-cache policy` for the repo host | `pkexec apt-get install --only-upgrade -y …` |
-| Snap | `snap refresh --list` + `snap list` for the installed version | `pkexec snap refresh …` |
+| Snap | `snap refresh --list` + `snap list` for the installed version | `pkexec snap refresh --ignore-running …` (sixth round) |
 | Flatpak | `flatpak remote-ls --updates` + `flatpak list` | `flatpak update -y --noninteractive <ref>` |
 | GitHub | an AppImage's embedded update info + the GitHub releases API | download, verify, swap in place |
 
@@ -543,7 +543,8 @@ characters.
 ext4 (`e4defrag`), btrfs (`btrfs filesystem defragment -r`) and XFS
 (`xfs_fsr`) are the filesystems Linux can defragment online, all run as
 root on the mountpoint. Every drive with a filesystem is listed, and the
-ones that won't be touched say why: an SSD (no benefit, and wear), not
+ones that won't be touched say why: an SSD (no benefit, and wear; trimmed
+instead since the sixth round), not
 mounted, a filesystem with no Linux defragmenter (NTFS, FAT, exFAT), or a
 missing tool package. btrfs is marked "unshares snapshots": defragmenting
 copies extents that snapshots share, which can use more space.
@@ -1002,6 +1003,276 @@ The table gets the full width.
 Tiles lost their own cards. Each OS group is a single card, with its heading
 and all its tiles side by side inside it, and wider column spacing (24 px)
 so the tiles stay apart without borders.
+
+## Sixth round (0.2.4): App Manager, Web Apps, About
+
+### App Manager
+
+The request came as a long spec for a separate "Linux Development Manager";
+it lives here as one page, and it was phased on purpose. This round is the
+catalog, detection, versions and bulk install. PHP extensions, database
+users, Bangla/Avro input and setup profiles are next (features.md), each a
+module of its own when it comes.
+
+- **The catalog is code** (`catalog.py`): name, source, package, and the
+  other `(source, id)` pairs it might already be installed through. No
+  download, no text box, no file can add an entry, so the only commands that
+  can ever run are the ones written there. That is the security model; don't
+  add an "add your own app" field.
+- **Detection isn't installation.** VS Code installs as a Snap but is often
+  a Flatpak or Microsoft's apt repo; Node is often nvm's. `detect()` tries
+  the catalog source, then the `also` pairs, then the command on PATH, and
+  says which ("via Flatpak", "via nvm"). One `dpkg-query`, one `snap list`
+  and one `flatpak list` cover all 37 apps (0.7 s); only apps found on PATH
+  run their own `--version`. A desktop launcher's PATH has no nvm or cargo
+  (`~/.bashrc` adds them), so their bin folders are searched too. An empty
+  version means "installed, version unknown", never "not installed".
+- **APT versions are shown upstream-only** ("1:2.43.0-1ubuntu7.3" → 2.43.0).
+- **One password per source**, as on Updates. Snap can't take `--classic`
+  for some names and not others, so the Snap batch is a `pkexec sh -c` with
+  one `snap install` each (`|| rc=1`, so one failure doesn't stop the rest).
+  Flatpak installs system-wide under `pkexec` with
+  `remote-add --if-not-exists flathub` first, and package ids go in as `"$@"`,
+  not into the script. If Flatpak apps are picked and flatpak isn't there,
+  the `flatpak` package joins the APT batch, which runs first.
+- **Success is detected, not assumed.** After each batch the whole catalog
+  is detected again; an app counts as installed only if a package manager
+  (or PATH) now has it. An apt batch fails as a whole when one package can't
+  be found; detecting again marks exactly what's missing.
+- **The Linux · Windows switch is locked to the running OS.** Each platform
+  tree installs its own OS's apps; the other side's tooltip says to run
+  Stitches there. A preview of the other OS's catalog was offered and turned
+  down.
+- The Diagnose Terminal panel became `widgets.Terminal`, shared with App
+  Manager.
+
+### Web Apps
+
+PWA Builder (a separate project) compiles a Tauri installer per site, which
+needs Rust, Node and the WebKit dev packages on the user's machine. Inside
+Stitches the same result comes from what's already installed: a `.desktop`
+entry running a Chromium-family browser with `--app=<url>`,
+`--user-data-dir=<a profile of its own>` and `--class` matching
+`StartupWMClass` (the dock icon). That is how Linux Mint's Web Apps tool works.
+Chosen over building installers by the user.
+
+- **The id is random per app** (`new_id`), never derived from the URL: two
+  Facebook apps must have two profiles, or they share one login.
+- **Name and icon come from the site** as PWA Builder's `meta.rs` reads them:
+  the `<title>` up to " | ", " - ", " – " or " · "; the largest PNG `<link
+  rel=…icon>`; else Google's favicon service, which needs only the host, so
+  a site that blocks robots (Facebook) still gets an icon. The ready-made
+  icons are in `webicons/<group>/<name>.png` (eighth round, below).
+- **Sandboxed browsers can't write to `~/.local`**: a Snap browser's profiles
+  go in `~/snap/<name>/common/stitches-webapps/`, a Flatpak's in
+  `~/.var/app/<id>/data/stitches-webapps/`. Removal deletes a folder only if
+  its parent is named `stitches-webapps`.
+- Firefox is not offered: it dropped its app mode (SSB).
+- Exec= arguments are quoted by the desktop-entry rules (`desktop_quote`,
+  `%` → `%%`); the generated file passes `desktop-file-validate`.
+
+### About
+
+A dock button after theme and update, not a tool group. Each tool's
+"picture" is its own dock icon, so About can never show an outdated
+screenshot. The words per tool live in `pages/about.py` and need a line when a
+tool is added.
+
+### Fixes this round
+
+- **The update notice that came back after updating.** The v0.2.3 tag bumped
+  Windows to 0.2.3 but left Linux at 0.2.2, so every Linux copy saw v0.2.3 as
+  newer, forever. Both platforms are 0.2.4, and `linux-build.yml` and
+  `windows-build.yml` now fail a tagged build whose `__version__` or
+  `pyproject.toml` doesn't match the tag.
+- **"cannot refresh … has running apps"** (Ubuntu, not Zorin). Ubuntu's
+  snapd refuses to refresh a running snap, and fails the whole batch with it:
+  one open VS Code failed firmware-updater and snap-store too. The hidden
+  `snap refresh --ignore-running` (it exists on snapd 2.77) refreshes anyway.
+  The running copy keeps its old revision mounted until it restarts, which is
+  what apt does to running apps all the time.
+- **Defrag on SSDs is a TRIM**, not "Skipped": `fstrim -v <mount>` on
+  filesystems whose driver answers it, as Windows' Optimize-Volume does.
+  Defragmenting an SSD is still not offered, because it only adds wear. NTFS
+  has no Linux defragmenter, and its tile says to use Windows.
+- **Diagnose's Disk health printed no command** (the check worked; it just
+  looked as if nothing ran). It now logs the `busctl` call and one line per
+  drive.
+
+## Seventh round (0.2.4): App Manager tiles, PHP (phase two)
+
+### App Manager as tiles
+
+Asked for: each app's icon, the list side by side, the Terminal under it.
+
+- **Icons are bundled PNGs** (`appicons/`, one 64 px file per app, named by
+  `App.icon`: the name lowercased, runs of other characters as `-`). The
+  icon theme was the other option, but it only has icons for apps that are
+  already installed, and the point of the page is the ones that aren't. The
+  sources were homarr-labs/dashboard-icons (Apache-2.0), then Flathub's
+  AppStream icons, then Simple Icons (CC0) drawn in the brand colour. Black
+  logos (Rust, GitHub) were recoloured so they show on dark themes. Each
+  icon is padded square, so Tk can shrink it with a whole-number
+  `subsample`. A test checks every catalog entry has its file. **Adding an
+  app now means adding its icon too.**
+- **Linux**: one card per category, like Defrag's drive groups. The
+  category's checkbox ticks the apps on screen that aren't installed. Tiles
+  sit in a FlowBox, 2–3 per line; clicking a tile opens its details
+  (eighth round), its checkbox ticks it.
+- **Windows**: `widgets.Tiles` is `Table` with a different `_draw_rows`,
+  `_row_at` and `_on_motion`. Ticking, filtering, select-all and `chosen()`
+  are Table's own, so the page code barely changed.
+- **The Terminal is under the tiles, and on Linux it's outside `body`**
+  (packed into the Page between the body and the action bar). `set_busy`
+  locks `body`, and a locked TextView can't be scrolled while an install
+  runs.
+- **Bug fixed on the way**: a group checkbox read `check.get_active()` inside
+  its loop. The first tick redrew the checkbox as "some" (inactive), so only
+  the first app got ticked. Defrag had the same loop. Both now read it once.
+
+### PHP
+
+The second phase of the setup spec. The order is PHP, then databases, then
+Bangla/Avro and profiles. It started as a page of its own; since the
+eighth round it lives in PHP's App Manager details (see below).
+
+- **Read from `/etc/php/<version>`, never assumed.** A version is a folder
+  with `mods-available/`. Each `*.ini` there is an extension that can be
+  switched. It's on for a SAPI (cli, apache2, fpm) when that SAPI's
+  `conf.d/` has `NN-<name>.ini`. Several versions (Ondřej's PPA) get a
+  version picker; the default is the one `php` runs.
+- **States**: Enabled (on for every SAPI), Disabled (off, or on for only
+  some, shown as "on for cli only"), Built in (loaded by `php -r`, with no
+  ini: json, openssl and pcre are compiled in), and Not installed (only for
+  the Laravel list). A partly-on extension shows as off. Switched on, it's
+  enabled for all SAPIs; left off, it's left alone, so the page never shows
+  a change you didn't make.
+- **Switches only mark changes**; Apply changes (or "Enable what Laravel
+  needs") shows the exact list first: install X, turn on Y, restart apache2.
+  Everything runs as **one `pkexec sh -c` with a fixed script**. The version
+  and the steps (`install:x`, `on:x`, `off:x`, `restart:x`) are arguments,
+  checked against `\d+\.\d+` and `[a-z0-9_]+` before they get there. One
+  step failing doesn't stop the rest (`|| rc=1`).
+- **Missing extensions install as `php<v>-<name>`** with `_` as `-`. Most
+  are virtual names that the real package provides (`php8.3-pdo-pgsql` is in
+  `php8.3-pgsql`, `php8.3-dom` in `php8.3-xml`), and apt follows them, so
+  there's no hand-kept mapping. Ubuntu's postinst turns a new extension on.
+- **Restarts only what serves PHP and is running**: `php<v>-fpm` if it's
+  active, and `apache2` if it's active and `mods-enabled/php<v>.load`
+  exists (mod_php). The CLI needs no restart.
+- **Laravel check**: PHP 8.2 or newer, Composer on PATH, and the extensions
+  in `php.LARAVEL`. That's Laravel's documented list plus bcmath, gd, intl,
+  zip, and both PDO drivers, which the spec asked for. The button does only
+  what's missing.
+- **Success is read back** (`unchanged()`): after the script, `/etc/php` is
+  read again. Anything not in the state asked for is reported, whatever
+  the exit code said.
+- **Linux only.** Windows PHP (winget's `PHP.PHP.8.3`) has no phpenmod, and
+  its extensions are lines in one `php.ini`. Add that when someone asks.
+
+## Eighth round (0.2.4): app details, PHP in App Manager, web app icons
+
+### App details
+
+Asked for: click an app to see what it does and how to install it by hand,
+and PHP's extensions there instead of on a page of their own.
+
+- **The tile opens the details; the checkbox ticks.** FlowBox's
+  `child-activated` opens them; a click on the CheckButton is the button's
+  own and never reaches the FlowBox, so ticking doesn't open anything.
+  Searching or filtering goes back to the tiles.
+- **The details are a second child of a `Gtk.Stack` in `body`**, not a
+  dialog: the page keeps its Terminal (outside `body`, still scrollable
+  while it's locked) and its action bar, which PHP's apply needs. The details
+  scroll as a whole, and the PHP panel asks for 420 px, so its switches get
+  room on a small laptop screen.
+- **What it does and the website are catalog fields** (`App.about`,
+  `App.site`, a test checks every app has both). The site is the project's
+  own install page: the "other ways" (vendor repos, tarballs) live there,
+  and Stitches doesn't repeat them.
+- **"Install it yourself" is built from the same catalog line** as the
+  real install (`appmanager.manual_steps`): `sudo apt install`, `sudo snap
+  install [--classic]`, or Flathub's three lines. It can't drift from what
+  Stitches runs. The `also` sources aren't listed: several (Microsoft's
+  `code`, `brave-browser`, `docker-ce`) need a vendor repo first, and a
+  command that fails would mislead.
+- **PHP's panel is `pages/php.py:PhpPanel`**, the old page's body. It
+  borrows the App Manager page's bar, Terminal, `set_busy` and `run_async`.
+  Its Apply changes button sits in its own card, since the bar's button
+  stays Install selected. It's built once, hidden by `no_show_all` until PHP
+  is opened, and reads `/etc/php` each time it's opened or Check again runs.
+  Databases (phase three) go the same way: a panel in MySQL's and
+  PostgreSQL's details.
+
+### Web app icons
+
+Asked for: more ready-made icons, not just social sites, in groups like a
+keyboard's, with a filter.
+
+- **Site logos are files in `webicons/<group>/<name>.png`.** The folder is
+  the group and the file name is the display name and search text, so
+  there's no list to keep in step. The 18 PWA Builder icons were kept; 76
+  more came from homarr-labs/dashboard-icons (Apache-2.0), squared to
+  256 px. Black-on-transparent logos (Vercel, Threads, NotebookLM…) sit on a
+  white rounded tile, or they vanish on a dark dock.
+- **Emoji come from GTK itself**: the `/org/gtk/libgtk/emoji/en.data`
+  resource (`a(ausasu)`: code points, name, keywords, group) that GTK's
+  emoji chooser uses, in Unicode's groups. Nothing is bundled. A 0 in the
+  code points marks a skin-tone slot and is dropped; group 2 (the tone
+  swatches) is skipped. If a GTK keeps that data some other way, the picker
+  just has no emoji.
+- **One group at a time, as on a keyboard; a search looks through
+  everything** (capped at 300). Showing all ~2,000 at once takes seconds for
+  a FlowBox to lay out.
+- **A picked emoji is drawn to a 256 px PNG** with PangoCairo in the colour
+  emoji font, centred on its ink extents. That's why the `.deb` depends on
+  `python3-gi-cairo` and recommends `fonts-noto-color-emoji`.
+
+### Web app windows had the wrong dock icon on Wayland
+
+Chromium on Wayland ignores `--class` for `--app` windows. Brave named the
+window `brave-example.com__-Default` (seen with `WAYLAND_DEBUG=1`), which
+matches no launcher's `StartupWMClass`, so the dock showed the browser's
+icon or a blank. It would also be the same name for two logins of one site.
+Web apps now start with `--ozone-platform=x11`, so the window runs through
+XWayland, where `--class` is its WM_CLASS (checked with `xprop`: the class is
+`stitches-webapp-<id>`, as in the launcher). The cost is that XWayland
+windows can look soft at fractional scaling. Matching the Wayland name
+instead was turned down: it depends on each browser's naming, and two logins
+would share one icon.
+
+## Ninth round (0.2.4): Avro, WARP, Pinta, Epic Games
+
+Asked for: Avro with the steps to turn it on after installing, the 1.1.1.1
+VPN, Kooha (already there) and a paint app on Linux; Epic Games on Windows.
+
+- **`App.setup` is the "After installing" card** in the details: numbered
+  steps, shown only for apps that have them (Avro, WARP). Avro's are
+  GNOME's (Zorin and Ubuntu): log out or `ibus restart` so IBus sees the new
+  engine, Settings → Keyboard → Input Sources → Add, "Bangla (Avro
+  Phonetic)" (the engine's language is `bn`, its long name Avro Phonetic),
+  then Super+Space to switch. Stitches doesn't add the input source itself
+  yet: that's the planned Bangla setup (gsettings
+  `org.gnome.desktop.input-sources`, verify and repair).
+- **`App.repo` is a vendor's APT repository**, for WARP, which isn't in
+  Ubuntu, Snap or Flathub. It's `(name, key URL, repo URL)` in the catalog,
+  so the allowlist still holds: no URL comes from the UI. The APT batch then
+  runs as one `pkexec sh -c` script: the key saved as
+  `/etc/apt/keyrings/<name>.asc` (apt reads an armored key as-is when the
+  file ends in `.asc`, so no gpg; checked with an unprivileged `apt-get
+  update` against Cloudflare's repo), the `deb [signed-by=…]` line with
+  `${UBUNTU_CODENAME:-$VERSION_CODENAME}` from `/etc/os-release` (Zorin's own
+  codename isn't one Cloudflare knows), an `apt-get update` of only that
+  source (a broken repo elsewhere mustn't stop the install), then the usual
+  `apt-get install`. The key comes with `curl`, falling back to `wget`
+  (Ubuntu desktop has wget, not always curl). Installing a vendor app asks
+  first, naming the repository and key, since it changes where the system
+  gets packages from; plain installs still don't ask.
+- **Pinta is the paint app** (Flathub, also Snap); Kooha was already in
+  Media. Icons: Pinta from Flathub, Avro from the `ibus-avro` package,
+  WARP the Cloudflare logo, Epic on a white tile (its logo is black).
+- **Windows got a Games category** for the Epic Games Launcher
+  (`EpicGames.EpicGamesLauncher`).
 
 ---
 
@@ -1597,6 +1868,40 @@ Explorer couldn't read the file and drew a blank icon. The taskbar was
 fine because it uses the running window's icon. The Id is now
 `AppIcon.ico`, checked by installing the `.msi` and reading the shortcut's
 icon back.
+
+## Windows 0.2.4: App Manager, Web Apps, About
+
+- **winget is the one source.** It's on every current Windows, and its
+  installers raise their own UAC prompt, so installs go one at a time, as
+  winget updates do. The ids were checked against `microsoft/winget-pkgs`.
+  Maven, Composer and RustDesk aren't there, so they're Linux-only for now.
+- **Detection is one `winget export --include-versions`** (JSON, all
+  installed apps winget can match) instead of a `winget list` per app. Apps
+  winget doesn't know are still found on PATH, except
+  `WindowsApps\python.exe`, the Store's "install Python" stand-in.
+  `java -version` prints to stderr, and `elevate.run` returns only stdout on
+  success, so version commands stream (stdout and stderr together).
+- **winget's progress bar** is redrawn with `\r` and a spinner;
+  `readable()` keeps what's after the last `\r` and drops spinner frames, so
+  the Terminal panel stays readable.
+- **Web Apps**: Edge (always there), Chrome or Brave from App Paths, with
+  `--app` and `--user-data-dir` under `%LOCALAPPDATA%\Stitches\WebApps\<id>`.
+  The Start menu shortcut is made by `WScript.Shell` through PowerShell. The
+  name, URL and paths reach the script only as environment variables, so
+  nothing typed is ever part of the script. The icon is the PNG wrapped
+  as-is in a one-picture `.ico`, which Windows has read since Vista, so
+  there's no image library. Tk squares and shrinks a picked picture; Tk 8.6
+  reads only PNG and GIF, and the picker says so.
+- **No emoji in Tk text**: 🌐 is outside the Basic Multilingual Plane, which
+  Tk 8.6 handles badly. The placeholder is the drawn "web" shape.
+- **Testing without Windows**: a python-build-standalone CPython (it bundles
+  Tk) runs `test_gui_smoke.py` on Linux. It caught a `Terminal` missing its
+  parent, and `Terminal.colours` shadowing `Rounded.colours`. Pictures come
+  from `xwd -root` of a nested `Xephyr` server: XWayland refuses `GetImage`
+  on a rootless window.
+- **App Manager tiles** (later in 0.2.4): see "App Manager as tiles" in the
+  Linux seventh round. The same `appicons/` files are bundled with
+  `--add-data` in `build-exe.ps1`, like `webicons/`.
 
 ---
 

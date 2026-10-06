@@ -1,7 +1,8 @@
 """Defrag, for the three filesystems Linux has a defragmenter for: ext4
-(e4defrag), btrfs (btrfs filesystem defragment) and XFS (xfs_fsr). Every
-drive is listed, grouped by the OS it belongs to; the ones that can't or
-shouldn't be defragmented say why. See ai-knowledgebase.md ("Defrag")."""
+(e4defrag), btrfs (btrfs filesystem defragment) and XFS (xfs_fsr), on
+spinning disks; SSDs are trimmed instead (fstrim), as Windows' Optimize does.
+Every drive is listed, grouped by the OS it belongs to; the ones that can't
+be optimized say why. See ai-knowledgebase.md ("Defrag")."""
 
 import json
 import shutil
@@ -20,6 +21,8 @@ _NOT_FILES = {"swap", "squashfs", "iso9660", "udf", "LVM2_member", "crypto_LUKS"
 GROUPS = ("Linux", "Windows", "macOS", "Boot", "Other")
 _LINUX_FS = {"ext2", "ext3", "ext4", "btrfs", "xfs", "f2fs", "jfs"}
 _MAC_FS = {"apfs", "hfs", "hfsplus"}
+# Filesystems whose Linux driver answers fstrim.
+_TRIMS = {"ext4", "btrfs", "xfs", "f2fs", "vfat", "exfat"}
 
 
 @dataclass
@@ -76,14 +79,17 @@ def plan(row: dict, which=shutil.which) -> Drive:
     spinning = row.get("rota") in (True, 1, "1")  # a bool on new util-linux, "0"/"1" on old
     kind = "USB" if row.get("tran") == "usb" else "HDD" if spinning else "SSD"
     tool, package = _TOOLS.get(fs, (None, None))
+    if kind == "SSD":
+        # Defragmenting an SSD only wears it; TRIM is what keeps one fast.
+        tool, package = (["fstrim", "-v"], "util-linux") if fs in _TRIMS else (None, None)
     if tool is None:
-        status = f"No Linux defrag tool for {fs}"
-    elif kind == "SSD":
-        status = "Skipped · SSDs don't need it"
+        status = f"{fs} on an SSD can't be trimmed from Linux" if kind == "SSD" else "NTFS: defrag it from Windows" if fs == "ntfs" else f"No Linux defrag tool for {fs}"
     elif not mount:
         status = "Not mounted"
     elif not which(tool[0]):
         status = f"Needs {package}"
+    elif kind == "SSD":
+        status = "Ready · TRIM, SSDs aren't defragmented"
     else:
         # btrfs defrag copies extents that snapshots share, so it can use more space.
         status = "Ready · unshares snapshots" if fs == "btrfs" else "Ready"

@@ -26,6 +26,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The self-updater compares the tag with __version__ (see linux-build.yml).
+      - name: Version matches the tag
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          $v = $env:GITHUB_REF_NAME.TrimStart('v')
+          if (-not (Select-String -Quiet -Path src/uninstaller/__init__.py -Pattern "^__version__ = `"$v`"$") -or
+              -not (Select-String -Quiet -Path pyproject.toml -Pattern "^version = `"$v`"$")) {
+            Write-Output "::error::Windows __version__/pyproject.toml aren't $v"; exit 1
+          }
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"

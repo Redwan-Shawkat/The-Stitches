@@ -12,15 +12,20 @@ import gi
 
 gi.require_version("Gtk", "3.0")
 gi.require_version("Gdk", "3.0")
+gi.require_version("GdkPixbuf", "2.0")
+gi.require_version("PangoCairo", "1.0")
 from gi.repository import Gdk, GdkPixbuf, GLib, Gtk  # noqa: E402
 
 from . import __version__, selfupdate  # noqa: E402
+from .pages.about import AboutPage  # noqa: E402
+from .pages.apps import AppsPage  # noqa: E402
 from .pages.cleanup import CleanupPage  # noqa: E402
 from .pages.defrag import DefragPage  # noqa: E402
 from .pages.diagnose import DiagnosePage  # noqa: E402
 from .pages.drivers import DriversPage  # noqa: E402
 from .pages.home import HomePage  # noqa: E402
 from .pages.uninstall import UninstallPage  # noqa: E402
+from .pages.webapps import WebAppsPage  # noqa: E402
 from .pages.updates import UpdatesPage  # noqa: E402
 from .shell import tail  # noqa: E402
 from .widgets import CSS, DOCK_CSS, THEME_CSS, THEMES, ActionBar, esc, icon_button, label, run_async, strong  # noqa: E402
@@ -107,10 +112,12 @@ class StitchesWindow(Gtk.ApplicationWindow):
                                                  Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION + 1)
         self.release = None  # a newer Stitches release, once one has been seen
 
-        # Dock groups: look after the PC, manage software, drivers and drives.
-        self.groups = [[HomePage()], [DiagnosePage(), CleanupPage()], [UpdatesPage(), UninstallPage()],
-                       [DriversPage(), DefragPage()]]
-        self.pages = [page for group in self.groups for page in group]
+        # Dock groups: look after the PC, get software, manage it, drivers and drives.
+        self.groups = [[HomePage()], [DiagnosePage(), CleanupPage()], [AppsPage(), WebAppsPage()],
+                       [UpdatesPage(), UninstallPage()], [DriversPage(), DefragPage()]]
+        tools = [page for group in self.groups for page in group]
+        self.about = AboutPage(_ICON_PATH, tools)  # in the dock after theme and update, not in a group
+        self.pages = [*tools, self.about]
         self.stack = Gtk.Stack(transition_type=Gtk.StackTransitionType.CROSSFADE)
         for page in self.pages:
             self.stack.add_named(page, page.title)
@@ -134,7 +141,7 @@ class StitchesWindow(Gtk.ApplicationWindow):
     def _build_dock(self):
         """One row of icons centred under the page: the tools in their groups
         (one radio group, so exactly one is lit; the logo is Home), then
-        theme and update, with a divider between each part."""
+        theme, update and About, with a divider between each part."""
         dock = Gtk.Box(spacing=4, halign=Gtk.Align.CENTER, margin=10, margin_top=0)
         dock.get_style_context().add_class("dock")
         radios = None  # the first button starts the radio group, and starts lit
@@ -150,6 +157,7 @@ class StitchesWindow(Gtk.ApplicationWindow):
         self.update_button = icon_button("emblem-synchronizing-symbolic", "Check for Stitches updates",
                                          self._on_update_button)
         dock.pack_start(self.update_button, False, False, 0)
+        dock.pack_start(self._dock_button(self.about, radios), False, False, 0)
         return dock
 
     def _dock_button(self, page, group):

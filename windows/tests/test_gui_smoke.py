@@ -44,7 +44,9 @@ def main() -> int:
         print("skip: tkinter is not installed")
         return 0
 
-    from uninstaller import gui
+    from uninstaller import appmanager, gui
+    from uninstaller.catalog import CATALOG
+    from uninstaller.webapps import READY_ICONS
     from uninstaller.widgets import THEMES
 
     gui._SETTINGS = Path(tempfile.mkdtemp()) / "settings.json"  # leave the real theme choice alone
@@ -119,11 +121,22 @@ def main() -> int:
     assert [v.letter for v in defrag_page._chosen()] == ["C:"]
 
     diagnose_page = pages["Diagnose"]
-    diagnose_page._log("▶ Services · services.msc")
-    diagnose_page._log("$ Get-CimInstance Win32_Service")
+    diagnose_page.terminal.print("▶ Services · services.msc")
+    diagnose_page.terminal.print("$ Get-CimInstance Win32_Service")
     diagnose_page._show_result(3, Result("Problem", "1 service failed.", ["Spooler: error 1"],
                                          Fix("Start 1 service", "Start-Service -Name 'Spooler'")))
     assert diagnose_page.fix_buttons, "a fix gets its button"
+
+    apps_page = pages["App Manager"]
+    apps_page._on_checked([appmanager.Status(i % 2 == 0, "1.0", "winget") for i in range(len(CATALOG))])
+    apps_page.table.toggle_all()
+    assert apps_page.table.chosen() and not any(apps_page.statuses[a].installed for a in apps_page.table.chosen()), \
+        "only apps not installed tick"
+    apps_page._set(state="Installed")
+    assert all(apps_page.statuses[apps_page.table.items[i]].installed for i in apps_page.table.visible)
+    web_page = pages["Web Apps"]
+    web_page._set_icon(next(READY_ICONS.glob("*.png")).read_bytes())  # squared and saved through Tk
+    assert web_page.icon_png[:8] == b"\x89PNG\r\n\x1a\n"
 
     for name in THEMES:  # every palette applied for real, pages redrawn in it
         window.apply_theme(name)

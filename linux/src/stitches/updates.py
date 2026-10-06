@@ -134,7 +134,9 @@ def command_for(job: list[Update]) -> list[str]:
     if source == APT:
         return ["pkexec", "apt-get", "install", "--only-upgrade", "-y", *APT_KEEP_CONFIG, *ids]
     if source == SNAP:
-        return ["pkexec", "snap", "refresh", *ids]
+        # Ubuntu's snapd refuses a snap that's running, and fails the whole
+        # batch with it; the running copy keeps its revision until it restarts.
+        return ["pkexec", "snap", "refresh", "--ignore-running", *ids]
     return ["flatpak", "update", "-y", "--noninteractive", *ids]
 
 

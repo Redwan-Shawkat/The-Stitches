@@ -23,6 +23,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The self-updater compares the tag with __version__: a release that
+      # ships an older number offers itself again forever (v0.2.3 did).
+      - name: Version matches the tag
+        if: github.ref_type == 'tag'
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          grep -qx "__version__ = \"$v\"" src/stitches/__init__.py && grep -qx "version = \"$v\"" pyproject.toml \
+            || { echo "::error::Linux __version__/pyproject.toml aren't $v"; exit 1; }
+
       - name: Tests
         run: python3 tests/test_core.py
 

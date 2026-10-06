@@ -184,7 +184,85 @@ that involved a design decision should have a matching note there.
       `build-deb.sh` and tests that read it from there. The release tarball
       is `linux/` itself, so `install.sh` is at its top.
 
+### 0.2.4 — sixth round: App Manager, Web Apps, About
+
+- [x] **App Manager** — a static catalog of 37 apps and developer tools
+      (`catalog.py`, incl. qBittorrent and Spotify), each found through APT,
+      Snap, Flatpak or on PATH (nvm, rustup, `~/.local/bin`…) with its
+      version and how it got there; search, category, source and status
+      filters; bulk install with one password per source, Flatpak and
+      Flathub added first when needed; output in a Terminal panel; success
+      decided by detecting again.
+- [x] A Linux · Windows switch on App Manager, lit on the running OS; the
+      other side is locked ("open Stitches on Windows for its apps").
+- [x] **Web Apps** — PWA Builder's feature inside Stitches: paste a URL,
+      name and icon fetched (or typed, picked from a file, or one of 18
+      ready-made icons), duplicates with separate logins; a `.desktop` entry
+      running a Chromium-family browser in app mode with its own profile.
+      Open and remove (with confirmation) from the list.
+- [x] **About** — after theme and update in the dock: version, what
+      Stitches is, and each tool's icon with a line or two.
+- [x] Dock groups: Home | Diagnose, Cleanup | App Manager, Web Apps |
+      Updates, Uninstall | Drivers, Defrag | theme, update, About.
+- [x] Fixed the self-update notice coming back after updating: v0.2.3
+      shipped Linux as 0.2.2. Both platforms are 0.2.4, and the Linux and
+      Windows release workflows fail a tag that doesn't match `__version__`.
+- [x] Fixed Snap updates failing as a batch on Ubuntu when one snap is
+      running ("has running apps"): `snap refresh --ignore-running`.
+- [x] Defrag trims SSDs (`fstrim`) instead of skipping them; NTFS says to
+      defragment it from Windows.
+- [x] Diagnose's Disk health shows its `busctl` command and a line per
+      drive in the Terminal.
+
+### 0.2.4 — seventh round: App Manager tiles, PHP
+
+- [x] App Manager shows each app's icon (bundled in `appicons/`) on tiles
+      side by side, grouped by category with a select-all per category; the
+      Terminal is under the tiles.
+- [x] **PHP** (phase two of the setup spec): every extension of the chosen
+      PHP version with a switch, Enabled / Disabled / Built in / Not
+      installed, read from `/etc/php`; Apply changes previews, then runs
+      phpenmod/phpdismod (and apt for missing ones) under one password,
+      restarts Apache or PHP-FPM when they serve PHP, and reads back what
+      took. A **Laravel** check (PHP 8.2+, Composer, the extensions)
+      with a button that fixes only what's missing.
+- [x] Fixed a group checkbox on Defrag (and App Manager) ticking only the
+      first item.
+- [x] Dock groups: … | App Manager, PHP, Web Apps | … (PHP is Linux only).
+
+### 0.2.4 — eighth round: app details, PHP inside App Manager, web app icons
+
+- [x] Clicking an App Manager tile opens the app's details: what it does,
+      a link to its own install page, and the commands to install it by
+      hand (copyable), plus an Install button. The checkbox still ticks it.
+- [x] PHP is no longer a page of its own: its extensions and the Laravel
+      check are in PHP's details. Dock: … | App Manager, Web Apps | ….
+- [x] Web Apps: 94 site logos in groups (Social, Chat, Google, Microsoft,
+      Work, AI, Developer, Watch & listen, Shopping & learning) and every
+      emoji in the keyboard's groups, with a group filter and a search.
+- [x] Fixed: web apps showed the browser's icon (or none) in the dock on
+      Wayland; they now run through XWayland, where their own class holds.
+
+### 0.2.4 — ninth round: Avro, WARP, Pinta
+
+- [x] App Manager: Avro Phonetic (Bangla typing), with "After installing"
+      steps in its details: add it in Settings, switch with Super+Space.
+- [x] App Manager: Cloudflare WARP (the 1.1.1.1 VPN) from Cloudflare's own
+      APT repository, added after a confirmation; and Pinta, a paint app.
+
 ## Planned — Linux (`linux/`)
+
+- [ ] App Manager, next phases of the setup spec: phase three,
+      MySQL/PostgreSQL users, passwords, databases and service restart
+      (validated input, passwords never logged or stored); then Bangla
+      typing set up by Stitches (today Avro installs and its details say
+      how to add the input source; adding it, verify and repair), setup
+      profiles with a preview of what will change, and an activity history.
+- [ ] PHP: installing another PHP version (Ondřej's PPA), and per-SAPI
+      switches (today an extension goes on or off for every SAPI at once).
+- [ ] App Manager: more vendor repositories (WARP has one) and `.deb`s,
+      predefined script installers (nvm,
+      rustup), pnpm, and Docker's post-install step (the `docker` group).
 
 - [ ] Fan sensors on boards whose sensor chip driver isn't loaded
       (`nct6775`, `it87`): detect the chip and offer to load the module.
@@ -317,7 +395,24 @@ leaves. Design decisions in
       sit at 92%), says "a few minutes", not "an hour", and reports the time
       taken. Tested on a real PC.
 
+### Windows — 0.2.4
+
+- [x] **App Manager** through winget: 29 apps (winget ids checked against
+      `winget-pkgs`), found with one `winget export` or on PATH (the
+      Store's `python.exe` stand-in doesn't count), installed one at a time
+      with output in a Terminal panel, success checked by looking again.
+- [x] **Web Apps**: Edge, Chrome or Brave in app mode with a profile per
+      app, as a Start menu shortcut with the site's icon (a PNG-in-ICO).
+- [x] **About**, the Linux · Windows switch and the same dock groups as
+      Linux; Diagnose's Terminal panel is a shared widget now.
+- [x] App Manager tiles with each app's icon, side by side, Terminal under
+      them (`widgets.Tiles`, Table's ticking with tiles drawn instead of rows).
+- [x] App Manager: Epic Games Launcher, in a new Games category.
+
 ## Planned — Windows (`windows/`)
+
+- [ ] App Manager: Maven, Composer and RustDesk, which aren't in the
+      winget source.
 
 - [ ] Count badges on the Updates and Drivers dock buttons (Linux has them).
 - [ ] `sfc /verifyonly` as a real check when Stitches already runs as admin.

@@ -8,7 +8,7 @@ from tkinter import ttk
 
 from .. import diagnose
 from ..elevate import tail
-from ..widgets import (FONTS, LINE, STATUS_TAG, THEME, Button, Dialog, Page, Rounded, info, later, px, recolour,
+from ..widgets import (FONTS, STATUS_TAG, THEME, Button, Dialog, Page, Rounded, Terminal, info, later, px, recolour,
                        role, status_label)
 
 _TAG = {diagnose.OK: STATUS_TAG["Good"], diagnose.WARNING: STATUS_TAG["Warning"],
@@ -29,7 +29,8 @@ class DiagnosePage(Page):
         self.body.columnconfigure(1, weight=2, uniform="half")
         self.body.rowconfigure(0, weight=1)
         self._build_checks()
-        self._build_terminal()
+        self.terminal = Terminal(self.body, colours=_INK)
+        self.terminal.grid(row=0, column=1, sticky="nsew")
         self.bar.add_button("Scan", self.reload, "suggested")
         self.bar.say("Press Scan to run every check. Nothing changes until you press a fix.")
 
@@ -68,31 +69,6 @@ class DiagnosePage(Page):
         rows.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
         canvas.bind("<MouseWheel>", lambda e: canvas.yview_scroll(-2 if e.delta > 0 else 2, "units"))
 
-    def _build_terminal(self):
-        panel = role(Rounded(self.body, radius=14, pad=10), bg="bar", fg="bar_text", border="bar_border")
-        panel.grid(row=0, column=1, sticky="nsew")
-        tk.Label(panel.inner, text="TERMINAL", font=FONTS["caps"], anchor="w").pack(fill="x", pady=(0, px(6)))
-        self.terminal = tk.Text(panel.inner, wrap="word", relief="flat", borderwidth=0, highlightthickness=0,
-                                font=("Consolas", 9), state="disabled")
-        self.terminal.pack(fill="both", expand=True)
-        self.terminal.tag_configure("command", foreground=LINE)
-        self.terminal.tag_configure("check", font=("Consolas", 9, "bold"))
-        for status, ink in _INK.items():
-            self.terminal.tag_configure(status, foreground=ink)
-
-    # ---- the terminal ----
-
-    def _log(self, line: str):
-        status = line.partition(":")[0]
-        tag = "command" if line.startswith("$ ") else "check" if line.startswith("▶") else \
-            status if status in _INK else ""
-        self.terminal.configure(state="normal")
-        if line.startswith("▶") and self.terminal.index("end-1c") != "1.0":
-            self.terminal.insert("end", "\n")
-        self.terminal.insert("end", line + "\n", tag)
-        self.terminal.configure(state="disabled")
-        self.terminal.see("end")
-
     # ---- checks ----
 
     def set_busy(self, busy: bool):
@@ -105,15 +81,13 @@ class DiagnosePage(Page):
         if self.busy:
             return
         self.set_busy(True)
-        self.terminal.configure(state="normal")
-        self.terminal.delete("1.0", "end")
-        self.terminal.configure(state="disabled")
+        self.terminal.clear()
         checks = diagnose.CHECKS
 
         def work():
             for i, check in enumerate(checks):
                 later(self._on_check_start, check, i, len(checks))
-                later(self._show_result, i, diagnose.run_check(check, lambda line: later(self._log, line)))
+                later(self._show_result, i, diagnose.run_check(check, self.terminal.log))
 
         self.run_async(work, self._on_scan_done)
 
@@ -155,7 +129,7 @@ class DiagnosePage(Page):
         self.set_busy(True)
         self.bar.say(f"{fix.label}… Windows asks for permission first")
         self.bar.slice(0, 1)
-        check, log = diagnose.CHECKS[index], lambda line: later(self._log, line)
+        check, log = diagnose.CHECKS[index], self.terminal.log
 
         def work():
             ok, text = diagnose.run_fix(fix, log)

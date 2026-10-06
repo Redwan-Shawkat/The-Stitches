@@ -12,6 +12,8 @@ python -m PyInstaller --noconfirm --clean --onefile --windowed `
     --name Stitches `
     --icon "$root\src\uninstaller\icon.ico" `
     --add-data "$root\src\uninstaller\icon.ico;uninstaller" `
+    --add-data "$root\src\uninstaller\webicons;uninstaller\webicons" `
+    --add-data "$root\src\uninstaller\appicons;uninstaller\appicons" `
     --paths "$root\src" `
     --distpath "$root\dist" --workpath "$root\build" --specpath "$root\build" `
     "$root\run.py"

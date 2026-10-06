@@ -1,6 +1,6 @@
 """The Stitches window, as on Linux: the open page, and a dock centred under
-it in groups — Home (the logo) | Diagnose, Cleanup | Updates, Uninstall |
-Drivers, Defrag | theme, update. Each page is its own module under pages/;
+it in groups — Home (the logo) | Diagnose, Cleanup | App Manager, Web Apps |
+Updates, Uninstall | Drivers, Defrag | theme, update, About. Each page is its own module under pages/;
 what they share lives in widgets.py. The window also asks GitHub once
 whether a newer Stitches is out, and says so in a notice that runs down.
 
@@ -21,6 +21,8 @@ import tkinter as tk
 from pathlib import Path
 
 from . import __version__, selfupdate
+from .pages.about import AboutPage
+from .pages.apps import AppsPage
 from .pages.cleanup import CleanupPage
 from .pages.defrag import DefragPage
 from .pages.diagnose import DiagnosePage
@@ -28,6 +30,7 @@ from .pages.drivers import DriversPage
 from .pages.home import HomePage
 from .pages.uninstall import UninstallPage
 from .pages.updates import UpdatesPage
+from .pages.webapps import WebAppsPage
 from .widgets import THEMES, ActionBar, Dialog, IconButton, Rounded, later, px, role, set_theme, setup
 
 _NOTICE_SECONDS = 4
@@ -92,8 +95,12 @@ class UninstallerWindow(tk.Tk):
         content.rowconfigure(0, weight=1)
         content.columnconfigure(0, weight=1)
         self.groups = [[HomePage(content)], [DiagnosePage(content), CleanupPage(content)],
-                       [UpdatesPage(content), UninstallPage(content)], [DriversPage(content), DefragPage(content)]]
-        self.pages = [page for group in self.groups for page in group]
+                       [AppsPage(content), WebAppsPage(content)], [UpdatesPage(content), UninstallPage(content)],
+                       [DriversPage(content), DefragPage(content)]]
+        tools = [page for group in self.groups for page in group]
+        # In the dock after theme and update, not in a group.
+        self.about = AboutPage(content, self._logo(64), self._logo(30), tools)
+        self.pages = [*tools, self.about]
         for page in self.pages:
             page.grid(row=0, column=0, sticky="nsew")
         self._build_dock().pack(side="bottom", pady=(0, px(10)))
@@ -115,7 +122,7 @@ class UninstallerWindow(tk.Tk):
         (the logo is Home), then the theme and update buttons, with a divider
         between each group."""
         dock = role(Rounded(self, radius=18, pad=6), bg="dock", fg="dock_icon", border="bar_border")
-        logo = self.icons.get(min(self.icons, key=lambda size: abs(size - px(26)))) if self.icons else None
+        logo = self._logo(26)
         self.dock_buttons = []
         for g, group in enumerate(self.groups):
             if g:
@@ -137,8 +144,16 @@ class UninstallerWindow(tk.Tk):
         self.update_button = IconButton(dock.inner, "upgrade", f"Stitches {__version__} · check for a newer one",
                                         self._on_update_clicked, hover="dock_hover")
         self.update_button.pack(side="left", padx=px(2))
+        about = IconButton(dock.inner, "about", "About Stitches", lambda i=len(self.dock_buttons): self.show(i),
+                           hover="dock_hover")
+        about.pack(side="left", padx=px(2))
+        self.dock_buttons.append(about)
         dock.fit()
         return dock
+
+    def _logo(self, size):
+        """The .ico's picture nearest `size` (96-DPI pixels), or None without one."""
+        return self.icons.get(min(self.icons, key=lambda s: abs(s - px(size)))) if self.icons else None
 
     @staticmethod
     def _separator(parent):

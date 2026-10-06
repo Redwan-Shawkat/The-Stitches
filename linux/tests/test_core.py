@@ -15,7 +15,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from datetime import date
 
-from stitches import cleanup, defrag, diagnose, drivers, selfupdate, sysinfo, updates, vitals
+from stitches import (appmanager, catalog, cleanup, defrag, diagnose, drivers, php, selfupdate, sysinfo, updates,
+                      vitals, webapps)
 from stitches.backends.local_backend import install_paths
 from stitches.backends.apt_backend import build_apps, parse_dpkg_query, parse_showmanual
 from stitches.backends.flatpak_backend import parse_flatpak_list, parse_size
@@ -169,6 +170,7 @@ def test_update_jobs_batch_password_sources():
     assert [[x.name for x in job] for job in jobs] == [["a", "b"], ["s"], ["f"], ["g"]]
     assert updates.command_for(jobs[0])[:4] == ["pkexec", "apt-get", "install", "--only-upgrade"]
     assert updates.command_for(jobs[0])[-2:] == ["a", "b"]
+    assert "--ignore-running" in updates.command_for(jobs[1])  # a running snap mustn't fail the batch
 
 
 def test_cleanup_parsers():
@@ -282,11 +284,14 @@ def test_defrag_plan():
     have = lambda tool: tool == "e4defrag"
     hdd, ntfs, ssd, usb = (defrag.plan(r, which=have) for r in rows)
     assert hdd.ready and hdd.command == ["pkexec", "e4defrag", "/mnt/archive"] and hdd.kind == "HDD"
-    assert not ntfs.ready and ntfs.status == "No Linux defrag tool for ntfs"
+    assert not ntfs.ready and ntfs.status == "NTFS: defrag it from Windows"
     assert ntfs.name == "Games" and ntfs.os == "Windows" and hdd.name == "/mnt/archive" and hdd.os == "Linux"
     assert defrag.os_of("vfat", "EFI System") == "Boot" and defrag.os_of("ntfs", "Windows recovery environment") == "Windows"
     assert defrag.os_of("vfat", "EFI (FAT-12/16/32)") == "Boot" and defrag.os_of("exfat", None) == "Other"
-    assert not ssd.ready and ssd.kind == "SSD"
+    assert ssd.kind == "SSD" and not ssd.ready and ssd.status == "Needs util-linux"  # no fstrim in `have`
+    ssd = defrag.plan(rows[2], which=lambda tool: True)
+    assert ssd.ready and ssd.command == ["pkexec", "fstrim", "-v", "/"]
+    assert defrag.plan({**rows[1], "rota": False}).status == "ntfs on an SSD can't be trimmed from Linux"
     assert not usb.ready and usb.kind == "USB" and usb.status == "Needs btrfs-progs"
 
 
@@ -381,6 +386,124 @@ def test_local_install_and_driver_purpose():
     assert "Secure Boot" in drivers.firmware_purpose("uefi_kek") and "every OS" in drivers.firmware_purpose("ata")
     assert "AMD graphics" in drivers.linux_firmware_purpose("linux-firmware-amd-graphics")
     assert "Wi-Fi, Bluetooth and graphics" in drivers.linux_firmware_purpose("linux-firmware")
+
+
+def test_app_manager_detection():
+    dpkg = "git\t1:2.43.0-1ubuntu7.3\tii \nvlc\t3.0.20-3\trc \nnodejs\t18.19.1+dfsg-6ubuntu5\thi \n"
+    assert appmanager.parse_dpkg(dpkg) == {"git": "1:2.43.0-1ubuntu7.3", "nodejs": "18.19.1+dfsg-6ubuntu5"}  # rc = removed
+    assert appmanager.short_version("1:2.43.0-1ubuntu7.3", "APT") == "2.43.0"
+    assert appmanager.short_version("2:8.3+93ubuntu2", "APT") == "8.3"
+    assert appmanager.short_version("1.2.95.453.g0eeebbed", "Snap") == "1.2.95.453.g0eeebbed"
+    assert appmanager.parse_version("go version go1.22.2 linux/amd64") == "1.22.2"
+    assert appmanager.parse_version('openjdk version "21.0.2" 2024-01-16') == "21.0.2"
+    assert appmanager.parse_version("v20.11.1\n") == "20.11.1" and appmanager.parse_version("nothing") == ""
+    assert appmanager.via_path("/home/u/.nvm/versions/node/v20.11.1/bin/node") == "nvm"
+    assert appmanager.via_path("/home/u/.cargo/bin/rustc") == "rustup" and appmanager.via_path("/usr/bin/java") == "PATH"
+    code = next(a for a in catalog.CATALOG if a.name == "Visual Studio Code")
+    node = next(a for a in catalog.CATALOG if a.name == "Node.js")
+    none = lambda _c: None
+    found = appmanager.detect(code, {"Flatpak": {"com.visualstudio.code": "1.139.1"}}, none)
+    assert found.installed and found.version == "1.139.1" and found.via == "Flatpak"  # installed some other way
+    nvm = appmanager.detect(node, {"APT": {}}, lambda c: f"/home/u/.nvm/versions/node/v20/bin/{c}")
+    assert nvm.installed and nvm.version == "" and nvm.via == "nvm"  # version unknown is not "not installed"
+    assert not appmanager.detect(code, {}, none).installed
+
+
+def test_app_manager_catalog_and_jobs():
+    names = [a.name for a in catalog.CATALOG]
+    assert len(names) == len(set(names)) and {"qBittorrent", "Spotify"} <= set(names)
+    assert all(a.source in catalog.SOURCES and a.category in catalog.CATEGORIES for a in catalog.CATALOG)
+    assert all(a.icon.is_file() for a in catalog.CATALOG), "every app has its icon in appicons/"
+    pick = lambda *n: [a for a in catalog.CATALOG if a.name in n]
+    jobs = appmanager.plan_jobs(pick("Spotify", "Git", "LocalSend", "Visual Studio Code"), have_flatpak=False)
+    assert [(s, [a.name for a in b]) for s, b in jobs] == [
+        ("APT", ["Git", "Flatpak"]), ("Snap", ["Visual Studio Code", "Spotify"]), ("Flatpak", ["LocalSend"])]
+    assert appmanager.plan_jobs(pick("LocalSend"), have_flatpak=True)[0][0] == "Flatpak"
+    apt, snap, flat = (appmanager.command_for(s, b) for s, b in jobs)
+    assert apt[:4] == ["pkexec", "apt-get", "install", "-y"] and apt[-2:] == ["git", "flatpak"]
+    assert snap[:3] == ["pkexec", "sh", "-c"] and "snap install code --classic || rc=1" in snap[3]
+    assert "snap install spotify || rc=1" in snap[3] and snap[3].endswith("exit $rc")
+    assert flat[3].startswith("flatpak remote-add --if-not-exists flathub") and flat[4:] == ["sh", "org.localsend.localsend_app"]
+    assert all(a.about and a.site.startswith("https://") for a in catalog.CATALOG), "every app has its details"
+    vs_code, git, local_send = pick("Visual Studio Code")[0], pick("Git")[0], pick("LocalSend")[0]
+    assert appmanager.manual_steps(git) == ["sudo apt install git"]
+    assert appmanager.manual_steps(vs_code) == ["sudo snap install code --classic"]
+    assert appmanager.manual_steps(local_send)[-1] == "flatpak install flathub org.localsend.localsend_app"
+    warp = pick("Cloudflare WARP")[0]
+    assert all(a.source == "APT" for a in catalog.CATALOG if a.repo), "a vendor repository is an APT one"
+    script = appmanager.command_for("APT", [git, warp])[3]  # the repository first, one password for the batch
+    assert script.startswith(". /etc/os-release && install -d -m 755 /etc/apt/keyrings && ")
+    assert "> /etc/apt/sources.list.d/cloudflare-warp.list && apt-get update -o Dir::Etc::sourcelist=" in script
+    assert script.endswith(" git cloudflare-warp")
+    assert appmanager.manual_steps(warp)[-1] == "sudo apt install cloudflare-warp"
+    assert pick("Avro Phonetic")[0].setup, "Avro's details say how to turn it on"
+
+
+def test_php():
+    with tempfile.TemporaryDirectory() as tmp:
+        base = Path(tmp) / "9.9"  # no php9.9 binary here, so nothing reads as loaded
+        (base / "mods-available").mkdir(parents=True)
+        for name in ("mbstring", "intl", "xsl", "pdo"):
+            (base / "mods-available" / f"{name}.ini").write_text(f"extension={name}.so\n")
+        for sapi, on in (("cli", ("mbstring", "xsl", "pdo")), ("apache2", ("mbstring", "pdo"))):
+            (base / sapi / "conf.d").mkdir(parents=True)
+            for name in on:
+                (base / sapi / "conf.d" / f"20-{name}.ini").write_text("")
+        (Path(tmp) / "8.10" / "mods-available").mkdir(parents=True)
+        (Path(tmp) / "conf.d").mkdir()  # not a version
+        assert php.versions(Path(tmp)) == ["9.9", "8.10"]
+        state = php.read("9.9", Path(tmp))
+    by = {e.name: e for e in state.extensions}
+    assert by["mbstring"].state == php.ENABLED and by["intl"].state == php.DISABLED
+    assert by["xsl"].state == php.DISABLED and by["xsl"].on_for == ("cli",), "on for some SAPIs reads as off"
+    assert by["gd"].state == php.NOT_INSTALLED, "a Laravel extension that isn't there"
+    assert "dom" in by and "ffi" not in by, "only Laravel's are listed when missing"
+    assert php.parse_versions("8.3.6\nCore\nPDO\nZend OPcache\n") == ("8.3.6", {"core", "pdo", "zend opcache"})
+    assert php.php_fits_laravel("8.2") and not php.php_fits_laravel("7.4") and php.php_fits_laravel("8.10")
+    # Switches: only what differs. xsl, partly on and left off, is left alone.
+    wanted = {e.name: e.state == php.ENABLED for e in state.extensions} | {"intl": True, "mbstring": False, "gd": True}
+    assert php.changes(state, wanted) == (["gd"], ["intl"], ["mbstring"])
+    fixes = php.laravel_fixes(state)
+    assert "intl" in fixes and "gd" in fixes and "mbstring" not in fixes and "xsl" not in fixes
+    state.restarts = ["apache2"]
+    argv = php.apply_command(state, ["pdo_pgsql"], ["intl"], ["mbstring"])
+    assert argv[:3] == ["pkexec", "sh", "-c"] and argv[4:] == [
+        "sh", "9.9", "install:pdo-pgsql", "on:intl", "off:mbstring", "restart:apache2"]
+    assert php.package("8.3", "pdo_pgsql") == "php8.3-pdo-pgsql"
+    for bad in (["x; rm -rf ~"], ["$(id)"], ["Intl"]):
+        try:
+            php.apply_command(state, bad, [], [])
+            raise AssertionError(f"{bad} reached the script")
+        except ValueError:
+            pass
+    after = php.State("9.9", "9.9", [], [php.Extension("intl", php.ENABLED), php.Extension("mbstring", php.ENABLED),
+                                          php.Extension("pdo_pgsql", php.DISABLED)], set(), [], "")
+    assert php.unchanged(state, after, ["pdo_pgsql", "gd"], ["intl"], ["mbstring"]) == ["gd", "mbstring"]
+
+
+def test_web_apps():
+    assert webapps.normalise(" facebook.com ") == "https://facebook.com"
+    assert webapps.host_of("https://web.whatsapp.com/path?x") == "web.whatsapp.com"
+    assert webapps.pretty_host("www.facebook.com") == "Facebook"
+    assert webapps.title_of("<title>\n GitHub · Change is constant </title>") == "GitHub"
+    assert webapps.title_of("<TITLE>Tom &amp; Jerry - Home</TITLE>") == "Tom & Jerry" and webapps.title_of("<p>") is None
+    page = ('<link rel="icon" href="/favicon.ico"><link rel="apple-touch-icon" sizes="180x180" href="/a180.png">'
+            '<link rel="icon" sizes="32x32" href="//cdn.x.com/i32.png?v=2">')
+    assert webapps.icon_link(page, "https://x.com/home") == "https://x.com/a180.png"  # the biggest PNG
+    assert webapps.icon_link('<link rel="icon" href="/f.svg">', "https://x.com") is None
+    assert webapps.resolve("img/i.png", "https://x.com/a/b") == "https://x.com/img/i.png"
+    assert webapps.desktop_quote("--app=https://x.com/?q=100%") == '"--app=https://x.com/?q=100%%"'
+    assert webapps.desktop_quote("/usr/bin/brave") == "/usr/bin/brave"
+    assert webapps.desktop_quote('a "b" $c') == '"a \\"b\\" \\$c"'
+    assert webapps.new_id("Facebook") != webapps.new_id("Facebook")  # two Facebooks, two logins
+    browser = webapps.Browser("Brave", ["/usr/bin/brave-browser"], Path("/p"))
+    entry = webapps.parse_desktop(webapps.desktop_entry("Work\nmail", "https://x.com", browser, "work-1",
+                                                        Path("/p/work-1/profile"), Path("/p/work-1/icon.png")))
+    assert entry["Name"] == "Work mail" and entry["StartupWMClass"] == "stitches-webapp-work-1"
+    assert entry["Exec"].endswith("--user-data-dir=/p/work-1/profile --class=stitches-webapp-work-1")
+    assert "--ozone-platform=x11 --app=" in entry["Exec"]  # on Wayland, --class only names an XWayland window
+    icons = list(webapps.READY_ICONS.rglob("*.png"))
+    assert len(icons) > 90 and all(i.parent.parent == webapps.READY_ICONS for i in icons), "webicons/<group>/<name>.png"
 
 
 if __name__ == "__main__":

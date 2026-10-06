@@ -168,11 +168,14 @@ def read_sensors(root: str = "/sys/class/hwmon") -> tuple[list[Reading], list[Re
     return temps, fans
 
 
+# Every drive's SMART data, as GNOME Disks reads it: UDisks2, no root needed.
+UDISKS_CALL = ["busctl", "--system", "--json=short", "call", "org.freedesktop.UDisks2", "/org/freedesktop/UDisks2",
+               "org.freedesktop.DBus.ObjectManager", "GetManagedObjects"]
+
+
 def read_drives() -> list[dict]:
     try:
-        return parse_drives(output(["busctl", "--system", "--json=short", "call", "org.freedesktop.UDisks2",
-                                    "/org/freedesktop/UDisks2", "org.freedesktop.DBus.ObjectManager",
-                                    "GetManagedObjects"]))
+        return parse_drives(output(UDISKS_CALL))
     except OSError:
         return []
 

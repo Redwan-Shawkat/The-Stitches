@@ -133,12 +133,15 @@ def _read(log, argv: list[str], show: bool = True) -> str:
 
 def disk_health(log) -> Result:
     log("Reading each drive's SMART data through UDisks2…")
+    log(f"$ {shlex.join(vitals.UDISKS_CALL)}")
     drives = vitals.read_drives()
     if not drives:
         return Result(INFO, "Couldn't reach UDisks2, so drive health can't be read.")
     rows = [(d, *vitals.drive_health(d)) for d in drives]
     details = [f"{d['model']}: {words}" + (f" · {d['temp_c']} °C" if d["temp_c"] is not None else "")
                + (f" · {d['hours']:,} hours powered on" if d["hours"] else "") for d, _, words in rows]
+    for line in details:  # the JSON itself is no use to read
+        log(line)
     if any(status == vitals.CRITICAL for _, status, _ in rows):
         return Result(PROBLEM, "A drive reports it is failing. Back up what matters now.", details)
     if any(status == vitals.WARNING for _, status, _ in rows):

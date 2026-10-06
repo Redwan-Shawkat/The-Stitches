@@ -72,6 +72,13 @@ CSS = b"""
 .actionbar button image { color: #ffffff; }
 .toast { box-shadow: 0 8px 28px alpha(black, 0.35); }
 
+.os-switch { background-color: alpha(@theme_fg_color, 0.08); border-radius: 999px; padding: 3px; }
+.os-switch button { background-color: transparent; background-image: none; border: none; box-shadow: none;
+    border-radius: 999px; padding: 3px 14px; min-height: 0; text-shadow: none; }
+.os-switch button:checked { background-color: #4c5ce6; box-shadow: 0 2px 8px alpha(#4c5ce6, 0.45); }
+.os-switch button:checked label { color: #ffffff; font-weight: 600; }
+.os-switch button:disabled label { opacity: 0.45; }
+
 .row-title { font-weight: 600; }
 levelbar.horizontal trough { min-height: 6px; border: none; border-radius: 3px; background-color: alpha(@theme_fg_color, 0.1); }
 levelbar block.filled { border: none; border-radius: 3px; background-image: none; background-color: #4c5ce6; }
@@ -199,6 +206,19 @@ def show_select_all(check, selected: int, selectable: int):
     only some are."""
     check.set_active(selectable > 0 and selected == selectable)
     check.set_inconsistent(0 < selected < selectable)
+
+
+def os_switch(this_os: str, other_os: str):
+    """A Linux | Windows pill, lit on the OS Stitches is running on. The other
+    side is locked: each OS's apps are installed by Stitches on that OS."""
+    box = Gtk.Box(valign=Gtk.Align.CENTER)
+    box.get_style_context().add_class("os-switch")
+    lit = Gtk.RadioButton(label=this_os, draw_indicator=False, tooltip_text=f"Apps for {this_os}")
+    other = Gtk.RadioButton(label=other_os, group=lit, draw_indicator=False, sensitive=False,
+                            tooltip_text=f"Open Stitches on {other_os} for its apps")
+    for button in sorted((lit, other), key=lambda b: b.get_label() != "Linux"):  # Linux always on the left
+        box.pack_start(button, False, False, 0)
+    return box
 
 
 def scrolled(child):
@@ -395,6 +415,47 @@ class Page(Gtk.Box):
 
     def window(self):
         return self.get_toplevel()
+
+
+class Terminal(Gtk.Box):
+    """The dark panel that shows each command and what it prints, as it
+    prints it. A line starting "▶ " is a heading, "$ " a command; one
+    starting with a key of `colors` (and a colon) is shown in that colour."""
+
+    def __init__(self, placeholder: str, colors: dict | None = None):
+        super().__init__(orientation=Gtk.Orientation.VERTICAL)
+        self.colors = colors or {}
+        self.view = Gtk.TextView(editable=False, cursor_visible=False, wrap_mode=Gtk.WrapMode.WORD_CHAR,
+                                 left_margin=4, right_margin=4)
+        self.out = self.view.get_buffer()
+        self.out.create_tag("head", weight=Pango.Weight.BOLD, foreground="#ffffff", pixels_above_lines=10)
+        self.out.create_tag("cmd", foreground="#7d8bff")
+        for key, color in self.colors.items():
+            self.out.create_tag(key, foreground=color)
+        self.out_end = self.out.create_mark(None, self.out.get_end_iter(), False)
+        self.out.set_text(placeholder)
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=8)
+        box.pack_start(label("Terminal", "card-title"), False, False, 0)
+        box.pack_start(scrolled(self.view), True, True, 0)
+        self.pack_start(card(box, "console"), True, True, 0)
+
+    def clear(self):
+        self.out.set_text("")
+
+    def log(self, line: str):
+        """From a worker thread: onto the panel, on the GTK thread."""
+        GLib.idle_add(self.print, line)
+
+    def print(self, line: str):
+        key = line.partition(":")[0]
+        style = "head" if line.startswith("▶") else "cmd" if line.startswith("$ ") else \
+            key if key in self.colors else None
+        end = self.out.get_end_iter()
+        if style:
+            self.out.insert_with_tags_by_name(end, f"\n{line}", style)
+        else:
+            self.out.insert(end, f"\n{line}")
+        self.view.scroll_mark_onscreen(self.out_end)
 
 
 def confirm(parent, title: str, lines: list[str], action: str, critical_ack: str = "") -> bool:

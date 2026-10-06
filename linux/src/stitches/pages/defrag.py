@@ -1,7 +1,7 @@
 """Defrag: every partition as a tile, grouped by the OS it belongs to (one
-card per group, its tiles side by side inside it), and defragmented where
-Linux can and it helps — spinning disks with ext4, btrfs or XFS. Those get
-a checkbox (and their group one that ticks them all); the rest say why not."""
+card per group, its tiles side by side inside it). Hard disks with ext4,
+btrfs or XFS are defragmented and SSDs trimmed. Those get a checkbox (and
+their group one that ticks them all); the rest say why not."""
 
 from gi.repository import GLib, Gtk, Pango
 
@@ -31,7 +31,7 @@ class DefragPage(Page):
         self.header_button("view-refresh-symbolic", "Look again", self.reload)
         self.tiles = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
         self.body.pack_start(scrolled(self.tiles), True, True, 0)
-        self.defrag_button = self.bar.add_button("Defrag selected", self._on_defrag_clicked, "suggested-action")
+        self.defrag_button = self.bar.add_button("Optimize selected", self._on_defrag_clicked, "suggested-action")
 
     def _group(self, name, members):
         """One card: a heading (with a checkbox for the whole group when any
@@ -75,15 +75,16 @@ class DefragPage(Page):
         return grid
 
     def _tick_group(self, check, ready):
+        on = check.get_active()  # read once: each tick below redraws this checkbox
         for i in ready:
-            self.checks[i].set_active(check.get_active())
+            self.checks[i].set_active(on)
 
     def _selected(self):
         return [self.drives[i] for i, check in self.checks.items() if check.get_active()]
 
     def _show_selection(self):
         n = len(self._selected())
-        self.defrag_button.set_label(f"Defrag selected · {n}" if n else "Defrag selected")
+        self.defrag_button.set_label(f"Optimize selected · {n}" if n else "Optimize selected")
         for check, handler, ready in self.groups:
             with check.handler_block(handler):  # showing the state mustn't tick the whole group
                 show_select_all(check, sum(self.checks[i].get_active() for i in ready), len(ready))
@@ -106,9 +107,9 @@ class DefragPage(Page):
                 self.tiles.pack_start(self._group(name, members), False, False, 0)
         self.tiles.show_all()
         ready = sum(d.ready for d in drives)
-        self.subtitle.set_text("Spinning disks only — SSDs are listed but skipped · "
-                               + (f"{ready} of {len(drives)} can be defragmented" if ready else "nothing needs it here"))
-        self.bar.say("ext4, btrfs and XFS on spinning disks. Runs as root; large drives take a while.")
+        self.subtitle.set_text("Hard disks are defragmented, SSDs trimmed · "
+                               + (f"{ready} of {len(drives)} can be optimized" if ready else "nothing to do here"))
+        self.bar.say("Defrag: ext4, btrfs and XFS on hard disks. TRIM: SSDs. Runs as root; large drives take a while.")
         self._show_selection()
         self.set_busy(False)
 
@@ -137,7 +138,7 @@ class DefragPage(Page):
 
     def _on_drive_start(self, drive, index, total):
         self._set_status(drive, f"{drive.command[1]} running…", ready=True)
-        self.bar.say(f"Defragmenting {strong(drive.name)} · {index + 1} of {total} · asks for your password")
+        self.bar.say(f"{'Trimming' if drive.kind == 'SSD' else 'Defragmenting'} {strong(drive.name)} · {index + 1} of {total} · asks for your password")
         self.bar.slice(index / total, (index + 1) / total)
 
     def _on_drive_done(self, drive, ok, done, total):
@@ -146,7 +147,7 @@ class DefragPage(Page):
 
     def _on_all_done(self, failures):
         self.set_busy(False)
-        self.bar.say("Defrag finished" + (f" · {len(failures)} failed" if failures else ""))
+        self.bar.say("Optimize finished" + (f" · {len(failures)} failed" if failures else ""))
         if failures:
-            info(self.window(), "Some drives weren't defragmented",
+            info(self.window(), "Some drives weren't optimized",
                  "\n\n".join(f"{d.name}:\n{tail(text, 4)}" for d, text in failures))

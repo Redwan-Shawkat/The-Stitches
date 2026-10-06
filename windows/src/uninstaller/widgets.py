@@ -240,6 +240,12 @@ SHAPES = {
     "defrag": _any(*(_box(x, y, x + 3.8, y + 3.8, 0.8) for y, xs in ((1.5, (1.5, 6.1, 10.7)), (6.1, (1.5, 6.1)),
                                                                       (10.7, (1.5,))) for x in xs)),
     "upgrade": _any(_ring(8, 8, 6.8, 1.5), _line(8, 11.6, 8, 6.4, 1.6), _triangle((4.8, 7.6), (11.2, 7.6), (8, 4))),
+    # App Manager, Web Apps and About, after the Linux build's: a download in
+    # a disc, a compass, and an i.
+    "apps": _cut(_disc(8, 8, 7.4), _line(8, 3.8, 8, 8.4, 1.9), _triangle((4.6, 7.4), (11.4, 7.4), (8, 11.6))),
+    "web": _any(_ring(8, 8, 7, 1.4), _triangle((11.4, 4.6), (6.9, 6.9), (9.1, 9.1)),
+                _triangle((4.6, 11.4), (9.1, 9.1), (6.9, 6.9))),
+    "about": _cut(_disc(8, 8, 7.4), _disc(8, 4.6, 1.15), _box(6.95, 6.6, 9.05, 12, 0.5)),
     "dot": _disc(13.4, 2.6, 2.4),  # a mark in a dock button's corner: an update is waiting
 }
 _SS = 4
@@ -740,7 +746,7 @@ class Table(Rounded):
     `columns` are (title, width, anchor): width in 96-DPI pixels, 0 for the
     one column that takes what's left; anchor "e" right-aligns (sizes).
     `cells(item)` gives a row's cells, each a string or a list of parts
-    drawn one after another: a string, ("dim", text) or ("tag", text,
+    drawn one after another: a string, ("dim", text), ("bold", text) or ("tag", text,
     (fg, bg)). Only rows `tickable(item)` get a tick; the circle ticks only
     the rows on screen that are `pickable(item)` too. `on_change()` after
     every change to what's shown or ticked."""
@@ -888,9 +894,10 @@ class Table(Rounded):
                 # long reason short, never the risk label that ends it.
                 room = sum(FONTS["small"].measure(p[1]) + px(18) for p in parts[n + 1:]
                            if not isinstance(p, str) and p[0] == "tag")
-                text = fit_text(text, end - x - room, font)
-                c.create_text(x, y, text=text, anchor="w", font=font, fill=THEME["dim" if kind == "dim" else "fg"])
-                x += font.measure(text) + px(6)
+                face = FONTS["bold"] if kind == "bold" else font
+                text = fit_text(text, end - x - room, face)
+                c.create_text(x, y, text=text, anchor="w", font=face, fill=THEME["dim" if kind == "dim" else "fg"])
+                x += face.measure(text) + px(6)
 
     def _tick(self, index):
         return tick_picture("all" if index in self.selected else "none", THEME["card"])
@@ -911,6 +918,118 @@ class Table(Rounded):
             return
         self.canvas.coords("hover", 0, n * px(self.ROW), self.canvas.winfo_width(), (n + 1) * px(self.ROW))
         self.canvas.itemconfigure("hover", state="normal")
+
+
+class Tiles(Table):
+    """Table's ticking, filtering and select-all, its rows laid out side by
+    side as tiles with a picture each: `cells(item)` gives a tile's three
+    lines (each drawn as a Table cell is), `picture(item)` a PhotoImage of
+    about 32 pixels at 96 DPI."""
+
+    ROW, WIDE = 70, 300  # a tile's height, and the narrowest it gets, at 96 DPI
+
+    def __init__(self, parent, title, cells, picture, on_change, **options):
+        self.picture = picture
+        super().__init__(parent, [(title, 0, "w")], cells, on_change, **options)
+
+    def _per_line(self) -> int:
+        return max(1, self.canvas.winfo_width() // px(self.WIDE))
+
+    def _box(self, n):
+        """Tile n's left, top and width."""
+        per = self._per_line()
+        width = self.canvas.winfo_width() / per
+        return (n % per) * width, (n // per) * px(self.ROW), width
+
+    def _draw_rows(self):
+        c, row = self.canvas, px(self.ROW)
+        c.configure(background=THEME["card"])
+        c.delete("all")
+        c.create_rectangle(0, 0, 0, 0, fill=THEME["hover"], width=0, state="hidden", tags="hover")
+        for n, index in enumerate(self.visible):
+            item, (x, y, width) = self.items[index], self._box(n)
+            mid = y + row / 2
+            if self.tickable(item):
+                c.create_image(x + px(self.TICK_X), mid, image=self._tick(index), tags=f"tick{n}")
+            c.create_image(x + px(self.FIRST_X + 18), mid, image=self.picture(item))
+            text_x = x + px(self.FIRST_X + 46)
+            for cell, dy in zip(self.cells(item), (-19, 0, 19)):
+                self._draw_cell(text_x, x + width - text_x - px(12), "w", mid + px(dy), cell)
+        if not self.visible:
+            c.create_text(c.winfo_width() / 2, row / 2, text=self.empty, font=FONTS["base"], fill=THEME["dim"])
+        lines = -(-len(self.visible) // self._per_line())
+        c.configure(scrollregion=(0, 0, c.winfo_width(), lines * row))
+
+    def _row_at(self, event):
+        per = self._per_line()
+        column = min(per - 1, int(event.x // (self.canvas.winfo_width() / per)))
+        n = int(self.canvas.canvasy(event.y) // px(self.ROW)) * per + column
+        return n if 0 <= n < len(self.visible) else None
+
+    def _on_motion(self, event):
+        n = self._row_at(event)
+        if n is None:
+            self.canvas.itemconfigure("hover", state="hidden")
+            return
+        x, y, width = self._box(n)
+        self.canvas.coords("hover", x, y, x + width, y + px(self.ROW))
+        self.canvas.itemconfigure("hover", state="normal")
+
+
+class Terminal(Rounded):
+    """The dark panel that shows each command and what it prints, as it
+    prints it. A line starting "▶ " is a heading, "$ " a command; one
+    starting with a key of `colours` (and a colon) is shown in that colour."""
+
+    def __init__(self, parent, placeholder: str = "", colours: dict | None = None):
+        super().__init__(parent, radius=14, pad=10, bg="bar", fg="bar_text", border="bar_border")
+        tk.Label(self.inner, text="TERMINAL", font=FONTS["caps"], anchor="w").pack(fill="x", pady=(0, px(6)))
+        self.text = tk.Text(self.inner, wrap="word", relief="flat", borderwidth=0, highlightthickness=0,
+                            font=("Consolas", 9), state="disabled")
+        self.text.pack(fill="both", expand=True)
+        self.text.tag_configure("command", foreground=LINE)
+        self.text.tag_configure("check", font=("Consolas", 9, "bold"))
+        self.inks = colours or {}  # not "colours": Rounded keeps its own under that name
+        for key, ink in self.inks.items():
+            self.text.tag_configure(key, foreground=ink)
+        if placeholder:
+            self.print(placeholder)
+
+    def clear(self):
+        self.text.configure(state="normal")
+        self.text.delete("1.0", "end")
+        self.text.configure(state="disabled")
+
+    def log(self, line: str):
+        """From a worker thread: onto the panel, on Tk's."""
+        later(self.print, line)
+
+    def print(self, line: str):
+        key = line.partition(":")[0]
+        tag = "command" if line.startswith("$ ") else "check" if line.startswith("▶") else \
+            key if key in self.inks else ""
+        self.text.configure(state="normal")
+        if line.startswith("▶") and self.text.index("end-1c") != "1.0":
+            self.text.insert("end", "\n")
+        self.text.insert("end", line + "\n", tag)
+        self.text.configure(state="disabled")
+        self.text.see("end")
+
+
+def os_switch(header, this_os: str, other_os: str):
+    """A Linux | Windows pill in a page header, lit on the OS Stitches is
+    running on. The other side is locked: each OS's apps are installed by
+    Stitches on that OS."""
+    pill = role(Rounded(header, radius=12, pad=3), bg="card", border="border")
+    pill.pack(side="right", padx=(px(8), 0))
+    for name in sorted((this_os, other_os), key=lambda n: n != "Linux"):  # Linux always on the left
+        if name == this_os:
+            Button(pill.inner, name, lambda: None, "suggested").pack(side="left")
+        else:
+            other = role(tk.Label(pill.inner, text=name, padx=px(12), pady=px(4)), fg="dim")
+            other.pack(side="left")
+            Tooltip(other, lambda _e: f"Open Stitches on {other_os} for its apps")
+    pill.fit()
 
 
 def status_label(parent, text: str, colours) -> tk.Label:

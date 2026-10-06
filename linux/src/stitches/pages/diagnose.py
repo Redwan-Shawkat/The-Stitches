@@ -9,7 +9,7 @@ from gi.repository import GLib, Gtk, Pango
 
 from .. import diagnose
 from ..shell import run, tail
-from ..widgets import STATUS_TAG, Page, card, confirm, esc, info, label, scrolled, strong, tag
+from ..widgets import STATUS_TAG, Page, Terminal, card, confirm, esc, info, label, scrolled, strong, tag
 
 # STATUS_TAG's colours are for a light tag background; on the dark panel these read.
 _ON_DARK = {"OK": "#5fd38d", "Good": "#5fd38d", "Warning": "#f0b429", "Problem": "#ff6b5e",
@@ -67,55 +67,25 @@ class DiagnosePage(Page):
         for row in self.rows:
             rows.add(row)
         self.body.pack_start(card(scrolled(rows)), True, True, 0)
-        self.body.pack_start(self._build_output(), False, False, 0)
+        self.terminal = Terminal("Each check's commands and what they print show up here as they run.", _ON_DARK)
+        self.terminal.set_size_request(420, -1)
+        self.body.pack_start(self.terminal, False, False, 0)
         self.scan_button = self.bar.add_button("Scan", self._scan, "suggested-action")
         self.bar.say("Nothing changes until you press a fix; every check only reads.")
-
-    def _build_output(self):
-        self.view = Gtk.TextView(editable=False, cursor_visible=False, wrap_mode=Gtk.WrapMode.WORD_CHAR,
-                                 left_margin=4, right_margin=4)
-        self.out = self.view.get_buffer()
-        self.out.create_tag("head", weight=Pango.Weight.BOLD, foreground="#ffffff", pixels_above_lines=10)
-        self.out.create_tag("cmd", foreground="#7d8bff")
-        for status, color in _ON_DARK.items():
-            self.out.create_tag(status, foreground=color)
-        self.out_end = self.out.create_mark(None, self.out.get_end_iter(), False)
-        self.out.set_text("Each check's commands and what they print show up here as they run.")
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=6, margin=8)
-        box.pack_start(label("Terminal", "card-title"), False, False, 0)
-        box.pack_start(scrolled(self.view), True, True, 0)
-        panel = card(box, "console")
-        panel.set_size_request(420, -1)
-        return panel
-
-    def _log(self, line: str):
-        """From the worker thread: onto the panel, on the GTK thread."""
-        GLib.idle_add(self._print, line)
-
-    def _print(self, line: str):
-        status = line.partition(":")[0]
-        tag = "head" if line.startswith("▶") else "cmd" if line.startswith("$ ") else \
-            status if status in _ON_DARK else None
-        end = self.out.get_end_iter()
-        if tag:
-            self.out.insert_with_tags_by_name(end, f"\n{line}", tag)
-        else:
-            self.out.insert(end, f"\n{line}")
-        self.view.scroll_mark_onscreen(self.out_end)
 
     def reload(self):
         pass  # the file-by-file check reads every installed file, so scanning waits to be asked
 
     def _scan(self):
         self.set_busy(True)
-        self.out.set_text("")
+        self.terminal.clear()
         total = len(self.rows)
 
         def work():
             problems = 0
             for i, row in enumerate(self.rows):
                 GLib.idle_add(self._on_check_start, row, i, total)
-                result = diagnose.run_check(row.check, self._log)
+                result = diagnose.run_check(row.check, self.terminal.log)
                 problems += result.status in (diagnose.PROBLEM, diagnose.WARNING)
                 GLib.idle_add(self._on_check_done, row, result, i + 1, total)
             return problems
@@ -146,9 +116,9 @@ class DiagnosePage(Page):
         self.bar.say(f"{strong(fix.label)} · asks for your password" if fix.command[0] == "pkexec"
                      else strong(fix.label))
         self.bar.slice(0, 1)
-        self._print(f"▶ {fix.label}")
-        self._print(f"$ {shlex.join(fix.command)}")
-        self.run_async(lambda: run(fix.command, on_line=self._log), lambda result: self._on_fixed(row, fix, *result))
+        self.terminal.print(f"▶ {fix.label}")
+        self.terminal.print(f"$ {shlex.join(fix.command)}")
+        self.run_async(lambda: run(fix.command, on_line=self.terminal.log), lambda result: self._on_fixed(row, fix, *result))
 
     def _on_fixed(self, row, fix, ok, text):
         self.set_busy(False)
@@ -164,4 +134,4 @@ class DiagnosePage(Page):
                 run(["systemctl", "reboot"])
             return
         self.bar.say(f"{strong(fix.label)}: done. Checking again…")
-        self.run_async(lambda: diagnose.run_check(row.check, self._log), row.show_result)
+        self.run_async(lambda: diagnose.run_check(row.check, self.terminal.log), row.show_result)

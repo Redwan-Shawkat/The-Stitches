@@ -43,7 +43,7 @@ cat > "$STAGE/usr/share/applications/$APP_ID.desktop" <<EOF
 [Desktop Entry]
 Type=Application
 Name=Stitches
-Comment=Update, uninstall and clean up software, update drivers, defrag drives
+Comment=Install, update, uninstall and clean up software, manage PHP, update drivers, defrag drives
 Exec=$APP_NAME
 Icon=$APP_ID
 Terminal=false
@@ -84,7 +84,8 @@ Version: $VERSION
 Section: utils
 Priority: optional
 Architecture: all
-Depends: python3 (>= 3.10), python3-gi, gir1.2-gtk-3.0, pkexec | policykit-1
+Depends: python3 (>= 3.10), python3-gi, python3-gi-cairo, gir1.2-gtk-3.0, pkexec | policykit-1
+Recommends: fonts-noto-color-emoji
 Conflicts: softhub, linux-the-uninstaller
 Replaces: softhub, linux-the-uninstaller
 Maintainer: $MAINTAINER
@@ -103,6 +104,9 @@ Description: update, uninstall and clean up software however it was installed
  Drivers: detected hardware, driver and firmware updates from ubuntu-drivers,
  fwupd and linux-firmware, and the system spec.
  Defrag: ext4, btrfs and XFS on spinning disks.
+ App Manager: a catalog of developer tools and apps, installed in bulk.
+ The PHP app's details switch its extensions and check what Laravel needs.
+ Web Apps: any website as its own app in the dock.
 EOF
 
 # --root-owner-group writes root:root ownership without needing fakeroot.

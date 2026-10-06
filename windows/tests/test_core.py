@@ -16,7 +16,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from uninstaller import cleanup, defrag, diagnose, drivers, selfupdate, updates
+from uninstaller import appmanager, catalog, cleanup, defrag, diagnose, drivers, selfupdate, updates, webapps
 from uninstaller.backends.choco_backend import build_apps as build_choco_apps, parse_nuspec
 from uninstaller.elevate import clean_output
 from uninstaller.backends.registry_backend import (
@@ -318,6 +318,41 @@ def test_selfupdate_choices():
     assert selfupdate.install_kind(False, Path("C:/Python/python.exe"), pf) == "checkout"
     release = {"assets": [{"name": "Stitches.exe"}, {"name": "Stitches-0.3.0-x64.msi"}]}
     assert selfupdate.pick_asset(release, "msi")["name"] == "Stitches-0.3.0-x64.msi"
+
+
+def test_app_manager():
+    names = [a.name for a in catalog.CATALOG]
+    assert len(names) == len(set(names)) and {"qBittorrent", "Spotify"} <= set(names)
+    assert all(a.category in catalog.CATEGORIES for a in catalog.CATALOG)
+    assert all(a.icon.is_file() for a in catalog.CATALOG), "every app has its icon in appicons/"
+    export = ('{"Sources": [{"Packages": [{"PackageIdentifier": "Git.Git", "Version": "2.47.1"},'
+              ' {"PackageIdentifier": "Spotify.Spotify"}], "SourceDetails": {"Name": "winget"}}]}')
+    installed = appmanager.parse_export(export)
+    assert installed == {"git.git": "2.47.1", "spotify.spotify": ""} and appmanager.parse_export("") == {}
+    git, python, spotify = (next(a for a in catalog.CATALOG if a.name == n) for n in ("Git", "Python", "Spotify"))
+    assert appmanager.detect(git, installed, lambda _c: None) == appmanager.Status(True, "2.47.1", "winget")
+    assert appmanager.detect(spotify, installed, lambda _c: None).installed  # version unknown is still installed
+    stub = r"C:\Users\u\AppData\Local\Microsoft\WindowsApps\python.exe"
+    assert not appmanager.detect(python, {}, lambda _c: stub).installed, "the Store's stand-in isn't Python"
+    scoop = appmanager.detect(python, {}, lambda _c: r"C:\Users\u\scoop\shims\python.exe")
+    assert scoop.installed and scoop.via == "Scoop" and scoop.version == ""
+    assert appmanager.parse_version('openjdk version "21.0.5" 2024-10-15') == "21.0.5"
+    assert appmanager.readable("\r  -  \r  \\ ") is None and appmanager.readable("\r██ 1 MB / 5 MB\rSuccessfully installed") == "Successfully installed"
+    command = appmanager.install_command(git)
+    assert command[:5] == ["winget", "install", "--id", "Git.Git", "--exact"] and "--silent" in command
+
+
+def test_web_apps():
+    assert webapps.normalise("facebook.com") == "https://facebook.com" and webapps.pretty_host("www.x.com") == "X"
+    assert webapps.title_of("<title>WhatsApp Web | Chat</title>") == "WhatsApp Web"
+    assert webapps.icon_link('<link rel="icon" sizes="192x192" href="/i.png">', "https://a.com/b") == "https://a.com/i.png"
+    png = b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\rIHDR" + (512).to_bytes(4, "big") * 2 + b"rest"
+    assert webapps.png_size(png) == (512, 512)
+    ico = webapps.ico_from_png(png)
+    assert ico[:6] == b"\x00\x00\x01\x00\x01\x00" and ico[6:8] == b"\x00\x00" and ico[22:] == png  # 512 is written as 0
+    assert webapps.safe_file_name('Work: "mail"?') == "Work mail" and webapps.safe_file_name("...") == "Web app"
+    assert webapps.browser_args("https://x.com/?a=1", Path("C:/Users/A B/p")).startswith('--app=https://x.com/?a=1 "--user-data-dir=')
+    assert webapps.new_id("Facebook") != webapps.new_id("Facebook")  # two Facebooks, two logins
 
 
 if __name__ == "__main__":
