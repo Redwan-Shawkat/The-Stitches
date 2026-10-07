@@ -44,7 +44,7 @@ def main() -> int:
         print("skip: tkinter is not installed")
         return 0
 
-    from uninstaller import appmanager, gui
+    from uninstaller import appmanager, databases, gui
     from uninstaller.catalog import CATALOG
     from uninstaller.webapps import READY_ICONS
     from uninstaller.widgets import THEMES
@@ -134,16 +134,58 @@ def main() -> int:
         "only apps not installed tick"
     apps_page._set(state="Installed")
     assert all(apps_page.statuses[apps_page.table.items[i]].installed for i in apps_page.table.visible)
+    apps_page._set(state="Any status")
+
+    # An app's details: what it does, the manual command, the "After installing"
+    # card only for apps that have steps, and the database panel only for the
+    # two servers. Closing puts the panel away and forgets any password typed.
+    by_name = {a.name: a for a in CATALOG}
+    apps_page._open(by_name["Cloudflare WARP"])
+    above = lambda w: apps_page.body.winfo_children().index(w)
+    assert above(apps_page.details) > above(apps_page.table), "the details are raised over the tiles"
+    assert apps_page.detail_name.cget("text") == "Cloudflare WARP"
+    assert "winget install --id Cloudflare.Warp" in apps_page.detail_steps.cget("text")
+    assert apps_page.setup_card.winfo_manager(), "WARP has steps after installing"
+    apps_page._open(by_name["VLC"])
+    assert not apps_page.setup_card.winfo_manager(), "VLC has none"
+    assert not any(p.winfo_manager() for p in apps_page.panels.values()), "and no panel"
+    apps_page._open(by_name["MySQL"])
+    panel = apps_page.panels[by_name["MySQL"]]
+    assert panel.winfo_manager(), "MySQL's details carry its panel"
+    panel.server = databases.MySQL(client=("mysql",))
+    panel.server.root_password = "kept for this visit"
+    panel.listing = databases.parse_listing("u\troot\t@localhost\nu\tapp\t@localhost\nd\tmysql\t\nd\tshop\tapp\n")
+    panel._show_listing()
+    rows = [r.winfo_children() for r in panel.users.winfo_children()]
+    assert len(rows) == 2 and len(rows[0]) < len(rows[1]), "root is locked down, app is not"
+    assert len(panel.databases.winfo_children()) == 2
+    apps_page._close()
+    assert panel.server.root_password is None and panel.listing is None, "the password goes with the visit"
+    assert above(apps_page.table) > above(apps_page.details), "and the tiles back over them"
+
     web_page = pages["Web Apps"]
-    web_page._set_icon(next(READY_ICONS.glob("*.png")).read_bytes())  # squared and saved through Tk
+    web_page._set_icon(next(READY_ICONS.glob("*/*.png")).read_bytes())  # squared and saved through Tk
     assert web_page.icon_png[:8] == b"\x89PNG\r\n\x1a\n"
+    web_page._show_icons(group="Google")  # one group, then a search across them all
+    assert 0 < len(web_page.ready.winfo_children()) < 30
+    web_page._show_icons(words="notion")
+    assert len(web_page.ready.winfo_children()) == 1
 
     for name in THEMES:  # every palette applied for real, pages redrawn in it
         window.apply_theme(name)
     for i in reversed(range(len(window.pages))):
         window.show(i)
-    window._on_checked({"tag_name": "v9.9.9"}, quiet=True)  # the update notice and the dock's mark
+    window._on_checked(({"tag_name": "v9.9.9"}, ""), quiet=True)  # the update notice and the dock's mark
     assert window.update_button.marked
+    # A check that couldn't reach GitHub says so instead of claiming this is the
+    # newest, and says nothing at all when it ran by itself at startup.
+    window._on_checked((None, "getaddrinfo failed"), quiet=False)
+    assert "Couldn't ask GitHub" in window.notice.status.cget("text")
+    window.notice.place_forget()
+    window._on_checked((None, "getaddrinfo failed"), quiet=True)
+    assert not window.notice.winfo_ismapped()
+    window._on_checked((None, ""), quiet=False)
+    assert "is the newest" in window.notice.status.cget("text")
 
     page.bar.slice(0.0, 0.5)
     page.bar.settle(0.5, ok=False)

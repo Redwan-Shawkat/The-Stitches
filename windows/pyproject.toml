@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stitches-windows"
-version = "0.2.5"
+version = "0.2.6"
 description = "Finds and removes Windows software regardless of how it was installed: MSI/EXE installers, Microsoft Store, Chocolatey, or Scoop."
 requires-python = ">=3.10"
 license = "MIT"

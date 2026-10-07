@@ -2,6 +2,7 @@
 planners and the risk classifier. `python3 tests/test_core.py` or `pytest tests/`.
 No fixtures, no framework — see CLAUDE.md / ponytail."""
 
+import http.client
 import json
 import os
 import socket
@@ -15,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
 from datetime import date
 
-from stitches import (appmanager, catalog, cleanup, databases, defrag, diagnose, drivers, php, selfupdate, sysinfo, updates,
+from stitches import (__version__, appmanager, catalog, cleanup, databases, defrag, diagnose, drivers, php, selfupdate, sysinfo, updates,
                       vitals, webapps)
 from stitches.backends.local_backend import install_paths
 from stitches.backends.apt_backend import build_apps, parse_dpkg_query, parse_showmanual
@@ -375,6 +376,18 @@ def test_self_update():
     assert selfupdate.pick_asset(release, "deb")["name"] == "stitches_0.3.0_all.deb"
     assert selfupdate.pick_asset(release, "user")["name"] == "stitches-0.3.0.tar.gz"
     assert selfupdate.pick_asset(release, "checkout") is None
+    # A check that couldn't reach GitHub is told apart from "you have the newest":
+    # http.client's exceptions are neither OSError nor ValueError, and one used to
+    # escape latest() and kill the worker thread.
+    asked, selfupdate.get_json = selfupdate.get_json, lambda _u: (_ for _ in ()).throw(http.client.IncompleteRead(b"x"))
+    try:
+        assert selfupdate.latest() == (None, "IncompleteRead(1 bytes read)")
+        selfupdate.get_json = lambda _u: {"tag_name": f"v{__version__}"}
+        assert selfupdate.latest() == (None, "")
+        selfupdate.get_json = lambda _u: {"tag_name": "v9.9.9"}
+        assert selfupdate.latest() == ({"tag_name": "v9.9.9"}, "")
+    finally:
+        selfupdate.get_json = asked
 
 
 def test_local_install_and_driver_purpose():

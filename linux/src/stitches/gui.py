@@ -267,13 +267,18 @@ class StitchesWindow(Gtk.ApplicationWindow):
         self.toast_bar.done()  # stops a countdown still running
         self.toast.set_reveal_child(False)
 
-    def _on_release_checked(self, release, manual=False):
+    def _on_release_checked(self, outcome, manual=False):
+        release, error = outcome
         if release:
             self.release = release
             self.update_button.get_style_context().add_class("has-update")
             self.update_button.set_tooltip_text(f"Update Stitches to {release['tag_name']}")
             self.show_toast(f"{strong('Stitches ' + release['tag_name'])} is out", [("Update", self._install_update)])
-        elif manual:
+        elif not manual:
+            return  # the check at startup; a failure there isn't worth saying
+        elif error:
+            self.show_toast(f"Couldn't ask GitHub for the newest Stitches: {esc(error)}")
+        else:
             self.show_toast(f"Stitches {esc(__version__)} is the latest version.")
 
     def _on_update_button(self):

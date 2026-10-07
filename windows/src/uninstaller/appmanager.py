@@ -8,6 +8,7 @@ code. Pure helpers first, then the subprocess calls."""
 import json
 import re
 import shutil
+import subprocess
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
@@ -78,6 +79,15 @@ def install_command(app: App) -> list[str]:
     """The id comes from the catalog, never from what someone typed."""
     return ["winget", "install", "--id", app.package, "--exact", "--source", "winget", "--silent",
             "--accept-package-agreements", "--accept-source-agreements", "--disable-interactivity"]
+
+
+def manual_steps(app: App) -> list[str]:
+    """The same install, typed into a terminal by hand: shown in the app's
+    details. Built from install_command, so it can't drift from what Stitches
+    runs; the flags that only make sense unattended are dropped, since someone
+    typing it can answer for themselves."""
+    unattended = {"--silent", "--accept-package-agreements", "--accept-source-agreements", "--disable-interactivity"}
+    return [subprocess.list2cmdline([a for a in install_command(app) if a not in unattended])]
 
 
 # ---- IO below ----

@@ -114,10 +114,10 @@
     "semantic_hash": "d2d71117794192a85fff3337ad0c4bf4"
   },
   "linux/build-deb.sh": {
-    "mtime": 1790590790.5020285,
-    "seen": 1791003986.0560286,
-    "ast_hash": "0969789950d7a445b85d898b36803430",
-    "semantic_hash": "0969789950d7a445b85d898b36803430"
+    "mtime": 1791368203.6576986,
+    "seen": 1791398530.9726744,
+    "ast_hash": "73725bb026ce01db120a3c560a90e037",
+    "semantic_hash": ""
   },
   "linux/install.sh": {
     "mtime": 1790590790.5020285,
@@ -126,16 +126,16 @@
     "semantic_hash": "51650cc098f3f2613bb926ff6c58a802"
   },
   "linux/pyproject.toml": {
-    "mtime": 1790590790.5030282,
-    "seen": 1791003986.0560286,
-    "ast_hash": "1b8d96a1be75fdee4bdf28fecf4254b3",
-    "semantic_hash": "1b8d96a1be75fdee4bdf28fecf4254b3"
+    "mtime": 1791398230.8502123,
+    "seen": 1791398530.9726744,
+    "ast_hash": "8f71aa976355cf41ff0879515daf10a6",
+    "semantic_hash": ""
   },
   "linux/src/stitches/__init__.py": {
-    "mtime": 1790590790.5030282,
-    "seen": 1791003986.0560286,
-    "ast_hash": "c9c38eabf69add00779fa5574f81f5a5",
-    "semantic_hash": "c9c38eabf69add00779fa5574f81f5a5"
+    "mtime": 1791398230.8492117,
+    "seen": 1791398530.9726744,
+    "ast_hash": "89631ea54ccd55c9a0c31e3e729ae891",
+    "semantic_hash": ""
   },
   "linux/src/stitches/__main__.py": {
     "mtime": 1790590790.5040274,
@@ -192,16 +192,16 @@
     "semantic_hash": "7e83f2c9e7c34b07387708d8b2019f66"
   },
   "linux/src/stitches/defrag.py": {
-    "mtime": 1790590790.5080287,
-    "seen": 1791003986.0560286,
-    "ast_hash": "3ebbb76ee260cb1c0c245cd19235c4ed",
-    "semantic_hash": "3ebbb76ee260cb1c0c245cd19235c4ed"
+    "mtime": 1791368203.6812186,
+    "seen": 1791398530.9726744,
+    "ast_hash": "351a733806dde309a5f299109786942a",
+    "semantic_hash": ""
   },
   "linux/src/stitches/diagnose.py": {
-    "mtime": 1790590790.5080287,
-    "seen": 1791003986.0560286,
-    "ast_hash": "2e94168b4652012689fdc89eefae0875",
-    "semantic_hash": "2e94168b4652012689fdc89eefae0875"
+    "mtime": 1791368203.682219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1030541fd29f3184967369b2a97560d1",
+    "semantic_hash": ""
   },
   "linux/src/stitches/drivers.py": {
     "mtime": 1790590790.5090282,
@@ -210,10 +210,10 @@
     "semantic_hash": "d53618e01468f2b42f2cb0ae50354178"
   },
   "linux/src/stitches/gui.py": {
-    "mtime": 1790590790.5090282,
-    "seen": 1791003986.0560286,
-    "ast_hash": "8291b7cc0638b76385869a6de434b002",
-    "semantic_hash": "8291b7cc0638b76385869a6de434b002"
+    "mtime": 1791396189.7910562,
+    "seen": 1791398530.9726744,
+    "ast_hash": "af0d664a17d230c12bd9dce9787c513e",
+    "semantic_hash": ""
   },
   "linux/src/stitches/leftovers.py": {
     "mtime": 1790590790.5140293,
@@ -240,16 +240,16 @@
     "semantic_hash": "cf9e14b73e77af62d74ce0a6014f26b9"
   },
   "linux/src/stitches/pages/defrag.py": {
-    "mtime": 1790590790.5160296,
-    "seen": 1791003986.0560286,
-    "ast_hash": "db3e2fed42a00201592f3a77eeba0803",
-    "semantic_hash": "db3e2fed42a00201592f3a77eeba0803"
+    "mtime": 1791368203.6852205,
+    "seen": 1791398530.9726744,
+    "ast_hash": "f44f2b1277352c56e2406642aa9004d2",
+    "semantic_hash": ""
   },
   "linux/src/stitches/pages/diagnose.py": {
-    "mtime": 1790590790.5160296,
-    "seen": 1791003986.0560286,
-    "ast_hash": "f6ada38b2c28b7f389ac08f026fafe97",
-    "semantic_hash": "f6ada38b2c28b7f389ac08f026fafe97"
+    "mtime": 1791368203.6862214,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a869276423ae38cd51cad31dbe8552e9",
+    "semantic_hash": ""
   },
   "linux/src/stitches/pages/drivers.py": {
     "mtime": 1790590790.5170274,
@@ -288,10 +288,10 @@
     "semantic_hash": "d31cf79f253ed40dfec6889bd0c362a0"
   },
   "linux/src/stitches/selfupdate.py": {
-    "mtime": 1790590790.520028,
-    "seen": 1791003986.0560286,
-    "ast_hash": "b8b4ac7adcc511e58b9b9ca53c42aa45",
-    "semantic_hash": "b8b4ac7adcc511e58b9b9ca53c42aa45"
+    "mtime": 1791396189.7900832,
+    "seen": 1791398530.9726744,
+    "ast_hash": "58a63e307b1485d86db80ce6c7961014",
+    "semantic_hash": ""
   },
   "linux/src/stitches/shell.py": {
     "mtime": 1790590790.520028,
@@ -312,28 +312,28 @@
     "semantic_hash": "65ba689a86fda88ab72d299d917d17d4"
   },
   "linux/src/stitches/updates.py": {
-    "mtime": 1790590790.522027,
-    "seen": 1791003986.0560286,
-    "ast_hash": "be3d026fa44133c6a8b1338e75e82f0b",
-    "semantic_hash": "be3d026fa44133c6a8b1338e75e82f0b"
+    "mtime": 1791368203.6882198,
+    "seen": 1791398530.9726744,
+    "ast_hash": "46ed96e8e8abc25f495000e7c482a030",
+    "semantic_hash": ""
   },
   "linux/src/stitches/vitals.py": {
-    "mtime": 1790590790.522027,
-    "seen": 1791003986.0560286,
-    "ast_hash": "fce8d6e6f748b980a79f43542556f4ce",
-    "semantic_hash": "fce8d6e6f748b980a79f43542556f4ce"
+    "mtime": 1791368203.6892202,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b4138fb8fcbb006315c24112c250ade1",
+    "semantic_hash": ""
   },
   "linux/src/stitches/widgets.py": {
-    "mtime": 1790590790.5230284,
-    "seen": 1791003986.0560286,
-    "ast_hash": "0e8e5f977424338e9de9e291102481e3",
-    "semantic_hash": "0e8e5f977424338e9de9e291102481e3"
+    "mtime": 1791368203.7412207,
+    "seen": 1791398530.9726744,
+    "ast_hash": "45c4b96f6565fd40ad42177a7bb46e60",
+    "semantic_hash": ""
   },
   "linux/tests/test_core.py": {
-    "mtime": 1790590790.5230284,
-    "seen": 1791003986.0560286,
-    "ast_hash": "8b862ab7480b1adb674742260ac6172f",
-    "semantic_hash": "8b862ab7480b1adb674742260ac6172f"
+    "mtime": 1791398290.6834238,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3faec356c792f31b624c59a493c09fa5",
+    "semantic_hash": ""
   },
   "linux/uninstall.sh": {
     "mtime": 1790590790.5240278,
@@ -348,10 +348,10 @@
     "semantic_hash": "34463c9e7968c836dfe5b1076f9c3705"
   },
   "windows/build-exe.ps1": {
-    "mtime": 1790590790.5250292,
-    "seen": 1791003986.0560286,
-    "ast_hash": "423d45d4c7aae86ef63cdf252c00d7a2",
-    "semantic_hash": "423d45d4c7aae86ef63cdf252c00d7a2"
+    "mtime": 1791368203.7432175,
+    "seen": 1791398530.9726744,
+    "ast_hash": "d69428dca0334620dc45127fa4b28bb8",
+    "semantic_hash": ""
   },
   "windows/build-msi.ps1": {
     "mtime": 1790590790.5260296,
@@ -360,10 +360,10 @@
     "semantic_hash": "961933f4a66d3f57cbd15c198debeea4"
   },
   "windows/pyproject.toml": {
-    "mtime": 1790997585.8945072,
-    "seen": 1791003986.0560286,
-    "ast_hash": "a9654ca31ba2c1f2a27cbe9215ca6c48",
-    "semantic_hash": "a9654ca31ba2c1f2a27cbe9215ca6c48"
+    "mtime": 1791398230.8492117,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2ce854ebdca8edf5c6a081eb8d569042",
+    "semantic_hash": ""
   },
   "windows/run.py": {
     "mtime": 1790312037.4793415,
@@ -372,10 +372,10 @@
     "semantic_hash": "6278fe6f500186594969761c9b0423fa"
   },
   "windows/src/uninstaller/__init__.py": {
-    "mtime": 1790997585.9365084,
-    "seen": 1791003986.0560286,
-    "ast_hash": "e8b8e5a33e1e034afe2c0eb58e486733",
-    "semantic_hash": "e8b8e5a33e1e034afe2c0eb58e486733"
+    "mtime": 1791398230.8472457,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4cf4643b717744d072079468142c3367",
+    "semantic_hash": ""
   },
   "windows/src/uninstaller/__main__.py": {
     "mtime": 1790312037.4803412,
@@ -450,10 +450,10 @@
     "semantic_hash": "032b4d10ba8abbc921e32bea7bf4f839"
   },
   "windows/src/uninstaller/gui.py": {
-    "mtime": 1790590790.5330305,
-    "seen": 1791003986.0560286,
-    "ast_hash": "70601bcc755b281ab2f843cec1ad4941",
-    "semantic_hash": "70601bcc755b281ab2f843cec1ad4941"
+    "mtime": 1791396212.9287236,
+    "seen": 1791398530.9726744,
+    "ast_hash": "35c0451038811e70d25db0998864da6b",
+    "semantic_hash": ""
   },
   "windows/src/uninstaller/leftovers.py": {
     "mtime": 1790312037.4853408,
@@ -486,10 +486,10 @@
     "semantic_hash": "d5da90139c5680f82273ac7efc04c374"
   },
   "windows/src/uninstaller/pages/diagnose.py": {
-    "mtime": 1790590790.5350294,
-    "seen": 1791003986.0560286,
-    "ast_hash": "74d2aa15d58371a3c01bbeb3e124dcb7",
-    "semantic_hash": "74d2aa15d58371a3c01bbeb3e124dcb7"
+    "mtime": 1791368203.7592177,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1eaa35bb1de2ae9e10d7dd3cb8a92ffd",
+    "semantic_hash": ""
   },
   "windows/src/uninstaller/pages/drivers.py": {
     "mtime": 1790590790.5350294,
@@ -528,10 +528,10 @@
     "semantic_hash": "c85dbabbcc8e5e49b41742f5a68f3728"
   },
   "windows/src/uninstaller/selfupdate.py": {
-    "mtime": 1790590790.5380292,
-    "seen": 1791003986.0560286,
-    "ast_hash": "d07fe236c5db499cfd9738a0dd83a67a",
-    "semantic_hash": "d07fe236c5db499cfd9738a0dd83a67a"
+    "mtime": 1791396150.9630585,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b7c6da58913696faaf1057d5ec6c4dcf",
+    "semantic_hash": ""
   },
   "windows/src/uninstaller/sysinfo.py": {
     "mtime": 1790590790.5380292,
@@ -552,22 +552,22 @@
     "semantic_hash": "73ceefafa771a4c96d803c58a08cb059"
   },
   "windows/src/uninstaller/widgets.py": {
-    "mtime": 1790590790.540029,
-    "seen": 1791003986.0560286,
-    "ast_hash": "67e8b6aff09e8ac6f68a788cc86274fe",
-    "semantic_hash": "67e8b6aff09e8ac6f68a788cc86274fe"
+    "mtime": 1791398123.756816,
+    "seen": 1791398530.9726744,
+    "ast_hash": "252d679af0475bfd45578083d8e9099a",
+    "semantic_hash": ""
   },
   "windows/tests/test_core.py": {
-    "mtime": 1790590790.5430293,
-    "seen": 1791003986.0560286,
-    "ast_hash": "bad7cd845e5194570de9d567cbfe16c0",
-    "semantic_hash": "bad7cd845e5194570de9d567cbfe16c0"
+    "mtime": 1791397934.11587,
+    "seen": 1791398530.9726744,
+    "ast_hash": "24a6587aa26c0ef1637022aaad5052d9",
+    "semantic_hash": ""
   },
   "windows/tests/test_gui_smoke.py": {
-    "mtime": 1790590790.5430293,
-    "seen": 1791003986.0560286,
-    "ast_hash": "aa3c54ce6d5013af5ee1f0e0679c142e",
-    "semantic_hash": "aa3c54ce6d5013af5ee1f0e0679c142e"
+    "mtime": 1791398011.3617249,
+    "seen": 1791398530.9726744,
+    "ast_hash": "41e476e555ca6dd7a9eaaec3c03d26be",
+    "semantic_hash": ""
   },
   "windows/tools/make_icon.py": {
     "mtime": 1790590790.5440288,
@@ -582,16 +582,16 @@
     "semantic_hash": "9a44347c67bd23f1d9760ad32a01b0ee"
   },
   ".github/workflows/linux-build.yml": {
-    "mtime": 1790590790.4675043,
-    "seen": 1791003986.0560286,
-    "ast_hash": "fd4de684f3fc55c91e25817842ff1b62",
-    "semantic_hash": "fd4de684f3fc55c91e25817842ff1b62"
+    "mtime": 1791368203.6527011,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a5e3bdf78c81bc4606044438c69335a1",
+    "semantic_hash": ""
   },
   ".github/workflows/windows-build.yml": {
-    "mtime": 1790590790.468505,
-    "seen": 1791003986.0560286,
-    "ast_hash": "d87290d6fefb79597f580865f003a407",
-    "semantic_hash": "d87290d6fefb79597f580865f003a407"
+    "mtime": 1791368203.6527011,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e70568110db2ddceefdfbd487b82b78b",
+    "semantic_hash": ""
   },
   "CLAUDE.md": {
     "mtime": 1791002430.155658,
@@ -600,10 +600,10 @@
     "semantic_hash": "cdbf6c94786a6e558acb665edaa82d13"
   },
   "README.md": {
-    "mtime": 1790590790.4695055,
-    "seen": 1791003986.0560286,
-    "ast_hash": "840f89239feb29ac574a66ea7aae6249",
-    "semantic_hash": "840f89239feb29ac574a66ea7aae6249"
+    "mtime": 1791368203.6537023,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e941b237331002a3f2d5ca5b99637eb3",
+    "semantic_hash": ""
   },
   "android/README.md": {
     "mtime": 1790590790.470506,
@@ -618,16 +618,16 @@
     "semantic_hash": "b323afe343f68ea7cf5a876f278afa88"
   },
   "documents/ai-knowledgebase.md": {
-    "mtime": 1790998908.018268,
-    "seen": 1791003986.0560286,
-    "ast_hash": "424a6b1afbcad2547fd7b21545998195",
-    "semantic_hash": "424a6b1afbcad2547fd7b21545998195"
+    "mtime": 1791398397.9775567,
+    "seen": 1791398530.9726744,
+    "ast_hash": "38e45b1c21d87c74db8e885311c0d8f5",
+    "semantic_hash": ""
   },
   "documents/features.md": {
-    "mtime": 1790998909.1635737,
-    "seen": 1791003986.0560286,
-    "ast_hash": "6a4dc56e96779a34b1aff89429b1171e",
-    "semantic_hash": "6a4dc56e96779a34b1aff89429b1171e"
+    "mtime": 1791398443.7057416,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c840708ad9398a50673e347a6b233922",
+    "semantic_hash": ""
   },
   "windows/README.md": {
     "mtime": 1790590790.5250292,
@@ -688,5 +688,1781 @@
     "seen": 1791003986.0560286,
     "ast_hash": "18752ff4dd150febe2e7ebbd0ff743b3",
     "semantic_hash": "18752ff4dd150febe2e7ebbd0ff743b3"
+  },
+  ".claude/settings.json": {
+    "mtime": 1791002430.1616583,
+    "seen": 1791398530.971677,
+    "ast_hash": "3ac995fbf93552a991ecab9b63f776aa",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appmanager.py": {
+    "mtime": 1791368203.679219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9466400c33f21e1e6202c0939eaab12f",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/catalog.py": {
+    "mtime": 1791368203.679219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "8f63b0fa50e6c60ae37dbcd7b1528d10",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/databases.py": {
+    "mtime": 1791368203.6802187,
+    "seen": 1791398530.9726744,
+    "ast_hash": "479f5fea50f4316538624721eebb79c8",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/pages/about.py": {
+    "mtime": 1791368203.6832192,
+    "seen": 1791398530.9726744,
+    "ast_hash": "667a3a4999ffd403f16897bfb4a0a889",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/pages/apps.py": {
+    "mtime": 1791368203.6842194,
+    "seen": 1791398530.9726744,
+    "ast_hash": "dfecc78611444ec7c4823bec8c92aebc",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/pages/databases.py": {
+    "mtime": 1791368203.6852205,
+    "seen": 1791398530.9726744,
+    "ast_hash": "58cef2af57814535daf10d35a6ef20e2",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/pages/php.py": {
+    "mtime": 1791368203.6862214,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2b37749cfc99f32504fa67b97c4d5925",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/pages/webapps.py": {
+    "mtime": 1791368203.6872184,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9378c95a99d086dd1ff4bc68e2231490",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/php.py": {
+    "mtime": 1791368203.6872184,
+    "seen": 1791398530.9726744,
+    "ast_hash": "eb310fc4cff7a6030984c66beb3eed07",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webapps.py": {
+    "mtime": 1791368203.6892202,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3bb2fa1d697c1a039cbcb4546147d052",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appmanager.py": {
+    "mtime": 1791396384.0039237,
+    "seen": 1791398530.9726744,
+    "ast_hash": "071f6fd3f0291da43c07a3af495d05af",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/catalog.py": {
+    "mtime": 1791396362.7307737,
+    "seen": 1791398530.9726744,
+    "ast_hash": "20fba8ae34a35e61de850951a6d6fb04",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/databases.py": {
+    "mtime": 1791397679.1739562,
+    "seen": 1791398530.9726744,
+    "ast_hash": "827564b3a8dd1db2d1fb479ca2e54b3b",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/pages/about.py": {
+    "mtime": 1791368203.758222,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a4f4b6932903d591d158005ba6b39395",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/pages/apps.py": {
+    "mtime": 1791398461.5008204,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9573d8e06e65feffcc3c587d0e43f215",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/pages/databases.py": {
+    "mtime": 1791397818.2789507,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3d8ba4a74fd51eabdb3894cad91864e2",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/pages/webapps.py": {
+    "mtime": 1791397382.5434425,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2ecee770b8c05c58884441725ad49bba",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webapps.py": {
+    "mtime": 1791397152.0970669,
+    "seen": 1791398530.9726744,
+    "ast_hash": "8ea93cba605049d4a273658fbd4a8aa9",
+    "semantic_hash": ""
+  },
+  ".claude/CLAUDE.md": {
+    "mtime": 1791002430.1466565,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9b31786b637be3c13978bec4c2330752",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/SKILL.md": {
+    "mtime": 1791002430.142657,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a93e8ad64464faa2abc9a0d42aeb0cab",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/add-watch.md": {
+    "mtime": 1791002326.617164,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c1f65eb4102ad515149303c7f296b718",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/exports.md": {
+    "mtime": 1791002326.6181633,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9da2a2152e60a22f07f05fed5158f287",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/extraction-spec.md": {
+    "mtime": 1791002326.8261638,
+    "seen": 1791398530.9726744,
+    "ast_hash": "42fef56a01698118f7fd722acdadea34",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/github-and-merge.md": {
+    "mtime": 1791002326.8271623,
+    "seen": 1791398530.9726744,
+    "ast_hash": "cde13df085e4c492aeb7ba298a996d0d",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/hooks.md": {
+    "mtime": 1791002326.8271623,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3f545db6ce646650bb9de588f5512a27",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/query.md": {
+    "mtime": 1791002326.8281684,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3c46f8ad006874260614ed8657d02307",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/transcribe.md": {
+    "mtime": 1791002326.8281684,
+    "seen": 1791398530.9726744,
+    "ast_hash": "67b6a5fa6c0974e18f60db9f8932fbd8",
+    "semantic_hash": ""
+  },
+  ".claude/skills/graphify/references/update.md": {
+    "mtime": 1791002326.8291657,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9378bd03d56baaf78bd738ab3848f142",
+    "semantic_hash": ""
+  },
+  ".claude/skills/ponytail-audit/SKILL.md": {
+    "mtime": 1790312037.4425013,
+    "seen": 1791398530.9726744,
+    "ast_hash": "741076540e91247a0bace7b89c27ac6b",
+    "semantic_hash": ""
+  },
+  ".claude/skills/ponytail-debt/SKILL.md": {
+    "mtime": 1790312037.4425013,
+    "seen": 1791398530.9726744,
+    "ast_hash": "19c1eef33c9b109abb5805a762a545c8",
+    "semantic_hash": ""
+  },
+  ".claude/skills/ponytail-gain/SKILL.md": {
+    "mtime": 1790312037.443504,
+    "seen": 1791398530.9726744,
+    "ast_hash": "8f9cd980326238785d2fc23a9cfddc96",
+    "semantic_hash": ""
+  },
+  ".claude/skills/ponytail-help/SKILL.md": {
+    "mtime": 1790312037.443504,
+    "seen": 1791398530.9726744,
+    "ast_hash": "25b3214341fdc2f0805d2f8a5da6fefd",
+    "semantic_hash": ""
+  },
+  ".claude/skills/ponytail-review/SKILL.md": {
+    "mtime": 1790312037.4445004,
+    "seen": 1791398530.9726744,
+    "ast_hash": "52f93e973047baa9a906c6dc5879a4a6",
+    "semantic_hash": ""
+  },
+  ".claude/skills/ponytail/SKILL.md": {
+    "mtime": 1790312037.4445004,
+    "seen": 1791398530.9726744,
+    "ast_hash": "33f013ce03c8c66a6002ef941a433b81",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/android-studio.png": {
+    "mtime": 1791368203.6586998,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b7c5e2584042acdaa1549c7e64927fe2",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/anydesk.png": {
+    "mtime": 1791368203.6597,
+    "seen": 1791398530.9726744,
+    "ast_hash": "5f71c285668b6a7f42ddedcdd43719c0",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/avro-phonetic.png": {
+    "mtime": 1791368203.6597,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ff85047a230aeaa9dc2bd21a35545e9f",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/brave.png": {
+    "mtime": 1791368203.6597,
+    "seen": 1791398530.9726744,
+    "ast_hash": "66da087aa2060c4f99c6e894ed33b944",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/cargo.png": {
+    "mtime": 1791368203.6607025,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1bba0d09a52d7ba9c6564a97a824a013",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/chromium.png": {
+    "mtime": 1791368203.6607025,
+    "seen": 1791398530.9726744,
+    "ast_hash": "0279496a0d4b4090f7af8c0b659ecb94",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/cloudflare-warp.png": {
+    "mtime": 1791368203.6616988,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9b434bfdf8710958d9c8a36a5fc3a4fa",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/composer.png": {
+    "mtime": 1791368203.6616988,
+    "seen": 1791398530.9726744,
+    "ast_hash": "cbae3b860840206ead61f4af8af09c34",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/docker-compose.png": {
+    "mtime": 1791368203.6616988,
+    "seen": 1791398530.9726744,
+    "ast_hash": "5a970158da9b6fafcd09fa08dc3dd94b",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/docker.png": {
+    "mtime": 1791368203.662701,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4731f352c59900911fc38eee31635488",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/flatpak.png": {
+    "mtime": 1791368203.663701,
+    "seen": 1791398530.9726744,
+    "ast_hash": "55fade22021ecd431eb0687bad4cba0a",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/git.png": {
+    "mtime": 1791368203.6647005,
+    "seen": 1791398530.9726744,
+    "ast_hash": "5cca547264801882b6ea02e6a4b3a30e",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/github-cli.png": {
+    "mtime": 1791368203.665704,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b07f2c8ad367947d70fcf73c3caf7e77",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/go.png": {
+    "mtime": 1791368203.665704,
+    "seen": 1791398530.9726744,
+    "ast_hash": "f13dd74907d72366e2442c8290b9e0ba",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/java.png": {
+    "mtime": 1791368203.6667037,
+    "seen": 1791398530.9726744,
+    "ast_hash": "bce6e5bf5689359c19efb3b9daca407d",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/kdenlive.png": {
+    "mtime": 1791368203.6667037,
+    "seen": 1791398530.9726744,
+    "ast_hash": "359724559dd1c3f89ce40ad6e7bc8243",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/kooha.png": {
+    "mtime": 1791368203.667703,
+    "seen": 1791398530.9726744,
+    "ast_hash": "10253f9ef0cefcf056b6c5cd3986a761",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/libreoffice.png": {
+    "mtime": 1791368203.6687014,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c287d867996574e0d37cbc4c40f807f4",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/localsend.png": {
+    "mtime": 1791368203.6697023,
+    "seen": 1791398530.9726744,
+    "ast_hash": "dc39fd20ed59b1b677e4f7db0ed81afc",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/luminance.png": {
+    "mtime": 1791368203.6707036,
+    "seen": 1791398530.9726744,
+    "ast_hash": "84b3fb9a8c82cd3b84984bc98307c0b2",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/maven.png": {
+    "mtime": 1791368203.6707036,
+    "seen": 1791398530.9726744,
+    "ast_hash": "50156543cabd114fe3b8e69a37034ddc",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/mysql.png": {
+    "mtime": 1791368203.6717002,
+    "seen": 1791398530.9726744,
+    "ast_hash": "233a8ad95877e4a81d8869cbc1a19880",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/node-js.png": {
+    "mtime": 1791368203.6717002,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b34bd713e230e5541cfff121d4883e38",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/npm.png": {
+    "mtime": 1791368203.6717002,
+    "seen": 1791398530.9726744,
+    "ast_hash": "031d36bef20f41a3100499299a9ea40d",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/onlyoffice.png": {
+    "mtime": 1791368203.6727011,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4df7b5875397b0ea3a5a7e709c13c849",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/php.png": {
+    "mtime": 1791368203.6732266,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c90cfeac5dd2c45a4d92c7226b1142a4",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/pinta.png": {
+    "mtime": 1791368203.6732266,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2c6555677b8851a2c0f944359c3e1574",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/pip.png": {
+    "mtime": 1791368203.6732266,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2250896f3d434ff6ed3c9bc3b5cd78fe",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/postgresql.png": {
+    "mtime": 1791368203.6742196,
+    "seen": 1791398530.9726744,
+    "ast_hash": "7f3b52150d7d138c255242861caa092b",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/postman.png": {
+    "mtime": 1791368203.6742196,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e26fd7438d4aa741dced03c612e96969",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/python.png": {
+    "mtime": 1791368203.6742196,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2250896f3d434ff6ed3c9bc3b5cd78fe",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/qbittorrent.png": {
+    "mtime": 1791368203.6752186,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c5f1c1b0e7f93c4b412058ba59031d9a",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/rclone.png": {
+    "mtime": 1791368203.6752186,
+    "seen": 1791398530.9726744,
+    "ast_hash": "80d50491043ef0c22dd35371acc66b96",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/rust.png": {
+    "mtime": 1791368203.67622,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1bba0d09a52d7ba9c6564a97a824a013",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/rustdesk.png": {
+    "mtime": 1791368203.67622,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ddad2024509b0fc3d342c8f11e9b594c",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/spotify.png": {
+    "mtime": 1791368203.67622,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3685f4925c525fa2be6af68a346dd48f",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/visual-studio-code.png": {
+    "mtime": 1791368203.6772199,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ebe377f2feb6502be063e61d0585c208",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/vlc.png": {
+    "mtime": 1791368203.6772199,
+    "seen": 1791398530.9726744,
+    "ast_hash": "0cf923154f676a686c8d6ec653d24f35",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/wine.png": {
+    "mtime": 1791368203.6782193,
+    "seen": 1791398530.9726744,
+    "ast_hash": "53e523d802ce94257f4d219d9efa7b03",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/appicons/yarn.png": {
+    "mtime": 1791368203.6782193,
+    "seen": 1791398530.9726744,
+    "ast_hash": "10ea1afbaa4ccbe691a00c5b1dc6fb39",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/AI/ChatGPT.png": {
+    "mtime": 1791368203.690218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "494928fbc3e738e17548583975138bdd",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/AI/Claude.png": {
+    "mtime": 1791368203.690218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "490edb8f8fa2d5ac7bd38a6569ebc050",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/AI/Copilot.png": {
+    "mtime": 1791368203.6912181,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3904ba0ff89cc820b14a1094c3037ca5",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/AI/DeepL.png": {
+    "mtime": 1791368203.6912181,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e3abab5a49b1c7253578ed603f4e8248",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/AI/DeepSeek.png": {
+    "mtime": 1791368203.6922188,
+    "seen": 1791398530.9726744,
+    "ast_hash": "6fa6b6b6163176de5a0faa61fb77a42c",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/AI/Gemini.png": {
+    "mtime": 1791368203.6932206,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ff598309a36e379ab1c63d1b07d96b78",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/AI/NotebookLM.png": {
+    "mtime": 1791368203.6942205,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2d24ce5411cfdd4c5ba3c0661f8558b8",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/AI/Perplexity.png": {
+    "mtime": 1791368203.6942205,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b2eaa19f6dc381864f1decb7257a73d1",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Chat/Discord.png": {
+    "mtime": 1791368203.6952226,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a0345cbcc6934383519a7a1267b39442",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Chat/Messenger.png": {
+    "mtime": 1791368203.696223,
+    "seen": 1791398530.9726744,
+    "ast_hash": "002537954d8b2d09a5ce2044f9999fae",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Chat/Signal.png": {
+    "mtime": 1791368203.696223,
+    "seen": 1791398530.9726744,
+    "ast_hash": "dbeac0e322d7111bd629ff3070130e7b",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Chat/Slack.png": {
+    "mtime": 1791368203.6972177,
+    "seen": 1791398530.9726744,
+    "ast_hash": "5977e12500b9fcfe4d7a341640471e9c",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Chat/Telegram.png": {
+    "mtime": 1791368203.6972177,
+    "seen": 1791398530.9726744,
+    "ast_hash": "573045ca62a59c2f137d442e0bd3ffb5",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Chat/WhatsApp.png": {
+    "mtime": 1791368203.6982183,
+    "seen": 1791398530.9726744,
+    "ast_hash": "fb2a6fc9bb90c49572d9b85894b3284e",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Developer/AWS.png": {
+    "mtime": 1791368203.6992185,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9c83c8505eb9131b86d0b40bce2b73a8",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Developer/Bitbucket.png": {
+    "mtime": 1791368203.6992185,
+    "seen": 1791398530.9726744,
+    "ast_hash": "0ac539e134a9e48daac7b2f1082896dc",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Developer/Cloudflare.png": {
+    "mtime": 1791368203.7002177,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c8ffc7b07c1bdc933324b70ebc2d98e2",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Developer/GitHub Copilot.png": {
+    "mtime": 1791368203.7002177,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e19dd40b5a4b966acb7207b2430be53c",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Developer/GitHub.png": {
+    "mtime": 1791368203.7012162,
+    "seen": 1791398530.9726744,
+    "ast_hash": "16e6047e97c958c89e4608f5e77a450f",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Developer/GitLab.png": {
+    "mtime": 1791368203.7012162,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ad97a1f3994ce89af826022155142c88",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Developer/Netlify.png": {
+    "mtime": 1791368203.7022178,
+    "seen": 1791398530.9726744,
+    "ast_hash": "61d47917e81c46e1277e0339db97530c",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Developer/Vercel.png": {
+    "mtime": 1791368203.7022178,
+    "seen": 1791398530.9726744,
+    "ast_hash": "fda6aa58a7ba00b6639a6afd4c759f79",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Gmail.png": {
+    "mtime": 1791368203.7032175,
+    "seen": 1791398530.9726744,
+    "ast_hash": "aa02fd25ab222a66a0ed9cbd0e1ca8c9",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Calendar.png": {
+    "mtime": 1791368203.7032175,
+    "seen": 1791398530.9726744,
+    "ast_hash": "bf4a521f703d81b4d4115b66490e356c",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Classroom.png": {
+    "mtime": 1791368203.7042181,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ae2a626e9e149b18aa3dd707436d5f7f",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Contacts.png": {
+    "mtime": 1791368203.7042181,
+    "seen": 1791398530.9726744,
+    "ast_hash": "976925a19e60b6739b5c9586051ca1f0",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Docs.png": {
+    "mtime": 1791368203.7042181,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1ab72ee01218571b514dec30995c3d22",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Drive.png": {
+    "mtime": 1791368203.705219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "f9e34f692dae318552b12e2d125e74a7",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Keep.png": {
+    "mtime": 1791368203.705219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1d82f5796f754af726e5ec4a9946bb8a",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Maps.png": {
+    "mtime": 1791368203.706218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2f58b950690d40d1414cb486fad8c555",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Meet.png": {
+    "mtime": 1791368203.706218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2a2df388778aaf98aeca7c87941ef1b0",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Photos.png": {
+    "mtime": 1791368203.707218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "6557366c60a2f24cd613e26ef2128596",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Sheets.png": {
+    "mtime": 1791368203.707218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4f6b5627c8415c2a89006ebcbd95ce1c",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Slides.png": {
+    "mtime": 1791368203.7082179,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a5bac18e3ae291c850d99640f0ffb6c9",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Google/Google Translate.png": {
+    "mtime": 1791368203.7082179,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2fbc4101d6b7af093d5e517586edfe51",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Microsoft/Excel.png": {
+    "mtime": 1791368203.7092202,
+    "seen": 1791398530.9726744,
+    "ast_hash": "0c478d99fd552a0312287cbb103996b7",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Microsoft/Microsoft 365.png": {
+    "mtime": 1791368203.7092202,
+    "seen": 1791398530.9726744,
+    "ast_hash": "be5d962c7ece2c5552b92f5278095694",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Microsoft/OneDrive.png": {
+    "mtime": 1791368203.7102196,
+    "seen": 1791398530.9726744,
+    "ast_hash": "f5e43a684305dff0c41d41fdee436b0b",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Microsoft/Outlook.png": {
+    "mtime": 1791368203.7102196,
+    "seen": 1791398530.9726744,
+    "ast_hash": "782a51adc4a1579d60740b035bc70f8b",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Microsoft/PowerPoint.png": {
+    "mtime": 1791368203.7112188,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3644d57552b1c825073c99f91b591d47",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Microsoft/Teams.png": {
+    "mtime": 1791368203.7112188,
+    "seen": 1791398530.9726744,
+    "ast_hash": "5563df5905044c8577ef9a91d4ac32c1",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Microsoft/Word.png": {
+    "mtime": 1791368203.7132187,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2f5d3e04eaef6aadf61b192dfa09aa91",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Shopping & learning/AliExpress.png": {
+    "mtime": 1791368203.7132187,
+    "seen": 1791398530.9726744,
+    "ast_hash": "7d91f19babbdada993ac01d8fe7908bd",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Shopping & learning/Amazon.png": {
+    "mtime": 1791368203.7142177,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a89d1b51e30cfe7999ab4df5e2a26a11",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Shopping & learning/Coursera.png": {
+    "mtime": 1791368203.7152238,
+    "seen": 1791398530.9726744,
+    "ast_hash": "17aba6669ee5aa82267892cd0ebac7dc",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Shopping & learning/Medium.png": {
+    "mtime": 1791368203.7152238,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4d7843c4a8c3e13fe8348a3c1b5a1069",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Shopping & learning/Moodle.png": {
+    "mtime": 1791368203.716219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1eaa45d944b20ad67081169f56217963",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Shopping & learning/PayPal.png": {
+    "mtime": 1791368203.716219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a2e5d2dd0dd471491471d64c33a58c32",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Shopping & learning/Udemy.png": {
+    "mtime": 1791368203.7172182,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ac2171ea6ea0da3310e1f03de6183c09",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Shopping & learning/Wikipedia.png": {
+    "mtime": 1791368203.7172182,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ece3913b9c2919120e218d925e21ef94",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Shopping & learning/eBay.png": {
+    "mtime": 1791368203.718217,
+    "seen": 1791398530.9726744,
+    "ast_hash": "eae4aca9082b795e653badf76ffa368d",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Social/Bluesky.png": {
+    "mtime": 1791368203.7192185,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1c533d95691686c6120d508bbd6f5368",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Social/Facebook.png": {
+    "mtime": 1791368203.7192185,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1d923a86f60a8d50b5df854fc9692dc7",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Social/Instagram.png": {
+    "mtime": 1791368203.720218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "12f2e1f07fa45ec9795b104505841586",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Social/LinkedIn.png": {
+    "mtime": 1791368203.720218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "f8ca323e350e26787cc1da351c3c3d63",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Social/Mastodon.png": {
+    "mtime": 1791368203.7212205,
+    "seen": 1791398530.9726744,
+    "ast_hash": "96139e7af2b7cb7b2ee21a271a01a43e",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Social/Pinterest.png": {
+    "mtime": 1791368203.7212205,
+    "seen": 1791398530.9726744,
+    "ast_hash": "8904f58fc3018916f4e1e9eb03f4c965",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Social/Reddit.png": {
+    "mtime": 1791368203.7222188,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e84524375c4eefd4f3e4130a7a50962a",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Social/Snapchat.png": {
+    "mtime": 1791368203.7222188,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2c019b39e9b354e7c813af25930ab085",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Social/Threads.png": {
+    "mtime": 1791368203.723219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "d7b3a68af448fc3c012c137f001ae31c",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Social/TikTok.png": {
+    "mtime": 1791368203.723219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "6d565b4a8ad99944de5e780562080759",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Social/X.png": {
+    "mtime": 1791368203.7242184,
+    "seen": 1791398530.9726744,
+    "ast_hash": "7cee3d84ebde1a2d6284a28fa21fec04",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Watch & listen/Apple Music.png": {
+    "mtime": 1791368203.7242184,
+    "seen": 1791398530.9726744,
+    "ast_hash": "24e1d2eaf5e391e9881cc7ee3303cb07",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Watch & listen/Disney+.png": {
+    "mtime": 1791368203.72522,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b4ba2aa6c4a5111ccc9c623aee164a18",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Watch & listen/Jellyfin.png": {
+    "mtime": 1791368203.726224,
+    "seen": 1791398530.9726744,
+    "ast_hash": "94891392d9e6d5715ff3433fc846992c",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Watch & listen/Netflix.png": {
+    "mtime": 1791368203.726224,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4a5f05d11fee8ea21235ed4e6c50474f",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Watch & listen/Plex.png": {
+    "mtime": 1791368203.7272193,
+    "seen": 1791398530.9726744,
+    "ast_hash": "070a8fd40da6edc8adad5fb57b747663",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Watch & listen/Prime Video.png": {
+    "mtime": 1791368203.7272193,
+    "seen": 1791398530.9726744,
+    "ast_hash": "7d040eeed15f502cbfb7fde14ab26974",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Watch & listen/SoundCloud.png": {
+    "mtime": 1791368203.728218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "6e4aaba39fcae4adf308a7b2ea312054",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Watch & listen/Spotify.png": {
+    "mtime": 1791368203.728218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "fb0275cc6bc48f51b21efc72e087a942",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Watch & listen/Twitch.png": {
+    "mtime": 1791368203.7292204,
+    "seen": 1791398530.9726744,
+    "ast_hash": "0c00223ac5548135cb61da94dd2fff88",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Watch & listen/YouTube Music.png": {
+    "mtime": 1791368203.7292204,
+    "seen": 1791398530.9726744,
+    "ast_hash": "39742f8d518a85c990e3c74486bdd426",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Watch & listen/YouTube.png": {
+    "mtime": 1791368203.730218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4f442d2a95f62746009b04d3a2896ff9",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Asana.png": {
+    "mtime": 1791368203.730218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c6d01af1f5d2f8107378b438fa5ae9a1",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Box.png": {
+    "mtime": 1791368203.731219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a27ffa0ca36b26cdb595917ff59c746a",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/ClickUp.png": {
+    "mtime": 1791368203.731219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3201d07d4712bb404636c3b45e6c1799",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Confluence.png": {
+    "mtime": 1791368203.732219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9f852324633e934023bddc1a8b036792",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Dropbox.png": {
+    "mtime": 1791368203.732219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "16e3a403981e435719c9f0c72677c012",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Evernote.png": {
+    "mtime": 1791368203.7332184,
+    "seen": 1791398530.9726744,
+    "ast_hash": "71017ab30033ae6f4623664aafbf21db",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Excalidraw.png": {
+    "mtime": 1791368203.7332184,
+    "seen": 1791398530.9726744,
+    "ast_hash": "fec7700531249b60e70c1454159674df",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Figma.png": {
+    "mtime": 1791368203.7342215,
+    "seen": 1791398530.9726744,
+    "ast_hash": "131664b70ac65670273f6495f10a50d9",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Jira.png": {
+    "mtime": 1791368203.7342215,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ed7bb708f4fcf5ad67318930df2a5635",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Linear.png": {
+    "mtime": 1791368203.7352173,
+    "seen": 1791398530.9726744,
+    "ast_hash": "55b4f7069bc684e6dc1814758b9f9059",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/MEGA.png": {
+    "mtime": 1791368203.7352173,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ee2dcf80cfc01dd3e08273d3d4fee412",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Miro.png": {
+    "mtime": 1791368203.7362218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "d9690375edee8f53f6b0580a1b0dca05",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Notion.png": {
+    "mtime": 1791368203.7362218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a0bc37f2c760b1593add1f6334fc0045",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Obsidian.png": {
+    "mtime": 1791368203.7372177,
+    "seen": 1791398530.9726744,
+    "ast_hash": "033ed5089fd8910355ca66a459c86acd",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Overleaf.png": {
+    "mtime": 1791368203.7372177,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ec22b48b32aee95e5dd2cc896e935c7a",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Proton Mail.png": {
+    "mtime": 1791368203.738217,
+    "seen": 1791398530.9726744,
+    "ast_hash": "cec2a1a48828824efe2f6a4dc4ec7663",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Todoist.png": {
+    "mtime": 1791368203.738217,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e627d449e1b990ed66936a10e4cf31a4",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Trello.png": {
+    "mtime": 1791368203.7392192,
+    "seen": 1791398530.9726744,
+    "ast_hash": "f3725cf1e69c5f49d211df0f48dcf774",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Yahoo Mail.png": {
+    "mtime": 1791368203.7392192,
+    "seen": 1791398530.9726744,
+    "ast_hash": "0f8359ad488b55d7b4365790ab5abb1a",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/Zoom.png": {
+    "mtime": 1791368203.7402174,
+    "seen": 1791398530.9726744,
+    "ast_hash": "6784b5c92dd6ca452b903c040ece668c",
+    "semantic_hash": ""
+  },
+  "linux/src/stitches/webicons/Work/iCloud.png": {
+    "mtime": 1791368203.7402174,
+    "seen": 1791398530.9726744,
+    "ast_hash": "70afcf460f42f463009c638f1fde3390",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/7-zip.png": {
+    "mtime": 1791368203.7442186,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3ddb633d591d40c6af18e3c7df6cd754",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/android-studio.png": {
+    "mtime": 1791368203.745219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b7c5e2584042acdaa1549c7e64927fe2",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/anydesk.png": {
+    "mtime": 1791368203.745219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "5f71c285668b6a7f42ddedcdd43719c0",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/avro-keyboard.png": {
+    "mtime": 1791396372.57246,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ff85047a230aeaa9dc2bd21a35545e9f",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/brave.png": {
+    "mtime": 1791368203.7462184,
+    "seen": 1791398530.9726744,
+    "ast_hash": "66da087aa2060c4f99c6e894ed33b944",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/cloudflare-warp.png": {
+    "mtime": 1791396372.54446,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9b434bfdf8710958d9c8a36a5fc3a4fa",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/docker-desktop.png": {
+    "mtime": 1791368203.7462184,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4731f352c59900911fc38eee31635488",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/epic-games-launcher.png": {
+    "mtime": 1791368203.7472177,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3ce975041e95549ab30350c04456cd46",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/git.png": {
+    "mtime": 1791368203.7472177,
+    "seen": 1791398530.9726744,
+    "ast_hash": "5cca547264801882b6ea02e6a4b3a30e",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/github-cli.png": {
+    "mtime": 1791368203.7472177,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b07f2c8ad367947d70fcf73c3caf7e77",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/go.png": {
+    "mtime": 1791368203.7482219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "f13dd74907d72366e2442c8290b9e0ba",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/google-chrome.png": {
+    "mtime": 1791368203.7482219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "5908ce399d4d177ce939b6b8b9b015dc",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/java.png": {
+    "mtime": 1791368203.7482219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "bce6e5bf5689359c19efb3b9daca407d",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/kdenlive.png": {
+    "mtime": 1791368203.7492201,
+    "seen": 1791398530.9726744,
+    "ast_hash": "359724559dd1c3f89ce40ad6e7bc8243",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/libreoffice.png": {
+    "mtime": 1791368203.7492201,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c287d867996574e0d37cbc4c40f807f4",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/localsend.png": {
+    "mtime": 1791368203.7502182,
+    "seen": 1791398530.9726744,
+    "ast_hash": "dc39fd20ed59b1b677e4f7db0ed81afc",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/mysql.png": {
+    "mtime": 1791368203.7502182,
+    "seen": 1791398530.9726744,
+    "ast_hash": "233a8ad95877e4a81d8869cbc1a19880",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/node-js.png": {
+    "mtime": 1791368203.7502182,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b34bd713e230e5541cfff121d4883e38",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/notepad.png": {
+    "mtime": 1791368203.7512183,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1ae83b1e6ac28cda68668d5fd95717e1",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/onlyoffice.png": {
+    "mtime": 1791368203.7512183,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4df7b5875397b0ea3a5a7e709c13c849",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/php.png": {
+    "mtime": 1791368203.7512183,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c90cfeac5dd2c45a4d92c7226b1142a4",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/pinta.png": {
+    "mtime": 1791396372.5144596,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2c6555677b8851a2c0f944359c3e1574",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/pnpm.png": {
+    "mtime": 1791368203.7522192,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e262a790914c7de69ce084de68aa6f65",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/postgresql.png": {
+    "mtime": 1791368203.7522192,
+    "seen": 1791398530.9726744,
+    "ast_hash": "7f3b52150d7d138c255242861caa092b",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/postman.png": {
+    "mtime": 1791368203.7522192,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e26fd7438d4aa741dced03c612e96969",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/python.png": {
+    "mtime": 1791368203.753219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2250896f3d434ff6ed3c9bc3b5cd78fe",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/qbittorrent.png": {
+    "mtime": 1791368203.753219,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c5f1c1b0e7f93c4b412058ba59031d9a",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/rclone.png": {
+    "mtime": 1791368203.754218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "80d50491043ef0c22dd35371acc66b96",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/rust.png": {
+    "mtime": 1791368203.754218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1bba0d09a52d7ba9c6564a97a824a013",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/spotify.png": {
+    "mtime": 1791368203.754218,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3685f4925c525fa2be6af68a346dd48f",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/visual-studio-code.png": {
+    "mtime": 1791368203.7552187,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ebe377f2feb6502be063e61d0585c208",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/vlc.png": {
+    "mtime": 1791368203.7552187,
+    "seen": 1791398530.9726744,
+    "ast_hash": "0cf923154f676a686c8d6ec653d24f35",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/appicons/yarn.png": {
+    "mtime": 1791368203.7562191,
+    "seen": 1791398530.9726744,
+    "ast_hash": "10ea1afbaa4ccbe691a00c5b1dc6fb39",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/AI/ChatGPT.png": {
+    "mtime": 1791397138.541308,
+    "seen": 1791398530.9726744,
+    "ast_hash": "494928fbc3e738e17548583975138bdd",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/AI/Claude.png": {
+    "mtime": 1791397138.541308,
+    "seen": 1791398530.9726744,
+    "ast_hash": "490edb8f8fa2d5ac7bd38a6569ebc050",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/AI/Copilot.png": {
+    "mtime": 1791397138.5432763,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3904ba0ff89cc820b14a1094c3037ca5",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/AI/DeepL.png": {
+    "mtime": 1791397138.5442789,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e3abab5a49b1c7253578ed603f4e8248",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/AI/DeepSeek.png": {
+    "mtime": 1791397138.5442789,
+    "seen": 1791398530.9726744,
+    "ast_hash": "6fa6b6b6163176de5a0faa61fb77a42c",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/AI/Gemini.png": {
+    "mtime": 1791397138.5452769,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ff598309a36e379ab1c63d1b07d96b78",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/AI/NotebookLM.png": {
+    "mtime": 1791397138.547279,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2d24ce5411cfdd4c5ba3c0661f8558b8",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/AI/Perplexity.png": {
+    "mtime": 1791397138.547279,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b2eaa19f6dc381864f1decb7257a73d1",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Chat/Discord.png": {
+    "mtime": 1791397138.5492787,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a0345cbcc6934383519a7a1267b39442",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Chat/Messenger.png": {
+    "mtime": 1791397138.5502756,
+    "seen": 1791398530.9726744,
+    "ast_hash": "002537954d8b2d09a5ce2044f9999fae",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Chat/Signal.png": {
+    "mtime": 1791397138.5512772,
+    "seen": 1791398530.9726744,
+    "ast_hash": "dbeac0e322d7111bd629ff3070130e7b",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Chat/Slack.png": {
+    "mtime": 1791397138.5512772,
+    "seen": 1791398530.9726744,
+    "ast_hash": "5977e12500b9fcfe4d7a341640471e9c",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Chat/Telegram.png": {
+    "mtime": 1791397138.5522816,
+    "seen": 1791398530.9726744,
+    "ast_hash": "573045ca62a59c2f137d442e0bd3ffb5",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Chat/WhatsApp.png": {
+    "mtime": 1791397138.5532763,
+    "seen": 1791398530.9726744,
+    "ast_hash": "fb2a6fc9bb90c49572d9b85894b3284e",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Developer/AWS.png": {
+    "mtime": 1791397138.7562783,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9c83c8505eb9131b86d0b40bce2b73a8",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Developer/Bitbucket.png": {
+    "mtime": 1791397138.7552786,
+    "seen": 1791398530.9726744,
+    "ast_hash": "0ac539e134a9e48daac7b2f1082896dc",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Developer/Cloudflare.png": {
+    "mtime": 1791397138.7432806,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c8ffc7b07c1bdc933324b70ebc2d98e2",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Developer/GitHub Copilot.png": {
+    "mtime": 1791397138.744279,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e19dd40b5a4b966acb7207b2430be53c",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Developer/GitHub.png": {
+    "mtime": 1791397138.7452776,
+    "seen": 1791398530.9726744,
+    "ast_hash": "16e6047e97c958c89e4608f5e77a450f",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Developer/GitLab.png": {
+    "mtime": 1791397138.7462778,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ad97a1f3994ce89af826022155142c88",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Developer/Netlify.png": {
+    "mtime": 1791397138.7472773,
+    "seen": 1791398530.9726744,
+    "ast_hash": "61d47917e81c46e1277e0339db97530c",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Developer/Vercel.png": {
+    "mtime": 1791397138.7472773,
+    "seen": 1791398530.9726744,
+    "ast_hash": "fda6aa58a7ba00b6639a6afd4c759f79",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Gmail.png": {
+    "mtime": 1791397138.5542784,
+    "seen": 1791398530.9726744,
+    "ast_hash": "aa02fd25ab222a66a0ed9cbd0e1ca8c9",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Calendar.png": {
+    "mtime": 1791397138.555276,
+    "seen": 1791398530.9726744,
+    "ast_hash": "bf4a521f703d81b4d4115b66490e356c",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Classroom.png": {
+    "mtime": 1791397138.5562773,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ae2a626e9e149b18aa3dd707436d5f7f",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Contacts.png": {
+    "mtime": 1791397138.5572782,
+    "seen": 1791398530.9726744,
+    "ast_hash": "976925a19e60b6739b5c9586051ca1f0",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Docs.png": {
+    "mtime": 1791397138.5572782,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1ab72ee01218571b514dec30995c3d22",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Drive.png": {
+    "mtime": 1791397138.567278,
+    "seen": 1791398530.9726744,
+    "ast_hash": "f9e34f692dae318552b12e2d125e74a7",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Keep.png": {
+    "mtime": 1791397138.5682778,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1d82f5796f754af726e5ec4a9946bb8a",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Maps.png": {
+    "mtime": 1791397138.5692778,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2f58b950690d40d1414cb486fad8c555",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Meet.png": {
+    "mtime": 1791397138.5702775,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2a2df388778aaf98aeca7c87941ef1b0",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Photos.png": {
+    "mtime": 1791397138.5712783,
+    "seen": 1791398530.9726744,
+    "ast_hash": "6557366c60a2f24cd613e26ef2128596",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Sheets.png": {
+    "mtime": 1791397138.5712783,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4f6b5627c8415c2a89006ebcbd95ce1c",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Slides.png": {
+    "mtime": 1791397138.572278,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a5bac18e3ae291c850d99640f0ffb6c9",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Google/Google Translate.png": {
+    "mtime": 1791397138.5732782,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2fbc4101d6b7af093d5e517586edfe51",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Microsoft/Excel.png": {
+    "mtime": 1791397138.5912817,
+    "seen": 1791398530.9726744,
+    "ast_hash": "0c478d99fd552a0312287cbb103996b7",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Microsoft/Microsoft 365.png": {
+    "mtime": 1791397138.6172757,
+    "seen": 1791398530.9726744,
+    "ast_hash": "be5d962c7ece2c5552b92f5278095694",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Microsoft/OneDrive.png": {
+    "mtime": 1791397138.6172757,
+    "seen": 1791398530.9726744,
+    "ast_hash": "f5e43a684305dff0c41d41fdee436b0b",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Microsoft/Outlook.png": {
+    "mtime": 1791397138.6182775,
+    "seen": 1791398530.9726744,
+    "ast_hash": "782a51adc4a1579d60740b035bc70f8b",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Microsoft/PowerPoint.png": {
+    "mtime": 1791397138.619276,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3644d57552b1c825073c99f91b591d47",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Microsoft/Teams.png": {
+    "mtime": 1791397138.6202765,
+    "seen": 1791398530.9726744,
+    "ast_hash": "5563df5905044c8577ef9a91d4ac32c1",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Microsoft/Word.png": {
+    "mtime": 1791397138.621277,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2f5d3e04eaef6aadf61b192dfa09aa91",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Shopping & learning/AliExpress.png": {
+    "mtime": 1791397138.6232774,
+    "seen": 1791398530.9726744,
+    "ast_hash": "7d91f19babbdada993ac01d8fe7908bd",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Shopping & learning/Amazon.png": {
+    "mtime": 1791397138.6242762,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a89d1b51e30cfe7999ab4df5e2a26a11",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Shopping & learning/Coursera.png": {
+    "mtime": 1791397138.6252773,
+    "seen": 1791398530.9726744,
+    "ast_hash": "17aba6669ee5aa82267892cd0ebac7dc",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Shopping & learning/Medium.png": {
+    "mtime": 1791397138.6262789,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4d7843c4a8c3e13fe8348a3c1b5a1069",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Shopping & learning/Moodle.png": {
+    "mtime": 1791397138.6262789,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1eaa45d944b20ad67081169f56217963",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Shopping & learning/PayPal.png": {
+    "mtime": 1791397138.6272776,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a2e5d2dd0dd471491471d64c33a58c32",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Shopping & learning/Udemy.png": {
+    "mtime": 1791397138.628275,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ac2171ea6ea0da3310e1f03de6183c09",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Shopping & learning/Wikipedia.png": {
+    "mtime": 1791397138.6292744,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ece3913b9c2919120e218d925e21ef94",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Shopping & learning/eBay.png": {
+    "mtime": 1791397138.6302767,
+    "seen": 1791398530.9726744,
+    "ast_hash": "eae4aca9082b795e653badf76ffa368d",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Social/Bluesky.png": {
+    "mtime": 1791397138.6322782,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1c533d95691686c6120d508bbd6f5368",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Social/Facebook.png": {
+    "mtime": 1791397138.6332755,
+    "seen": 1791398530.9726744,
+    "ast_hash": "1d923a86f60a8d50b5df854fc9692dc7",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Social/Instagram.png": {
+    "mtime": 1791397138.6332755,
+    "seen": 1791398530.9726744,
+    "ast_hash": "12f2e1f07fa45ec9795b104505841586",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Social/LinkedIn.png": {
+    "mtime": 1791397138.6342757,
+    "seen": 1791398530.9726744,
+    "ast_hash": "f8ca323e350e26787cc1da351c3c3d63",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Social/Mastodon.png": {
+    "mtime": 1791397138.6352754,
+    "seen": 1791398530.9726744,
+    "ast_hash": "96139e7af2b7cb7b2ee21a271a01a43e",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Social/Pinterest.png": {
+    "mtime": 1791397138.6362774,
+    "seen": 1791398530.9726744,
+    "ast_hash": "8904f58fc3018916f4e1e9eb03f4c965",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Social/Reddit.png": {
+    "mtime": 1791397138.6372757,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e84524375c4eefd4f3e4130a7a50962a",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Social/Snapchat.png": {
+    "mtime": 1791397138.638277,
+    "seen": 1791398530.9726744,
+    "ast_hash": "2c019b39e9b354e7c813af25930ab085",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Social/Threads.png": {
+    "mtime": 1791397138.6392777,
+    "seen": 1791398530.9726744,
+    "ast_hash": "d7b3a68af448fc3c012c137f001ae31c",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Social/TikTok.png": {
+    "mtime": 1791397138.6392777,
+    "seen": 1791398530.9726744,
+    "ast_hash": "6d565b4a8ad99944de5e780562080759",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Social/X.png": {
+    "mtime": 1791397138.6402776,
+    "seen": 1791398530.9726744,
+    "ast_hash": "7cee3d84ebde1a2d6284a28fa21fec04",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Watch & listen/Apple Music.png": {
+    "mtime": 1791397138.6422777,
+    "seen": 1791398530.9726744,
+    "ast_hash": "24e1d2eaf5e391e9881cc7ee3303cb07",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Watch & listen/Disney+.png": {
+    "mtime": 1791397138.6422777,
+    "seen": 1791398530.9726744,
+    "ast_hash": "b4ba2aa6c4a5111ccc9c623aee164a18",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Watch & listen/Jellyfin.png": {
+    "mtime": 1791397138.643278,
+    "seen": 1791398530.9726744,
+    "ast_hash": "94891392d9e6d5715ff3433fc846992c",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Watch & listen/Netflix.png": {
+    "mtime": 1791397138.6442785,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4a5f05d11fee8ea21235ed4e6c50474f",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Watch & listen/Plex.png": {
+    "mtime": 1791397138.6452775,
+    "seen": 1791398530.9726744,
+    "ast_hash": "070a8fd40da6edc8adad5fb57b747663",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Watch & listen/Prime Video.png": {
+    "mtime": 1791397138.646278,
+    "seen": 1791398530.9726744,
+    "ast_hash": "7d040eeed15f502cbfb7fde14ab26974",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Watch & listen/SoundCloud.png": {
+    "mtime": 1791397138.6472747,
+    "seen": 1791398530.9726744,
+    "ast_hash": "6e4aaba39fcae4adf308a7b2ea312054",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Watch & listen/Spotify.png": {
+    "mtime": 1791397138.6482766,
+    "seen": 1791398530.9726744,
+    "ast_hash": "fb0275cc6bc48f51b21efc72e087a942",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Watch & listen/Twitch.png": {
+    "mtime": 1791397138.7022765,
+    "seen": 1791398530.9726744,
+    "ast_hash": "0c00223ac5548135cb61da94dd2fff88",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Watch & listen/YouTube Music.png": {
+    "mtime": 1791397138.709277,
+    "seen": 1791398530.9726744,
+    "ast_hash": "39742f8d518a85c990e3c74486bdd426",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Watch & listen/YouTube.png": {
+    "mtime": 1791397138.709277,
+    "seen": 1791398530.9726744,
+    "ast_hash": "4f442d2a95f62746009b04d3a2896ff9",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Asana.png": {
+    "mtime": 1791397138.7112746,
+    "seen": 1791398530.9726744,
+    "ast_hash": "c6d01af1f5d2f8107378b438fa5ae9a1",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Box.png": {
+    "mtime": 1791397138.7122755,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a27ffa0ca36b26cdb595917ff59c746a",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/ClickUp.png": {
+    "mtime": 1791397138.713277,
+    "seen": 1791398530.9726744,
+    "ast_hash": "3201d07d4712bb404636c3b45e6c1799",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Confluence.png": {
+    "mtime": 1791397138.7142782,
+    "seen": 1791398530.9726744,
+    "ast_hash": "9f852324633e934023bddc1a8b036792",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Dropbox.png": {
+    "mtime": 1791397138.7142782,
+    "seen": 1791398530.9726744,
+    "ast_hash": "16e3a403981e435719c9f0c72677c012",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Evernote.png": {
+    "mtime": 1791397138.7152767,
+    "seen": 1791398530.9726744,
+    "ast_hash": "71017ab30033ae6f4623664aafbf21db",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Excalidraw.png": {
+    "mtime": 1791397138.7172778,
+    "seen": 1791398530.9726744,
+    "ast_hash": "fec7700531249b60e70c1454159674df",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Figma.png": {
+    "mtime": 1791397138.722278,
+    "seen": 1791398530.9726744,
+    "ast_hash": "131664b70ac65670273f6495f10a50d9",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Jira.png": {
+    "mtime": 1791397138.7232769,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ed7bb708f4fcf5ad67318930df2a5635",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Linear.png": {
+    "mtime": 1791397138.7242787,
+    "seen": 1791398530.9726744,
+    "ast_hash": "55b4f7069bc684e6dc1814758b9f9059",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/MEGA.png": {
+    "mtime": 1791397138.7252767,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ee2dcf80cfc01dd3e08273d3d4fee412",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Miro.png": {
+    "mtime": 1791397138.7332785,
+    "seen": 1791398530.9726744,
+    "ast_hash": "d9690375edee8f53f6b0580a1b0dca05",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Notion.png": {
+    "mtime": 1791397138.7262821,
+    "seen": 1791398530.9726744,
+    "ast_hash": "a0bc37f2c760b1593add1f6334fc0045",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Obsidian.png": {
+    "mtime": 1791397138.7272785,
+    "seen": 1791398530.9726744,
+    "ast_hash": "033ed5089fd8910355ca66a459c86acd",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Overleaf.png": {
+    "mtime": 1791397138.7282767,
+    "seen": 1791398530.9726744,
+    "ast_hash": "ec22b48b32aee95e5dd2cc896e935c7a",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Proton Mail.png": {
+    "mtime": 1791397138.7282767,
+    "seen": 1791398530.9726744,
+    "ast_hash": "cec2a1a48828824efe2f6a4dc4ec7663",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Todoist.png": {
+    "mtime": 1791397138.7292771,
+    "seen": 1791398530.9726744,
+    "ast_hash": "e627d449e1b990ed66936a10e4cf31a4",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Trello.png": {
+    "mtime": 1791397138.7302773,
+    "seen": 1791398530.9726744,
+    "ast_hash": "f3725cf1e69c5f49d211df0f48dcf774",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Yahoo Mail.png": {
+    "mtime": 1791397138.731277,
+    "seen": 1791398530.9726744,
+    "ast_hash": "0f8359ad488b55d7b4365790ab5abb1a",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/Zoom.png": {
+    "mtime": 1791397138.7322774,
+    "seen": 1791398530.9726744,
+    "ast_hash": "6784b5c92dd6ca452b903c040ece668c",
+    "semantic_hash": ""
+  },
+  "windows/src/uninstaller/webicons/Work/iCloud.png": {
+    "mtime": 1791397138.7322774,
+    "seen": 1791398530.9726744,
+    "ast_hash": "70afcf460f42f463009c638f1fde3390",
+    "semantic_hash": ""
   }
 }

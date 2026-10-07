@@ -51,14 +51,18 @@ def _kind() -> str:
                         Path(os.environ.get("ProgramFiles", r"C:\Program Files")))
 
 
-def latest():
-    """The newest release if it's newer than this copy, else None — also when
-    offline or rate-limited: a failed check is never worth a dialog."""
+def latest() -> tuple[dict | None, str]:
+    """(the newest release if it's newer than this copy, why GitHub couldn't be
+    asked at all). A startup check still says nothing when it fails — that's
+    never worth a dialog — but a check the user asked for can now say why
+    instead of claiming this is the newest. Every failure is caught, not just
+    OSError and ValueError: http.client's exceptions are neither, and one of
+    those killed the worker thread, so the check answered nothing at all."""
     try:
         release = get_json(f"https://api.github.com/repos/{REPO}/releases/latest")
-    except (OSError, ValueError):
-        return None
-    return release if is_newer(release.get("tag_name", "")) else None
+    except Exception as exc:  # noqa: BLE001 - an unreachable GitHub is not a crash
+        return None, str(exc) or type(exc).__name__
+    return (release if is_newer(release.get("tag_name", "")) else None), ""
 
 
 def install(release: dict) -> tuple[bool, str]:

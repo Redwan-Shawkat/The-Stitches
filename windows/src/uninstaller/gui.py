@@ -196,17 +196,33 @@ class UninstallerWindow(tk.Tk):
             notice.done()
 
     def _check_for_update(self, quiet: bool):
-        """Asks GitHub on a thread; `quiet` says nothing when there's nothing new."""
-        threading.Thread(target=lambda: later(self._on_checked, selfupdate.latest(), quiet), daemon=True).start()
+        """Asks GitHub on a thread; `quiet` says nothing when there's nothing
+        new. The thread always delivers an answer, a failed one included: this
+        was the one worker in the app with no error path (Page.run_async has
+        one), so anything selfupdate.latest() didn't catch killed it and the
+        check answered nothing at all."""
 
-    def _on_checked(self, release, quiet):
+        def work():
+            try:
+                return selfupdate.latest()
+            except Exception as exc:  # noqa: BLE001 - never leave the check unanswered
+                return None, str(exc) or type(exc).__name__
+
+        threading.Thread(target=lambda: later(self._on_checked, work(), quiet), daemon=True).start()
+
+    def _on_checked(self, outcome, quiet):
+        release, error = outcome
         if release:
             self.release = release
             tag = release.get("tag_name", "")
             self.update_button.mark(True)
             self.update_button.tooltip = f"Update to Stitches {tag}"
             self._notify(f"Stitches {tag} is out. You have {__version__}.", action=True, seconds=_NOTICE_SECONDS)
-        elif not quiet:
+        elif quiet:
+            return  # the check at startup; a failure there isn't worth saying
+        elif error:
+            self._notify(f"Couldn't ask GitHub for the newest Stitches: {error}", seconds=_NOTICE_SECONDS)
+        else:
             self._notify(f"Stitches {__version__} is the newest.", seconds=_NOTICE_SECONDS)
 
     def _on_update_clicked(self):

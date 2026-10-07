@@ -18,7 +18,14 @@ from dataclasses import dataclass
 from pathlib import Path
 
 _UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-READY_ICONS = Path(__file__).parent / "webicons"
+READY_ICONS = Path(__file__).parent / "webicons"  # webicons/<group>/<name>.png
+
+
+def ready_icons() -> list[tuple[str, str, Path]]:
+    """(group, name, file) for every ready-made site logo. The folder is the
+    group and the file name is both the name shown and what a search matches,
+    so there's no list to keep in step — as on Linux."""
+    return [(path.parent.name, path.stem, path) for path in sorted(READY_ICONS.glob("*/*.png"))]
 # (name, the exe App Paths registers it under). App mode and a profile of its
 # own are Chromium options; Firefox dropped its app mode.
 _BROWSERS = (("Microsoft Edge", "msedge.exe"), ("Google Chrome", "chrome.exe"), ("Brave", "brave.exe"))

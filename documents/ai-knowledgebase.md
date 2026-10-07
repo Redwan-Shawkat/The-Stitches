@@ -1963,6 +1963,144 @@ icon back.
   Linux seventh round. The same `appicons/` files are bundled with
   `--add-data` in `build-exe.ps1`, like `webicons/`.
 
+## Windows 0.2.6: catching up with Linux's eighth to tenth rounds
+
+Windows was four rounds behind: it had App Manager tiles but no app details,
+18 flat web-app icons, no category grouping, and none of the 0.2.5 database
+work. This round ports all of it. PHP's panel is not here and is not planned:
+it reads `/etc/php`, which has no Windows counterpart.
+
+### App details
+
+The same cards as Linux ("App details", eighth round), in tkinter:
+
+- **`about`, `site` and `setup` are catalog fields**, filled for all 33 apps;
+  a test checks every app has `about` and a `https://` `site`. The site is the
+  app's own *Windows* download page, not Linux's.
+- **"Install it yourself" is built from `install_command`** by
+  `appmanager.manual_steps`, which drops the four flags that only make sense
+  unattended (`--silent`, the two `--accept-…`, `--disable-interactivity`).
+  Someone typing it can answer for themselves, and it still can't drift from
+  what Stitches runs. One line, not Linux's several: winget needs no repository
+  or Flathub set-up first.
+- **The tile opens the details; the tick ticks.** Linux gets this for free —
+  its tick is a CheckButton inside the tile, so its click never reaches the
+  FlowBox. Here one canvas receives both, so `Tiles._on_click` splits by where
+  the click landed: inside `FIRST_X` it ticks, anywhere else it opens.
+- **The details sit in the tiles' own grid cell and the two are swapped by
+  stacking order**, not `grid_remove`. Both stay gridded and `tk.Misc.lift`
+  raises the one to show, so the Terminal and the action bar never move. Doing
+  it with `grid_remove()`/`grid()` looked right and was tried first: once a
+  cell has held two widgets, neither re-maps afterwards (gridded, correct
+  `grid_info`, real height, `winfo_ismapped` 0). `tk.Misc.lift` is needed
+  rather than `tkraise` because `Tiles` is a Canvas and `Canvas.tkraise` is
+  `tag_raise` — the same trap the update notice hit.
+- **A card gridded "ew" needs its own height.** `Rounded` sizes itself from
+  `fit()` or from being stretched, so the details' top bar and the "After
+  installing" card set `height` explicitly, as `Terminal` does; the two middle
+  cards get it from `rowconfigure(1, weight=1)`.
+
+### Tiles grouped by category
+
+Linux makes each category a card with a FlowBox and a CheckButton. Here one
+canvas draws the lot, so `Tiles` grew a `group(item)` callback and a `_plan()`
+that works out every tile's column and top and every heading's top once per
+draw. `_box`, `_row_at` and the drawing all read that plan, so they cannot
+disagree about where a tile is — the bug that a second layout calculation
+invites. A heading's tick takes that group by the same rule as the select-all
+circle (all of them, or none). `_row_at` scans the plan rather than inverting
+the arithmetic: with 33 tiles it costs nothing and is obviously right.
+
+### Web app icons: the logos, and no emoji
+
+The 94 site logos in `webicons/<group>/<name>.png` are the same files as
+Linux's, and `webapps.ready_icons()` reads the group from the folder and the
+name from the file name, so there's still no list to keep in step. The picker
+shows one group at a time with a search across them all, as on Linux.
+
+- **No emoji.** Linux's come from GTK's own `en.data` resource, which Windows
+  has no equivalent of, and Tk 8.6 handles non-BMP characters badly — already
+  recorded above as why 🌐 isn't the placeholder. So the Windows picker is
+  logos only. Bundling an emoji font and rendering glyphs ourselves would mean
+  an image library, which the whole build does without.
+- **Nothing is cut quietly.** "All sites" shows the 72 that fit under the form
+  without scrolling it and then says "+22 more — pick a group, or search".
+  Linux can show all 94 because its picker is inside a scrolled FlowBox.
+- PyInstaller's `--add-data` keeps the subfolders, checked by freezing a probe
+  and reading the glob back: 94 icons in 9 groups, and all 33 app icons.
+
+### Databases (0.2.5's tenth round, ported)
+
+`databases.py` is the Linux module with one leaf replaced. Everything pure
+came over unchanged — `valid_name`, `valid_password`, `shown`, `parse_listing`,
+`scram`, and every `pg_*`/`my_*` statement builder — so both platforms build
+the same SQL and hide passwords the same way. What differs is signing in:
+
+- **Both servers need their own superuser password, and the panel asks for it
+  once a visit.** Windows has no peer authentication and no socket to trust,
+  so Linux's two password-free paths (`pkexec runuser -u postgres` for
+  PostgreSQL, root's `auth_socket` for MySQL) have no counterpart. The
+  password is kept in memory for the visit and dropped by `forget()` on
+  leaving, which is exactly what Linux already does for MySQL's fallback.
+- **It travels in the client's environment** — `PGPASSWORD`, `MYSQL_PWD` —
+  never on a command line and never on disk. Linux hands MySQL an option file
+  through `/dev/fd/N`, which Windows has no equivalent of; the Windows
+  equivalent of an option file would be a real file, and "never on disk" is
+  the rule. On Windows a process's environment block is readable only by the
+  same user or an admin, which is the boundary Linux's pipe sits inside too.
+  MySQL's docs warn off `MYSQL_PWD` because `ps -e` can show a Unix
+  environment; that is not how Windows exposes one.
+- **No `sh -c`, and no combined call.** Linux runs the statements and the
+  listing in one `sh -c` to spend one pkexec prompt. Here the password is
+  already in hand, so they are two plain calls — and the listing runs whatever
+  the statements did, which is the part that mattered: a half-done change still
+  shows what's there now, and "did it work" is read from the listing, never
+  from an exit code. With nothing to run, whether the listing came back *is*
+  the answer, so `run(())` reports the listing's success; saying "it worked"
+  while the server refused the sign-in would be a lie.
+- **No elevation to manage users or databases.** A TCP sign-in needs none.
+  Only Start/Restart does, because a service belongs to the machine, and that
+  goes through the same UAC path as every other elevated action
+  (`elevate.powershell(..., elevated=True)`).
+- **Finding the servers.** PostgreSQL's installs come from
+  `HKLM\SOFTWARE\PostgreSQL\Installations\*` (version, port, base directory),
+  and its service is `postgresql-x64-<major>`; several versions get a picker,
+  as Linux's clusters do. MySQL's service is the first of `MySQL80`, `MySQL84`,
+  `MySQL`, `MariaDB` that exists. Neither installer reliably puts its client on
+  PATH, so `find_client` falls back to `<install>\bin\<name>.exe`, taking
+  MySQL's folders from `HKLM\SOFTWARE\MySQL AB`. `debian-sys-maint` is off the
+  system-user list: it's Debian's, not Windows'.
+- **Checked against this machine**: MySQL 8.0 and 8.4 installed with `MySQL80`
+  running, no PostgreSQL. The panel found the service and the client off the
+  registry, and a wrong password came back as `ERROR 1045`/`ERROR 2003` through
+  `wrong_password`, not as a crash. The pure parts are in `test_core.py`; the
+  panel is driven by `test_gui_smoke.py` against a synthetic listing.
+
+### The update check answered nothing at all
+
+Reported as "the latest version check isn't working" on Windows, and it was a
+real hole, not a network problem — a frozen probe confirmed `get_json` reaches
+GitHub fine from inside a PyInstaller build.
+
+`selfupdate.latest()` caught `(OSError, ValueError)`. `http.client`'s
+exceptions are neither (`HTTPException` descends from `Exception`), so an
+`IncompleteRead` or a `BadStatusLine` escaped it — and `_check_for_update` was
+the one worker in the app with no error path, a bare `threading.Thread` where
+every page uses `Page.run_async`, which has a `try`. So the thread died, `later`
+was never called, and the check said nothing, ever. Linux's `run_async` always
+had that `try`, which is why only Windows went silent.
+
+Two changes, both trees, so the siblings stay in step:
+- **`latest()` returns `(release, why it couldn't be asked)`** and catches
+  everything. A failed check is told apart from "you have the newest": at
+  startup it still says nothing (a failed check isn't worth a dialog), but a
+  check the user asked for now says why instead of claiming this is the newest.
+- **The check's thread always delivers an answer**, a failed one included.
+
+Both platforms go to **0.2.6**: the Windows features above are what 0.2.5 was
+on Linux, and a release already shipped as 0.2.5 on both, so the self-updater
+needs a higher number to offer them at all.
+
 ---
 
 # Android port (`android/`)

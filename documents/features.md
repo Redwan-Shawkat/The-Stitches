@@ -259,6 +259,15 @@ that involved a design decision should have a matching note there.
       database for a user, delete a database (behind a tick-to-confirm).
       Passwords are never on a command line, on disk or in the Terminal.
 
+### 0.2.6 — alongside the Windows catch-up round
+
+- [x] A self-update check that can't reach GitHub says why, instead of
+      reporting that this is the latest version; a check at startup still
+      says nothing when it fails. `latest()` also catches every failure, not
+      just `OSError` and `ValueError` (`http.client`'s are neither) — on
+      Windows that one escaped and killed the check's thread. Version 0.2.6,
+      in step with Windows.
+
 ## Planned — Linux (`linux/`)
 
 - [ ] App Manager, next phases of the setup spec (phase three, databases,
@@ -417,10 +426,49 @@ leaves. Design decisions in
       them (`widgets.Tiles`, Table's ticking with tiles drawn instead of rows).
 - [x] App Manager: Epic Games Launcher, in a new Games category.
 
+### Windows — 0.2.6: catching up with Linux's eighth to tenth rounds
+
+Windows was four rounds behind Linux. Design decisions in
+[ai-knowledgebase.md](ai-knowledgebase.md#windows-026-catching-up-with-linuxs-eighth-to-tenth-rounds).
+
+- [x] **App details** — clicking a tile opens the app's details: what it does,
+      a link to its own Windows download page, the winget command to install
+      it by hand (copyable), plus an Install button. The tick still ticks.
+- [x] **"After installing"** steps in the details, for the apps that need them
+      (Cloudflare WARP, Avro Keyboard, Docker Desktop's WSL 2, Rust's linker,
+      MySQL's and PostgreSQL's installer questions).
+- [x] App Manager tiles **grouped by category, with a select-all per
+      category**, as on Linux.
+- [x] **Web Apps: 94 site logos in groups** (Social, Chat, Google, Microsoft,
+      Work, AI, Developer, Watch & listen, Shopping & learning) with a group
+      filter and a search, replacing the 18 flat ones. No emoji: Tk 8.6
+      handles non-BMP characters badly and Windows has no equivalent of the
+      emoji list Linux reads out of GTK.
+- [x] App Manager: **Pinta** (`Pinta.Pinta`), **Cloudflare WARP**
+      (`Cloudflare.Warp`, winget's "Cloudflare One Client") and **Avro
+      Keyboard** (`OmicronLab.Avro`) — 33 apps now, every id checked against
+      the live winget source.
+- [x] **MySQL and PostgreSQL users and databases** in their App Manager
+      details, as Linux's 0.2.5: the service (state, Start/Restart, a picker
+      when several PostgreSQL versions are installed), and the users and
+      databases — create a user (optionally with its own database), change or
+      check a password, delete a user, create a database for a user, delete a
+      database (behind a tick-to-confirm). Windows has no peer or socket
+      authentication, so the server's own superuser password is asked for once
+      a visit; it's never on a command line, on disk or in the Terminal.
+- [x] Fixed **the update check answering nothing at all**: `http.client`'s
+      exceptions are not `OSError`, so one escaped `latest()` and killed the
+      check's worker thread, which (unlike every page) had no error path. A
+      check that can't reach GitHub now says so instead of claiming this is
+      the newest, and still says nothing when it ran by itself at startup.
+      Fixed on Linux too — the same hole, caught there by `run_async`.
+- [x] Both platforms at 0.2.6, in step, so the self-updater compares like with
+      like and can actually offer the above to a copy already on 0.2.5.
+
 ## Planned — Windows (`windows/`)
 
 - [ ] App Manager: Maven, Composer and RustDesk, which aren't in the
-      winget source.
+      winget source (re-checked in 0.2.6: still not there).
 
 - [ ] Count badges on the Updates and Drivers dock buttons (Linux has them).
 - [ ] `sfc /verifyonly` as a real check when Stitches already runs as admin.

@@ -16,7 +16,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from uninstaller import appmanager, catalog, cleanup, defrag, diagnose, drivers, selfupdate, updates, webapps
+from uninstaller import (appmanager, catalog, cleanup, databases, defrag, diagnose, drivers, selfupdate,
+                         updates, webapps)
 from uninstaller.backends.choco_backend import build_apps as build_choco_apps, parse_nuspec
 from uninstaller.elevate import clean_output
 from uninstaller.backends.registry_backend import (
@@ -340,6 +341,15 @@ def test_app_manager():
     assert appmanager.readable("\r  -  \r  \\ ") is None and appmanager.readable("\r██ 1 MB / 5 MB\rSuccessfully installed") == "Successfully installed"
     command = appmanager.install_command(git)
     assert command[:5] == ["winget", "install", "--id", "Git.Git", "--exact"] and "--silent" in command
+    # Every app's details: what it does and its own download page.
+    assert all(a.about and a.site.startswith("https://") for a in catalog.CATALOG), "every app has its details"
+    assert {"Pinta", "Cloudflare WARP", "Avro Keyboard"} <= set(names)
+    warp = next(a for a in catalog.CATALOG if a.name == "Cloudflare WARP")
+    assert warp.setup and not git.setup, "only some apps have steps after installing"
+    # "Install it yourself" is the real install command without the flags that
+    # only make sense unattended, so it can't drift from what Stitches runs.
+    steps = appmanager.manual_steps(warp)
+    assert steps == ["winget install --id Cloudflare.Warp --exact --source winget"]
 
 
 def test_web_apps():
@@ -353,6 +363,57 @@ def test_web_apps():
     assert webapps.safe_file_name('Work: "mail"?') == "Work mail" and webapps.safe_file_name("...") == "Web app"
     assert webapps.browser_args("https://x.com/?a=1", Path("C:/Users/A B/p")).startswith('--app=https://x.com/?a=1 "--user-data-dir=')
     assert webapps.new_id("Facebook") != webapps.new_id("Facebook")  # two Facebooks, two logins
+    icons = webapps.ready_icons()
+    assert len(icons) > 90, "the site logos, as on Linux"
+    assert all(path.parent.name == group and path.parent.parent == webapps.READY_ICONS
+               for group, _name, path in icons), "webicons/<group>/<name>.png"
+    assert len({group for group, _name, _path in icons}) > 5, "in groups"
+
+
+def test_databases():
+    d = databases
+    assert d.valid_name("laravel_2") == "" and d.valid_name("thoth-analytics") == "" and d.valid_name("")
+    assert d.valid_name("2x") and d.valid_name("a b") and d.valid_name("a`b")
+    assert d.valid_name('x"; DROP') and d.valid_name("a" * 33) and d.valid_name("a" * 32) == ""
+    assert d.valid_password("p", "p") == "" and d.valid_password("p", "q") and d.valid_password("a\nb", "a\nb")
+    assert d.my_create_user("u", "it's\\", True) == ["CREATE USER 'u'@'localhost' IDENTIFIED BY 'it\\'s\\\\';",
+                                                    "CREATE DATABASE `u`;",
+                                                    "GRANT ALL PRIVILEGES ON `u`.* TO 'u'@'localhost';"]
+    pg = d.pg_create_user("u", "secret", True)
+    assert pg[0].startswith("CREATE ROLE \"u\" LOGIN PASSWORD 'SCRAM-SHA-256$4096:") and "secret" not in pg[0]
+    assert pg[1] == 'CREATE DATABASE "u" OWNER "u";'
+    verifier = d.scram("pencil", b"0123456789abcdef")
+    assert verifier == d.scram("pencil", b"0123456789abcdef") and verifier != d.scram("pencil")  # a new salt each time
+    assert d.my_create_database("shop_1", "u")[1] == "GRANT ALL PRIVILEGES ON `shop\\_1`.* TO 'u'@'localhost';"
+    assert d.pg_drop_database('x"y') == ['DROP DATABASE "x""y";']
+    assert d.my_drop_database("x`y") == ["DROP DATABASE `x``y`;"]
+    assert d.shown(d.my_password("u", "%", "a'b\\c")[0]) == "ALTER USER 'u'@'%' IDENTIFIED BY '\u2022\u2022\u2022\u2022\u2022\u2022';"
+    assert "SCRAM" not in d.shown(d.pg_password("u", "x")[0])
+    try:
+        d.my_drop_user("u", "x'; DROP")
+        raise AssertionError("a host with a quote got into SQL")
+    except ValueError:
+        pass
+    listing = d.parse_listing("u\troot\t@localhost\nu\tlaravel\t@%\nd\tshop\tlaravel\n")
+    assert listing.user("laravel", "%") and listing.user("laravel", "localhost") is None
+    assert listing.database("shop").owner == "laravel"
+    assert d.parse_listing("u\tpostgres\tsuperuser\n").users[0] == d.User("postgres", "", "superuser")
+    assert d.my_error("ERROR 1698 (28000): Access denied for user 'root'@'localhost'") == "1698"
+    # Windows' own leaves: a service's Status, and both servers needing a password.
+    assert d.parse_service("Status\n------\nRunning\n") == "running"
+    assert d.parse_service("Stopped") == "stopped" and d.parse_service("") == "" and d.parse_service("nonsense") == ""
+    install = d.Install("17.2", "5433", "postgresql-x64-17", "C:/pg17")
+    assert install.name == "PostgreSQL 17.2"
+    pg_server, my_server = d.Postgres(install, psql=("psql",)), d.MySQL(client=("mysql",))
+    assert pg_server.needs_password and my_server.needs_password, "no peer or socket auth on Windows"
+    assert "5433" in pg_server._flags() and "-U" in pg_server._flags()
+    assert my_server.wrong_password("ERROR 1045 (28000): Access denied") and not my_server.wrong_password("ERROR 2003")
+    assert pg_server.wrong_password('psql: error: password authentication failed for user "postgres"')
+    with tempfile.TemporaryDirectory() as tmp:
+        assert d.find_client("psql", [tmp]) == "", "not there"
+        (Path(tmp) / "bin").mkdir()
+        (Path(tmp) / "bin" / "psql.exe").write_bytes(b"")
+        assert d.find_client("psql", [tmp]) == str(Path(tmp, "bin", "psql.exe")), "found beside its install"
 
 
 if __name__ == "__main__":

@@ -247,6 +247,11 @@ SHAPES = {
                 _triangle((4.6, 11.4), (9.1, 9.1), (6.9, 6.9))),
     "about": _cut(_disc(8, 8, 7.4), _disc(8, 4.6, 1.15), _box(6.95, 6.6, 9.05, 12, 0.5)),
     "dot": _disc(13.4, 2.6, 2.4),  # a mark in a dock button's corner: an update is waiting
+    # An app's details: back to the tiles, and copy the install command.
+    "back": _any(_line(13, 8, 3.4, 8, 1.7), _line(3.4, 8, 8.2, 3.2, 1.7), _line(3.4, 8, 8.2, 12.8, 1.7)),
+    "copy": _any(_cut(_box(5.5, 5.5, 14.5, 14.5, 1.3), _box(6.9, 6.9, 13.1, 13.1, 0.4)),
+                 _cut(_box(1.5, 1.5, 10.5, 10.5, 1.3), _box(2.9, 2.9, 9.1, 9.1, 0.4),
+                      _box(4.6, 4.6, 15.5, 15.5, 1.3))),
 }
 _SS = 4
 _masks, _pictures = {}, {}
@@ -924,28 +929,114 @@ class Tiles(Table):
     """Table's ticking, filtering and select-all, its rows laid out side by
     side as tiles with a picture each: `cells(item)` gives a tile's three
     lines (each drawn as a Table cell is), `picture(item)` a PhotoImage of
-    about 32 pixels at 96 DPI."""
+    about 32 pixels at 96 DPI. `on_open(item)` is a click on the tile itself,
+    not on its tick. With `group(item)`, tiles sit under a heading per group,
+    each heading with a select-all of its own — as on Linux, where a group is
+    a card with a CheckButton."""
 
-    ROW, WIDE = 70, 300  # a tile's height, and the narrowest it gets, at 96 DPI
+    ROW, WIDE, HEAD = 70, 300, 28  # a tile's height, the narrowest it gets, a heading's height
 
-    def __init__(self, parent, title, cells, picture, on_change, **options):
-        self.picture = picture
+    def __init__(self, parent, title, cells, picture, on_change, on_open=None, group=None, **options):
+        self.picture, self.on_open, self.group = picture, on_open, group
+        self._tile_at, self._headings, self._height = {}, [], 0
         super().__init__(parent, [(title, 0, "w")], cells, on_change, **options)
+
+    # ---- where everything goes ----
 
     def _per_line(self) -> int:
         return max(1, self.canvas.winfo_width() // px(self.WIDE))
 
+    def _plan(self):
+        """Each tile's column and top, and each group heading's. Worked out
+        once per draw and then read by _box, _row_at and the drawing, so the
+        three can't disagree about where a tile is."""
+        per, row, head = self._per_line(), px(self.ROW), px(self.HEAD)
+        self._tile_at, self._headings, y = {}, [], 0
+        groups = {}
+        for n, index in enumerate(self.visible):
+            groups.setdefault(self.group(self.items[index]) if self.group else "", []).append(n)
+        for name, members in groups.items():
+            if name:
+                self._headings.append((name, y, members))
+                y += head
+            for k, n in enumerate(members):
+                self._tile_at[n] = ((k % per), y + (k // per) * row)
+            y += -(-len(members) // per) * row
+        self._height = y
+
     def _box(self, n):
         """Tile n's left, top and width."""
-        per = self._per_line()
-        width = self.canvas.winfo_width() / per
-        return (n % per) * width, (n // per) * px(self.ROW), width
+        column, y = self._tile_at.get(n, (0, 0))
+        width = self.canvas.winfo_width() / self._per_line()
+        return column * width, y, width
+
+    def _heading_at(self, event):
+        """(name, members) of the group heading the click is on, or None."""
+        y = self.canvas.canvasy(event.y)
+        return next(((name, members) for name, top, members in self._headings
+                     if top <= y < top + px(self.HEAD)), None)
+
+    def _row_at(self, event):
+        x, y = event.x, self.canvas.canvasy(event.y)
+        row, width = px(self.ROW), self.canvas.winfo_width() / self._per_line()
+        for n, (column, top) in self._tile_at.items():
+            if top <= y < top + row and column * width <= x < (column + 1) * width:
+                return n
+        return None
+
+    # ---- ticking ----
+
+    def _on_click(self, event):
+        """The tick ticks; anywhere else on the tile opens it. On Linux the
+        tick is a CheckButton inside the tile, so its click never reaches the
+        FlowBox that opens one; here one canvas gets both, split by where.
+        A group heading's tick takes that group's tiles."""
+        if self.locked():
+            return
+        heading = self._heading_at(event)
+        if heading:
+            if event.x < px(self.FIRST_X):
+                self._toggle_group(heading[1])
+            return
+        n = self._row_at(event)
+        if n is None:
+            return
+        x, _y, _width = self._box(n)
+        if event.x - x < px(self.FIRST_X) or not self.on_open:
+            super()._on_click(event)
+        else:
+            self.on_open(self.items[self.visible[n]])
+
+    def _toggle_group(self, members):
+        """Every tile in this group that can be ticked, or none of them —
+        the same rule as the select-all circle, over one group."""
+        pickable = [self.visible[n] for n in members if self.pickable(self.items[self.visible[n]])]
+        if all(i in self.selected for i in pickable):
+            self.selected.difference_update(self.visible[n] for n in members)
+        else:
+            self.selected.update(pickable)
+        self.redraw()
+        self.on_change()
+
+    def _group_ticked(self, members) -> str:
+        pickable = [self.visible[n] for n in members if self.pickable(self.items[self.visible[n]])]
+        if pickable and all(i in self.selected for i in pickable):
+            return "all"
+        return "some" if any(self.visible[n] in self.selected for n in members) else "none"
+
+    # ---- drawing ----
 
     def _draw_rows(self):
         c, row = self.canvas, px(self.ROW)
         c.configure(background=THEME["card"])
         c.delete("all")
+        self._plan()
         c.create_rectangle(0, 0, 0, 0, fill=THEME["hover"], width=0, state="hidden", tags="hover")
+        for name, top, members in self._headings:
+            mid = top + px(self.HEAD) / 2
+            c.create_image(px(self.TICK_X), mid, image=tick_picture(self._group_ticked(members), THEME["card"]))
+            c.create_text(px(self.FIRST_X), mid, text=name.upper(), anchor="w", font=FONTS["caps"],
+                          fill=THEME["dim"])
         for n, index in enumerate(self.visible):
             item, (x, y, width) = self.items[index], self._box(n)
             mid = y + row / 2
@@ -957,14 +1048,7 @@ class Tiles(Table):
                 self._draw_cell(text_x, x + width - text_x - px(12), "w", mid + px(dy), cell)
         if not self.visible:
             c.create_text(c.winfo_width() / 2, row / 2, text=self.empty, font=FONTS["base"], fill=THEME["dim"])
-        lines = -(-len(self.visible) // self._per_line())
-        c.configure(scrollregion=(0, 0, c.winfo_width(), lines * row))
-
-    def _row_at(self, event):
-        per = self._per_line()
-        column = min(per - 1, int(event.x // (self.canvas.winfo_width() / per)))
-        n = int(self.canvas.canvasy(event.y) // px(self.ROW)) * per + column
-        return n if 0 <= n < len(self.visible) else None
+        c.configure(scrollregion=(0, 0, c.winfo_width(), self._height))
 
     def _on_motion(self, event):
         n = self._row_at(event)

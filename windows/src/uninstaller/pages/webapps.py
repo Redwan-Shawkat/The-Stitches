@@ -12,9 +12,11 @@ from tkinter import filedialog
 
 from .. import webapps
 from ..widgets import (FONTS, THEME, Button, Icon, Page, Rounded, Tooltip, confirm, filter_pill, info, px, recolour,
-                       role)
+                       role, search_pill)
 
 _SIZE = 256  # what's saved; Windows scales it down
+_ALL_SITES = "All sites"
+_SHOWN = 72  # eight rows of nine: what fits under the form without scrolling it
 
 
 def _photo(data: bytes, master) -> tk.PhotoImage:
@@ -106,18 +108,43 @@ class WebAppsPage(Page):
             role(tk.Label(details, text=text), fg="dim").grid(row=r, column=1, sticky="w", padx=(0, px(8)))
             widget.grid(row=r, column=2, sticky="w", pady=px(2))
 
-        role(tk.Label(box, text="Or use one of these icons:", anchor="w"), fg="dim").pack(fill="x", pady=(px(12), px(4)))
-        ready = tk.Frame(box)
-        ready.pack(anchor="w")
-        for i, path in enumerate(sorted(webapps.READY_ICONS.glob("*.png"))):
-            picture = _shrunk(_photo(path.read_bytes(), self), px(28))
-            self.pictures.append(picture)
-            icon = tk.Label(ready, image=picture, cursor="hand2", padx=px(4), pady=px(4))
-            icon.grid(row=i // 9, column=i % 9)
-            icon.bind("<Button-1>", lambda _e, p=path: self._set_icon(p.read_bytes()))
-            Tooltip(icon, lambda _e, p=path: p.stem.capitalize())
+        self.ready_icons = webapps.ready_icons()
+        row = tk.Frame(box)
+        row.pack(fill="x", pady=(px(12), px(4)))
+        role(tk.Label(row, text="Or pick an icon", anchor="w"), fg="dim").pack(side="left")
+        search_pill(row, "Search icons", lambda text: self._show_icons(words=text.strip().lower()))
+        groups = dict.fromkeys(group for group, _name, _path in self.ready_icons)
+        filter_pill(row, [_ALL_SITES, *groups], lambda group: self._show_icons(group=group))
+        self.ready = tk.Frame(box)
+        self.ready.pack(anchor="w")
+        self.icon_group, self.icon_words = _ALL_SITES, ""
+        self._show_icons()
         form.fit()  # it doesn't stretch across, so it has to be as wide as what it holds
         return form
+
+    def _show_icons(self, group=None, words=None):
+        """One group at a time, as on Linux; a search looks through every
+        group. Redrawn on each change: 94 labels are cheap, and keeping them
+        all alive would make the card as tall as the whole set."""
+        if group is not None:
+            self.icon_group = group
+        if words is not None:
+            self.icon_words = words
+        shown = [i for i in self.ready_icons if self.icon_words in f"{i[1]} {i[0]}".lower()] if self.icon_words                 else [i for i in self.ready_icons if self.icon_group in (_ALL_SITES, i[0])]
+        for child in self.ready.winfo_children():
+            child.destroy()
+        self.icon_pictures = []  # Tk drops an image nothing holds on to
+        for i, (_group, name, path) in enumerate(shown[:_SHOWN]):
+            picture = _shrunk(_photo(path.read_bytes(), self), px(28))
+            self.icon_pictures.append(picture)
+            icon = tk.Label(self.ready, image=picture, cursor="hand2", padx=px(4), pady=px(4))
+            icon.grid(row=i // 9, column=i % 9)
+            icon.bind("<Button-1>", lambda _e, p=path: self._set_icon(p.read_bytes()))
+            Tooltip(icon, lambda _e, n=name: n)
+        if not shown:
+            role(tk.Label(self.ready, text="No icon by that name."), fg="dim").grid(row=0, column=0, pady=px(8))
+        elif len(shown) > _SHOWN:  # never cut quietly: say how many are left and how to reach them
+            role(tk.Label(self.ready, text=f"+{len(shown) - _SHOWN} more — pick a group, or search"), fg="dim")                 .grid(row=_SHOWN // 9 + 1, column=0, columnspan=9, sticky="w", pady=(px(4), 0))
 
     def _set_icon(self, data: bytes):
         try:
